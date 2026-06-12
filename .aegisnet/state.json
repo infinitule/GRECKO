@@ -74,11 +74,11 @@
       "id": "PB",
       "title": "PILLAR B — swarm intent prediction",
       "deps": ["P2"],
-      "status": "pending",
-      "acceptance": "na",
+      "status": "done",
+      "acceptance": "pass",
       "adr": "docs/ADR-005b.md",
       "commit": "",
-      "notes": ""
+      "notes": "9/9 tests pass (118 cumulative). Lead-time +24.2s vs heading heuristic at 40% occlusion; ECE 0.011; held-out acc 99.6%. PA wiring delta: feint rounds 1->0 (stub->wired), recorded per staged wiring protocol."
     },
     {
       "id": "PV",
@@ -131,7 +131,7 @@
       "notes": ""
     }
   ],
-  "current": "PB",
+  "current": "PV",
   "mode": "checkpoint",
   "updated": "2026-06-12T00:01:00Z"
 }
