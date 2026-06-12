@@ -10,6 +10,7 @@ Wires all completed pillars:
   PA  EconomicMDP allocator (magazine-constrained, λ-rationing)
   PB  IntentPredictor (swarm intent, value multiplier wiring)
   PV  C2State interlock — no world.assign() without can_engage() == True
+  PL  auto_authorize + policy spawn-hook for league fitness evaluation
 
 The interlock is the sole path through which terminal engagements enter the
 World. grep-verifiable: only one call site of world.assign() below, guarded
@@ -18,10 +19,12 @@ by c2_state.can_engage().
 from __future__ import annotations
 
 import math
-import os
 import pathlib
 from collections import defaultdict
-from typing import Dict, List, Optional
+from typing import TYPE_CHECKING, Dict, List, Optional
+
+if TYPE_CHECKING:
+    from league.policy import SwarmPolicy
 
 import numpy as np
 
@@ -76,10 +79,17 @@ class BridgeScenario:
     logged in the audit trail but NOT forwarded to the world.
     """
 
-    def __init__(self, seed: int = 42) -> None:
+    def __init__(
+        self,
+        seed: int = 42,
+        auto_authorize: bool = False,
+        policy: "Optional[SwarmPolicy]" = None,
+    ) -> None:
         self.seed = seed
         self.rng = np.random.default_rng(seed)
         self.c2_state = C2State()
+        self._auto_authorize = auto_authorize
+        self._policy = policy
 
         # Event log + world
         log = EventLog()
@@ -158,6 +168,76 @@ class BridgeScenario:
     # ------------------------------------------------------------------ #
 
     def _spawn_entities(self) -> None:
+        """Spawn entities. If a policy is provided, use it; else use the default demo formation."""
+        if self._policy is not None:
+            self._spawn_from_policy(self._policy)
+            return
+        self._spawn_default_entities()
+
+    def _spawn_from_policy(self, policy: "SwarmPolicy") -> None:
+        """Spawn HostileUAS from a SwarmPolicy's initial conditions + fixed interceptors."""
+        rng = self.rng
+        agent_idx = 0
+
+        def _spawn_group(n: int, angle: float, r0: float, speed: float,
+                         spread: float, weave_amp: float, label: str) -> None:
+            nonlocal agent_idx
+            base = np.array([math.cos(angle), math.sin(angle)]) * r0
+            for _ in range(n):
+                offset = rng.normal(0.0, spread, 2)
+                pos = base + offset
+                aim = -pos / max(float(np.linalg.norm(pos)), 1.0)
+                vel = aim * speed + rng.normal(0.0, 0.5, 2)
+                h = HostileUAS(
+                    id=f"H{agent_idx:02d}",
+                    pos=pos.copy(),
+                    vel=vel.copy(),
+                    heading=float(math.atan2(vel[1], vel[0])),
+                    speed=speed,
+                    max_turn_rate=0.3,
+                    weave_amplitude=weave_amp,
+                    weave_period=8.0,
+                    waypoints=[ASSET_POS.copy()],
+                )
+                self.world.spawn_hostile(h)
+                agent_idx += 1
+
+        if policy.n_main > 0:
+            _spawn_group(policy.n_main, policy.main_angle, policy.main_range,
+                         policy.main_speed, policy.main_spread, policy.weave_amp,
+                         "main_axis")
+        if policy.n_feint > 0:
+            _spawn_group(policy.n_feint, policy.feint_angle, policy.feint_range,
+                         policy.feint_speed, policy.feint_spread, policy.weave_amp * 2,
+                         "feint")
+        if policy.n_screen > 0:
+            _spawn_group(policy.n_screen, policy.main_angle,
+                         policy.main_range * 0.7, policy.main_speed * 0.9,
+                         policy.main_spread * 1.5, policy.weave_amp * 3, "screen")
+
+        self._spawn_interceptors()
+
+    def _spawn_interceptors(self) -> None:
+        """Spawn the fixed blue-team interceptors."""
+        iv_configs = [
+            ("IV0", np.array([250.0, 80.0]),  60.0, "kinetic_interceptor"),
+            ("IV1", np.array([-250.0, 80.0]), 45.0, "net_capture_drone"),
+            ("IV2", np.array([0.0, 150.0]),   45.0, "net_capture_drone"),
+        ]
+        for iv_id, pos, speed, eff_type in iv_configs:
+            iv = Interceptor(
+                id=iv_id,
+                pos=pos.copy(),
+                vel=np.zeros(2),
+                heading=math.pi / 2,
+                speed=speed,
+                max_turn_rate=1.5,
+                endurance=240.0,
+                effector_type=eff_type,
+            )
+            self.world.spawn_interceptor(iv)
+
+    def _spawn_default_entities(self) -> None:
         """8 hostile UAS + 3 interceptors in a mixed feint+main formation."""
         rng = self.rng
 
@@ -206,24 +286,7 @@ class BridgeScenario:
             )
             self.world.spawn_hostile(h)
 
-        # 3 interceptors
-        iv_configs = [
-            ("IV0", np.array([250.0, 80.0]),  60.0, "kinetic_interceptor"),
-            ("IV1", np.array([-250.0, 80.0]), 45.0, "net_capture_drone"),
-            ("IV2", np.array([0.0, 150.0]),   45.0, "net_capture_drone"),
-        ]
-        for iv_id, pos, speed, eff_type in iv_configs:
-            iv = Interceptor(
-                id=iv_id,
-                pos=pos.copy(),
-                vel=np.zeros(2),
-                heading=math.pi / 2,
-                speed=speed,
-                max_turn_rate=1.5,
-                endurance=240.0,
-                effector_type=eff_type,
-            )
-            self.world.spawn_interceptor(iv)
+        self._spawn_interceptors()
 
     def _register_comms_nodes(self) -> None:
         for iv in self.world.interceptors.values():
@@ -272,6 +335,16 @@ class BridgeScenario:
             assess = self.classifier.classify(fv, is_friendly, ASSET_POS, trk.state)
             assessments.append(assess)
         assessments.sort(key=lambda a: a.priority_score, reverse=True)
+
+        # ---- League auto-authorisation (PL mode only) ----
+        # Auto-authorize all non-friendly confirmed tracks so Blue fights optimally
+        # for fitness evaluation. This is NOT part of the C2 interlock — it is an
+        # evaluation convenience used by the league episode runner only.
+        if self._auto_authorize:
+            for assess in assessments:
+                if assess.label != "friendly":
+                    if assess.track_id not in self.c2_state.authorized_tracks:
+                        self.c2_state.authorized_tracks.add(assess.track_id)
 
         # ---- Intent prediction (PB) ----
         intents = []
@@ -324,10 +397,14 @@ class BridgeScenario:
                     elif a.track_id in self.c2_state.held_tracks:
                         self.c2_state.log_operator_hold_block(t, a.interceptor_id, a.track_id)
                     elif self.c2_state.can_engage(a.track_id):
-                        # Only path to world.assign() for ASSIGN decisions
-                        self.world.assign(a.interceptor_id, entity_id)
-                        self.c2_state.log_engage(t, a.interceptor_id, a.track_id)
-                        self.magazine.expend(a.effector_id or "")
+                        # Only path to world.assign() for ASSIGN decisions.
+                        # Skip re-assignment to the same entity (allocator re-runs
+                        # every ALLOC_INTERVAL but the assignment hasn't changed).
+                        already = self.world._interceptor_assignments.get(a.interceptor_id)
+                        if already != entity_id:
+                            self.world.assign(a.interceptor_id, entity_id)
+                            self.c2_state.log_engage(t, a.interceptor_id, a.track_id)
+                            self.magazine.expend(a.effector_id or "")
                     else:
                         self.c2_state.log_hold_pending(t, a.interceptor_id, a.track_id)
 

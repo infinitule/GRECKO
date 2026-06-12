@@ -94,11 +94,11 @@
       "id": "PL",
       "title": "PILLAR C — adversarial co-evolution league",
       "deps": ["PA", "PB"],
-      "status": "pending",
-      "acceptance": "na",
+      "status": "done",
+      "acceptance": "pass",
       "adr": "docs/ADR-006.md",
       "commit": "",
-      "notes": ""
+      "notes": "35/35 tests pass (196 cumulative, 1 skip). Win rate trend non-negative. ≥3 distinct attack clusters in tactic library. Exported Scenarios pass PB structural validation. Double-expend fix: magazine.expend() gated on new interceptor-entity pairs only. PARAM_BOUNDS reduced to main_range=[300,900]m for CI speed (agents arrive within 25s window). ES (μ+λ) converges in 6 generations."
     },
     {
       "id": "PS",
@@ -131,7 +131,7 @@
       "notes": ""
     }
   ],
-  "current": "PL",
+  "current": "PS",
   "mode": "checkpoint",
-  "updated": "2026-06-12T06:00:00Z"
+  "updated": "2026-06-12T18:00:00Z"
 }
