@@ -14,11 +14,11 @@
       "id": "P1",
       "title": "Sensing mesh (imperfect observers)",
       "deps": ["P0"],
-      "status": "pending",
-      "acceptance": "na",
+      "status": "done",
+      "acceptance": "pass",
       "adr": "docs/ADR-001.md",
       "commit": "",
-      "notes": ""
+      "notes": "14/14 tests pass. Empirical Pd within 2% of config over 10k trials; SensorReport structurally truth-free; demo figure at docs/figures/p1_sensing_demo.png."
     },
     {
       "id": "P2",
@@ -131,7 +131,7 @@
       "notes": ""
     }
   ],
-  "current": "P1",
+  "current": "P2",
   "mode": "checkpoint",
   "updated": "2026-06-12T00:01:00Z"
 }
