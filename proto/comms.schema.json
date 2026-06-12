@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CommsMessages",
+  "description": "Envelope for all inter-node traffic plus the mesh-topology message the partition tracker publishes each tick. Every inter-interceptor and interceptor-to-C2 message MUST travel inside a CommsEnvelope through /sim/comms — no module may bypass this layer (grep-able CI invariant). The link model is abstract (distance-probabilistic delivery): no RF waveform or jammer modelling, per scope boundary.",
+  "definitions": {
+    "CommsEnvelope": {
+      "type": "object",
+      "required": ["msg_id", "t_sent", "src", "dst", "kind", "payload"],
+      "properties": {
+        "msg_id": {"type": "integer", "description": "Network-assigned monotone id"},
+        "t_sent": {"type": "number"},
+        "t_delivered": {"type": ["number", "null"], "description": "null until delivered; messages may drop silently"},
+        "src": {"type": "string", "description": "Sending node id"},
+        "dst": {"type": "string", "description": "Receiving node id"},
+        "kind": {"type": "string", "description": "Payload discriminator, e.g. 'bid', 'assignment', 'track_share', 'c2_command'"},
+        "payload": {"type": "object"}
+      },
+      "additionalProperties": false
+    },
+    "MeshTopology": {
+      "type": "object",
+      "required": ["t", "edges", "partitions", "partition_count"],
+      "properties": {
+        "t": {"type": "number"},
+        "edges": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {"type": "string"},
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "description": "Undirected up-links this tick"
+        },
+        "partitions": {
+          "type": "array",
+          "items": {"type": "array", "items": {"type": "string"}},
+          "description": "Connected components, each a list of node ids"
+        },
+        "partition_count": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    }
+  }
+}

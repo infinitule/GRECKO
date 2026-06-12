@@ -1,0 +1,3 @@
+# Worst case: every node isolated
+comm_radius: 4000.0
+full_partition: true

@@ -44,11 +44,11 @@
       "id": "PC",
       "title": "Comms & degradation model",
       "deps": ["P0"],
-      "status": "pending",
-      "acceptance": "na",
+      "status": "done",
+      "acceptance": "pass",
       "adr": "docs/ADR-005.md",
       "commit": "",
-      "notes": ""
+      "notes": "16/16 tests pass (60 cumulative). Degradation curve monotone; 5 config scenarios; isolation invariant enforced."
     },
     {
       "id": "PE",
@@ -131,7 +131,7 @@
       "notes": ""
     }
   ],
-  "current": "PC",
+  "current": "PE",
   "mode": "checkpoint",
   "updated": "2026-06-12T00:01:00Z"
 }
