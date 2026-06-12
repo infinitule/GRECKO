@@ -34,11 +34,11 @@
       "id": "P3",
       "title": "Classification (transparent, swappable)",
       "deps": ["P2"],
-      "status": "pending",
-      "acceptance": "na",
+      "status": "done",
+      "acceptance": "pass",
       "adr": "docs/ADR-003.md",
       "commit": "",
-      "notes": ""
+      "notes": "12/12 tests pass (44 cumulative). Birds non-hostile ≥95%; 1000-trial friendly stress test zero violations; every assessment carries non-empty why; Classifier interface verified swappable."
     },
     {
       "id": "PC",
@@ -131,7 +131,7 @@
       "notes": ""
     }
   ],
-  "current": "P3",
+  "current": "PC",
   "mode": "checkpoint",
   "updated": "2026-06-12T00:01:00Z"
 }
