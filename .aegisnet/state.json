@@ -84,11 +84,11 @@
       "id": "PV",
       "title": "P-C2 — human-on-the-loop console",
       "deps": ["PA", "PB"],
-      "status": "pending",
-      "acceptance": "na",
+      "status": "done",
+      "acceptance": "pass",
       "adr": "docs/ADR-009.md",
       "commit": "",
-      "notes": ""
+      "notes": "43/43 tests pass (161 cumulative, 1 skip). WEAPONS HOLD interlock: zero world.assign() calls while hold active. Auth interlock: unauth tracks never engaged across 600 ticks. Replay determinism confirmed. TypeScript tsc --noEmit clean. Playwright spec at viz/tests/pv_console.spec.ts."
     },
     {
       "id": "PL",
@@ -131,7 +131,7 @@
       "notes": ""
     }
   ],
-  "current": "PV",
+  "current": "PL",
   "mode": "checkpoint",
-  "updated": "2026-06-12T00:01:00Z"
+  "updated": "2026-06-12T06:00:00Z"
 }
