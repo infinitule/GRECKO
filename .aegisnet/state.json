@@ -24,11 +24,11 @@
       "id": "P2",
       "title": "Fusion & multi-target tracking",
       "deps": ["P1"],
-      "status": "pending",
-      "acceptance": "na",
+      "status": "done",
+      "acceptance": "pass",
       "adr": "docs/ADR-002.md",
       "commit": "",
-      "notes": ""
+      "notes": "6/6 tests pass (32 cumulative). 40-target purity 1.000 at 4.3x realtime; saturation knee at 80-100 targets. Two-pass association fixed duplicate-track competition."
     },
     {
       "id": "P3",
@@ -131,7 +131,7 @@
       "notes": ""
     }
   ],
-  "current": "P2",
+  "current": "P3",
   "mode": "checkpoint",
   "updated": "2026-06-12T00:01:00Z"
 }

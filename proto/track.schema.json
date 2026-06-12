@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Track",
+  "description": "A fused track on the /proto bus. track_id is a fusion-assigned identity with NO relationship to ground-truth entity ids (POSG invariant).",
+  "type": "object",
+  "required": ["t", "track_id", "status", "state", "covariance", "quality"],
+  "properties": {
+    "t": {
+      "type": "number",
+      "description": "Time of validity (sim seconds)"
+    },
+    "track_id": {
+      "type": "string",
+      "description": "Fusion-assigned id, e.g. 'T0042'. Never a truth id."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["tentative", "confirmed", "coasted"]
+    },
+    "state": {
+      "type": "array",
+      "items": {"type": "number"},
+      "minItems": 4,
+      "maxItems": 6,
+      "description": "[x, y, vx, vy] (2-D CV model; 3-D appends z, vz)"
+    },
+    "covariance": {
+      "type": "array",
+      "description": "State covariance, row-major NxN",
+      "items": {
+        "type": "array",
+        "items": {"type": "number"}
+      }
+    },
+    "quality": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Track quality score: hit-rate over the M-of-N window, decayed while coasting"
+    },
+    "n_updates": {
+      "type": "integer",
+      "description": "Total measurement updates absorbed"
+    },
+    "age": {
+      "type": "number",
+      "description": "Seconds since track initiation"
+    }
+  },
+  "additionalProperties": false
+}
