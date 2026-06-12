@@ -54,11 +54,11 @@
       "id": "PE",
       "title": "Effector heterogeneity (params only)",
       "deps": ["P0"],
-      "status": "pending",
-      "acceptance": "na",
+      "status": "done",
+      "acceptance": "pass",
       "adr": "docs/ADR-007.md",
       "commit": "",
-      "notes": ""
+      "notes": "34/34 tests pass (94 cumulative). EW scope-boundary disclaimer enforced by test. Cost-effective selection verified per threat type."
     },
     {
       "id": "PA",
@@ -131,7 +131,7 @@
       "notes": ""
     }
   ],
-  "current": "PE",
+  "current": "PA",
   "mode": "checkpoint",
   "updated": "2026-06-12T00:01:00Z"
 }
