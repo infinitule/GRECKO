@@ -1,0 +1,137 @@
+{
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Kernel & deterministic replay",
+      "deps": [],
+      "status": "done",
+      "acceptance": "pass",
+      "adr": "docs/ADR-000.md",
+      "commit": "",
+      "notes": "12/12 tests pass. Determinism confirmed: same seed -> identical SHA-256 hash. 5/5 intercepts, 0 leakers on baseline.yaml."
+    },
+    {
+      "id": "P1",
+      "title": "Sensing mesh (imperfect observers)",
+      "deps": ["P0"],
+      "status": "pending",
+      "acceptance": "na",
+      "adr": "docs/ADR-001.md",
+      "commit": "",
+      "notes": ""
+    },
+    {
+      "id": "P2",
+      "title": "Fusion & multi-target tracking",
+      "deps": ["P1"],
+      "status": "pending",
+      "acceptance": "na",
+      "adr": "docs/ADR-002.md",
+      "commit": "",
+      "notes": ""
+    },
+    {
+      "id": "P3",
+      "title": "Classification (transparent, swappable)",
+      "deps": ["P2"],
+      "status": "pending",
+      "acceptance": "na",
+      "adr": "docs/ADR-003.md",
+      "commit": "",
+      "notes": ""
+    },
+    {
+      "id": "PC",
+      "title": "Comms & degradation model",
+      "deps": ["P0"],
+      "status": "pending",
+      "acceptance": "na",
+      "adr": "docs/ADR-005.md",
+      "commit": "",
+      "notes": ""
+    },
+    {
+      "id": "PE",
+      "title": "Effector heterogeneity (params only)",
+      "deps": ["P0"],
+      "status": "pending",
+      "acceptance": "na",
+      "adr": "docs/ADR-007.md",
+      "commit": "",
+      "notes": ""
+    },
+    {
+      "id": "PA",
+      "title": "PILLAR A — economic magazine-rationing allocator",
+      "deps": ["P3", "PC", "PE"],
+      "status": "pending",
+      "acceptance": "na",
+      "adr": "docs/ADR-004.md",
+      "commit": "",
+      "notes": ""
+    },
+    {
+      "id": "PB",
+      "title": "PILLAR B — swarm intent prediction",
+      "deps": ["P2"],
+      "status": "pending",
+      "acceptance": "na",
+      "adr": "docs/ADR-005b.md",
+      "commit": "",
+      "notes": ""
+    },
+    {
+      "id": "PV",
+      "title": "P-C2 — human-on-the-loop console",
+      "deps": ["PA", "PB"],
+      "status": "pending",
+      "acceptance": "na",
+      "adr": "docs/ADR-009.md",
+      "commit": "",
+      "notes": ""
+    },
+    {
+      "id": "PL",
+      "title": "PILLAR C — adversarial co-evolution league",
+      "deps": ["PA", "PB"],
+      "status": "pending",
+      "acceptance": "na",
+      "adr": "docs/ADR-006.md",
+      "commit": "",
+      "notes": ""
+    },
+    {
+      "id": "PS",
+      "title": "P-S2R — sim-to-real validation strategy",
+      "deps": ["P1"],
+      "status": "pending",
+      "acceptance": "na",
+      "adr": "docs/ADR-008.md",
+      "commit": "",
+      "notes": ""
+    },
+    {
+      "id": "PX",
+      "title": "P-EVAL — Monte Carlo + headline figure",
+      "deps": ["PA", "PB", "PV", "PL", "PS"],
+      "status": "pending",
+      "acceptance": "na",
+      "adr": "docs/ADR-010.md",
+      "commit": "",
+      "notes": ""
+    },
+    {
+      "id": "PK",
+      "title": "Hardening, docs, demo packaging",
+      "deps": ["PX"],
+      "status": "pending",
+      "acceptance": "na",
+      "adr": "",
+      "commit": "",
+      "notes": ""
+    }
+  ],
+  "current": "P1",
+  "mode": "checkpoint",
+  "updated": "2026-06-12T00:01:00Z"
+}
