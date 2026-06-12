@@ -68,6 +68,33 @@ def _default_magazine() -> MagazineState:
     })
 
 
+def default_sensor_mesh() -> SensorMesh:
+    """The bridge demo's nominal sensor layout. Exposed so the S2R harness
+    can build a perturbed copy without duplicating the configuration."""
+    return SensorMesh([
+        RadarSensor(
+            "R0", np.array([-400.0, 0.0]),
+            max_range=3000.0, pd_max=0.92, pd_knee_frac=0.6,
+            noise_std=np.array([20.0, 20.0]),
+            update_rate=2.0, false_alarm_rate=0.3,
+        ),
+        RadarSensor(
+            "R1", np.array([400.0, 0.0]),
+            max_range=3000.0, pd_max=0.90, pd_knee_frac=0.6,
+            noise_std=np.array([22.0, 22.0]),
+            update_rate=2.0, false_alarm_rate=0.3,
+        ),
+        EOIRSensor(
+            "E0", np.array([0.0, 300.0]),
+            bearing_only=False,
+            fov_width=2 * math.pi,  # omnidirectional for demo
+            max_range=1200.0, pd_max=0.95, pd_knee_frac=0.7,
+            noise_std=np.array([6.0, 6.0]),
+            update_rate=5.0, false_alarm_rate=0.1,
+        ),
+    ])
+
+
 class BridgeScenario:
     """Full-pipeline scenario for C2 bridge consumption.
 
@@ -84,6 +111,8 @@ class BridgeScenario:
         seed: int = 42,
         auto_authorize: bool = False,
         policy: "Optional[SwarmPolicy]" = None,
+        sensor_mesh: Optional[SensorMesh] = None,
+        comms_cfg: Optional[CommsConfig] = None,
     ) -> None:
         self.seed = seed
         self.rng = np.random.default_rng(seed)
@@ -99,29 +128,8 @@ class BridgeScenario:
         # Spawn entities
         self._spawn_entities()
 
-        # Sensing mesh
-        self.sensor_mesh = SensorMesh([
-            RadarSensor(
-                "R0", np.array([-400.0, 0.0]),
-                max_range=3000.0, pd_max=0.92, pd_knee_frac=0.6,
-                noise_std=np.array([20.0, 20.0]),
-                update_rate=2.0, false_alarm_rate=0.3,
-            ),
-            RadarSensor(
-                "R1", np.array([400.0, 0.0]),
-                max_range=3000.0, pd_max=0.90, pd_knee_frac=0.6,
-                noise_std=np.array([22.0, 22.0]),
-                update_rate=2.0, false_alarm_rate=0.3,
-            ),
-            EOIRSensor(
-                "E0", np.array([0.0, 300.0]),
-                bearing_only=False,
-                fov_width=2 * math.pi,  # omnidirectional for demo
-                max_range=1200.0, pd_max=0.95, pd_knee_frac=0.7,
-                noise_std=np.array([6.0, 6.0]),
-                update_rate=5.0, false_alarm_rate=0.1,
-            ),
-        ])
+        # Sensing mesh (injectable for S2R perturbation studies)
+        self.sensor_mesh = sensor_mesh if sensor_mesh is not None else default_sensor_mesh()
 
         # Tracker
         self.tracker = Tracker()
@@ -129,8 +137,9 @@ class BridgeScenario:
         # Classifier
         self.classifier = RuleClassifier()
 
-        # Comms network
-        comms_cfg = CommsConfig(comm_radius=2000.0, base_drop_rate=0.0)
+        # Comms network (injectable for S2R perturbation studies)
+        if comms_cfg is None:
+            comms_cfg = CommsConfig(comm_radius=2000.0, base_drop_rate=0.0)
         self.comms = CommsNetwork(comms_cfg, self.rng)
         self._register_comms_nodes()
 

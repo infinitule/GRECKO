@@ -104,11 +104,11 @@
       "id": "PS",
       "title": "P-S2R — sim-to-real validation strategy",
       "deps": ["P1"],
-      "status": "pending",
-      "acceptance": "na",
+      "status": "done",
+      "acceptance": "pass",
       "adr": "docs/ADR-008.md",
       "commit": "",
-      "notes": ""
+      "notes": "36/36 tests pass (232 cumulative, 1 skip). 8-dim RealityGap envelope, gate coverage machine-checked (coverage_check()==[]). Tornado: noise_scale -133.7m, update_rate -96.1m, target_speed -76.6m margin loss at worst bound. 3 insensitive dims surfaced as fidelity limitations (latency invisible to fusion; comms geometry never binds) — each still gated. Domain-randomized stability 0.75 over envelope, worst-case margin 45.1m. Headline metric = engagement margin (intercept count is truth-space-pursuit-insensitive, rejected)."
     },
     {
       "id": "PX",
@@ -131,7 +131,7 @@
       "notes": ""
     }
   ],
-  "current": "PS",
+  "current": "PX",
   "mode": "checkpoint",
-  "updated": "2026-06-12T18:00:00Z"
+  "updated": "2026-06-12T22:00:00Z"
 }
