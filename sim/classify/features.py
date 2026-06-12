@@ -18,6 +18,8 @@ from sim.fusion.tracker import TrackMessage
 class FeatureVector:
     track_id: str
     t: float
+    pos: np.ndarray           # estimated position (from Kalman state) — NOT truth
+    vel: np.ndarray           # estimated velocity (from Kalman state)
     speed: float              # m/s, current estimate
     heading_to_asset: float   # radians; 0 = pointing straight at asset
     approach_rate: float      # m/s, positive = closing on asset
@@ -63,6 +65,8 @@ def extract(
     return FeatureVector(
         track_id=track.track_id,
         t=track.t,
+        pos=pos.copy(),
+        vel=vel.copy(),
         speed=speed,
         heading_to_asset=heading_to_asset,
         approach_rate=approach_rate,

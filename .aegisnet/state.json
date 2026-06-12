@@ -64,11 +64,11 @@
       "id": "PA",
       "title": "PILLAR A — economic magazine-rationing allocator",
       "deps": ["P3", "PC", "PE"],
-      "status": "pending",
-      "acceptance": "na",
+      "status": "done",
+      "acceptance": "pass",
       "adr": "docs/ADR-004.md",
       "commit": "",
-      "notes": ""
+      "notes": "15/15 tests pass (109 cumulative). Decoy scenario: EconomicMDP holds decoys at λ=0.5, engages main axis. Units fix: cost normalised by asset_value so λ is dimensionless [0,1] knob."
     },
     {
       "id": "PB",
@@ -131,7 +131,7 @@
       "notes": ""
     }
   ],
-  "current": "PA",
+  "current": "PB",
   "mode": "checkpoint",
   "updated": "2026-06-12T00:01:00Z"
 }
