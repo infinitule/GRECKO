@@ -22,9 +22,23 @@ The headline result: a magazine-conscious **economic allocator** intercepts
 swarm raids at materially lower cost-per-kill than a greedy baseline, and the
 advantage is largest against the adversarially-discovered attacks.
 
-> 📊 **Project landing page** (figures, results, architecture):
+> 📊 **Investor / project landing page** (problem, demo, competitive comparison):
 > the GitHub Pages site is built from [`site/index.html`](site/index.html) and
 > deployed by [`.github/workflows/pages.yml`](.github/workflows/pages.yml).
+
+### Swarm for swarm — the same raid, two doctrines
+
+Counter-swarm is fundamentally a **cost-exchange problem**: a $90,000 interceptor
+against a $1,000 quadrotor is a losing trade even when it hits. The same 11-UAS
+raid, run against a legacy weapon-target-assignment doctrine (left) and against
+AEGISNET (right), straight from the simulator:
+
+<p align="center"><img src="docs/figures/swarm_demo.gif" alt="Swarm-for-swarm demo" width="100%" /></p>
+
+<p align="center"><img src="docs/figures/scoreboard.png" alt="Head-to-head scoreboard" width="78%" /></p>
+
+**AEGISNET stops one _more_ threat for ~1% of the spend** — $6,400 vs $630,000.
+Reproduce it with `python -m tools.make_demo_gif`.
 
 ---
 

@@ -149,6 +149,36 @@ def make_coevolution(pm: dict | None):
     plt.close(fig)
 
 
+def make_scoreboard():
+    """Static head-to-head scoreboard from the deterministic swarm demo run
+    (tools/make_demo_gif.py: legacy 7/11 @ $630k, AEGISNET 8/11 @ $6.4k)."""
+    fig = _fig(9.2, 4.6)
+    ax = fig.add_axes([0, 0, 1, 1]); ax.set_facecolor(BG); ax.axis("off")
+    ax.set_xlim(0, 1); ax.set_ylim(0, 1); ax.set_autoscale_on(False)
+    ax.text(0.5, 0.93, "Swarm for swarm — same 11-UAS raid, two doctrines",
+            color=FG, fontsize=15, fontweight="bold", ha="center")
+
+    cols = [
+        ("Legacy WTA doctrine", ORANGE, "7 / 11", "$630,000", "$90,000"),
+        ("AEGISNET", CYAN, "8 / 11", "$6,400", "$800"),
+    ]
+    xs = [0.27, 0.73]
+    rows = [("threats stopped", 0.66), ("total spend", 0.50), ("cost per kill", 0.34)]
+    for (title, accent, stopped, spend, cpk), x in zip(cols, xs):
+        ax.text(x, 0.80, title, color=accent, fontsize=15, fontweight="bold", ha="center")
+        vals = [stopped, spend, cpk]
+        for (label, y), v in zip(rows, vals):
+            ax.text(x, y, v, color=FG, fontsize=20, fontweight="bold", ha="center")
+            ax.text(x, y - 0.065, label, color=MUTED, fontsize=9.5, ha="center")
+    # divider + verdict
+    ax.plot([0.5, 0.5], [0.18, 0.78], color=GRID, lw=1.0)
+    ax.text(0.5, 0.10, "98× cheaper — and stops one more", color=GREEN,
+            fontsize=18, fontweight="bold", ha="center",
+            bbox=dict(boxstyle="round,pad=0.4", fc=BG, ec=GREEN, lw=1.6))
+    fig.savefig(FIGDIR / "scoreboard.png", dpi=150, facecolor=BG)
+    plt.close(fig)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("--pm", default=None, help="path to a PM study JSON")
@@ -163,6 +193,7 @@ def main(argv=None):
     make_headline()
     make_loadout_lever()
     make_coevolution(pm)
+    make_scoreboard()
     print(f"figures written to {FIGDIR}")
 
 

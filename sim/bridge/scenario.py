@@ -249,17 +249,29 @@ class BridgeScenario:
         via _LOADOUT_SPEED so cheaper effectors remain kinematically viable in
         the arena while their catalogue cost still differs.
         """
-        positions = [
-            ("IV0", np.array([250.0, 80.0])),
-            ("IV1", np.array([-250.0, 80.0])),
-            ("IV2", np.array([0.0, 150.0])),
-        ]
         default_effectors = ["kinetic_interceptor", "net_capture_drone",
                              "net_capture_drone"]
         effectors = self._loadout if self._loadout is not None else default_effectors
+
+        if len(effectors) == 3:
+            # Canonical 3-interceptor demo layout (positions tuned for the probe).
+            positions = [
+                np.array([250.0, 80.0]),
+                np.array([-250.0, 80.0]),
+                np.array([0.0, 150.0]),
+            ]
+        else:
+            # Defense swarm: N interceptors evenly on a defensive ring so a
+            # larger loadout is a literal swarm-for-swarm engagement.
+            n = len(effectors)
+            ring_r = 230.0
+            positions = [
+                ring_r * np.array([math.cos(a), math.sin(a)])
+                for a in np.linspace(0.0, 2 * math.pi, n, endpoint=False)
+            ]
         iv_configs = [
-            (pid, pos, _LOADOUT_SPEED.get(eff, 50.0), eff)
-            for (pid, pos), eff in zip(positions, effectors)
+            (f"IV{i}", positions[i], _LOADOUT_SPEED.get(eff, 50.0), eff)
+            for i, eff in enumerate(effectors)
         ]
         for iv_id, pos, speed, eff_type in iv_configs:
             iv = Interceptor(
