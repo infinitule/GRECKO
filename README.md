@@ -270,3 +270,11 @@ Every result in this repository is reproducible from a seed. The simulation is
 single-threaded, fixed-timestep, and seeded; the league, the sensitivity sweep,
 and the Monte Carlo evaluation all thread their seeds explicitly. If a change
 breaks replay determinism, `tools/verify_invariants.py` fails.
+
+---
+
+## Provenance
+
+GRECKO was built AI-assisted with [Claude Code](https://claude.ai/code),
+human-directed at each checkpoint. See [`PROVENANCE.md`](PROVENANCE.md) for the
+build method and the verification that backs it.
