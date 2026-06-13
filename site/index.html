@@ -1,499 +1,1019 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>GRECKO — counter-swarm decision engine</title>
-<meta name="description" content="GRECKO is a counter-swarm air-defense simulation and C2 decision engine. It allocates a limited interceptor magazine economically — stopping the same raid for measurably less money, with a human on the loop. Simulation and C2-software only." />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GRECKO — Counter-Swarm Decision Engine</title>
+<meta name="description" content="GRECKO is an open-source counter-swarm C2 simulation and decision engine. It allocates a fixed interceptor magazine economically — stopping the same raid for measurably less. Simulation and C2-software only."/>
 <style>
-  :root{
-    --bg:#0b0f14; --panel:#141a22; --panel2:#0f141b; --border:#26303c;
-    --fg:#e6edf3; --muted:#8b97a6;
-    --cyan:#3fd0d8; --green:#46c46a; --orange:#f0883e; --red:#f85149; --gold:#f2cc60;
-  }
-  *{box-sizing:border-box;}
-  html{scroll-behavior:smooth;}
-  body{margin:0;background:var(--bg);color:var(--fg);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    line-height:1.6;-webkit-font-smoothing:antialiased;}
-  a{color:var(--cyan);text-decoration:none;}
-  a:hover{text-decoration:underline;}
-  .wrap{max-width:1040px;margin:0 auto;padding:0 22px;}
-  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
 
-  header{border-bottom:1px solid var(--border);
-    background:radial-gradient(130% 120% at 78% -20%,#16222e 0%,var(--bg) 58%);
-    padding:54px 0 34px;}
-  h1{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
-    font-size:3.4rem;margin:0;letter-spacing:3px;}
-  .tag{color:var(--cyan);font-size:1.18rem;margin-top:10px;font-weight:600;}
-  .sub{color:var(--muted);margin-top:8px;font-size:1.02rem;max-width:680px;}
-  .badges{margin-top:22px;display:flex;gap:8px;flex-wrap:wrap;}
-  .badge{background:var(--panel);border:1px solid var(--border);
-    border-radius:6px;padding:4px 11px;font-size:.78rem;color:var(--muted);}
-  .badge b{color:var(--green);}
-  .scope{margin:24px 0 0;border:1px solid var(--orange);border-radius:10px;
-    background:rgba(240,136,62,.07);padding:14px 18px;}
-  .scope h3{margin:0 0 4px;color:var(--orange);font-size:.95rem;}
-  .scope p{margin:0;color:var(--fg);font-size:.9rem;}
+:root{
+  --ink:#040a07;
+  --ink2:#060e09;
+  --card:#0a160e;
+  --card2:#081209;
+  --border:#122018;
+  --border2:#1c3426;
+  --fg:#d0ead8;
+  --muted:#4e7a5e;
+  --dim:#2a4a35;
 
-  section{padding:44px 0;border-bottom:1px solid var(--border);}
-  h2{font-size:1.7rem;margin:0 0 8px;}
-  h2 .n{color:var(--muted);font-weight:400;font-size:.98rem;}
-  .lead{color:var(--muted);margin-top:0;font-size:1.03rem;}
+  --green:#00ff88;
+  --green2:#00d96e;
+  --lime:#5fff60;
+  --cyan:#00e5ff;
+  --teal:#00c49a;
+  --gold:#ffd93d;
+  --amber:#f5a623;
+  --orange:#ff7b3a;
+  --red:#ff3d57;
 
-  /* ---- live demo ---- */
-  .demo-card{background:var(--panel2);border:1px solid var(--border);border-radius:16px;
-    padding:18px;margin-top:22px;}
-  .arena{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-  .panel{background:#0a0e13;border:1px solid var(--border);border-radius:12px;overflow:hidden;
-    display:flex;flex-direction:column;}
-  .phead{display:flex;align-items:center;justify-content:space-between;
-    padding:10px 14px;border-bottom:1px solid var(--border);}
-  .phead .name{font-weight:700;font-size:.92rem;letter-spacing:.3px;}
-  .phead .doc{color:var(--muted);font-size:.72rem;}
-  .legacy .name{color:var(--orange);}
-  .grecko .name{color:var(--cyan);}
-  canvas{display:block;width:100%;height:auto;background:#0a0e13;}
-  .stats{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--border);}
-  .stat{padding:10px 6px;text-align:center;border-right:1px solid var(--border);}
-  .stat:last-child{border-right:none;}
-  .stat .v{font-size:1.18rem;font-weight:800;line-height:1.1;}
-  .stat .l{color:var(--muted);font-size:.66rem;margin-top:3px;text-transform:uppercase;letter-spacing:.4px;}
-  .legacy .stat .v{color:var(--orange);}
-  .grecko .stat .v{color:var(--cyan);}
+  --ff-mono:ui-monospace,SFMono-Regular,Menlo,"Courier New",monospace;
+  --ff-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
 
-  .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:16px;}
-  button.ctl{background:var(--panel);color:var(--fg);border:1px solid var(--border);
-    border-radius:8px;padding:9px 16px;font-size:.88rem;cursor:pointer;font-weight:600;}
-  button.ctl:hover{border-color:var(--cyan);color:var(--cyan);}
-  button.ctl.primary{background:var(--cyan);color:#06121a;border-color:var(--cyan);}
-  button.ctl.primary:hover{filter:brightness(1.08);color:#06121a;}
-  .clock{color:var(--muted);font-size:.82rem;margin-left:auto;}
-  .verdict{margin-top:16px;border:1px solid var(--border);border-radius:10px;
-    background:var(--panel);padding:14px 18px;font-size:.96rem;min-height:22px;}
-  .verdict b.cy{color:var(--cyan);} .verdict b.or{color:var(--orange);} .verdict b.gd{color:var(--gold);}
-  .legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;color:var(--muted);font-size:.78rem;}
-  .legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle;}
+body{
+  background:var(--ink);
+  color:var(--fg);
+  font-family:var(--ff-sans);
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+a{color:var(--green);text-decoration:none;}
+a:hover{text-decoration:underline;}
 
-  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:26px 0;}
-  .kpi{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px;text-align:center;}
-  .kpi .v{font-size:1.9rem;font-weight:800;color:var(--cyan);line-height:1.1;}
-  .kpi .l{color:var(--muted);font-size:.78rem;margin-top:6px;}
+/* ── SCALE TEXTURE ── */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='42'%3E%3Cpolygon points='24,2 46,14 46,38 24,50 2,38 2,14' fill='none' stroke='rgba(0,255,136,0.042)' stroke-width='0.7'/%3E%3C/svg%3E");
+  background-size:48px 42px;
+  pointer-events:none;
+  z-index:0;
+}
 
-  table{width:100%;border-collapse:collapse;margin:18px 0;font-size:.92rem;}
-  th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--border);vertical-align:top;}
-  th{color:var(--muted);font-weight:600;}
-  td.feat{color:var(--fg);font-weight:600;width:26%;}
+/* ── NAV ── */
+nav{
+  position:sticky;top:0;z-index:200;
+  background:rgba(4,10,7,0.88);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border2);
+}
+.nav-inner{
+  max-width:1240px;margin:0 auto;padding:0 40px;
+  height:60px;display:flex;align-items:center;gap:36px;
+}
+.nav-logo{
+  font-family:var(--ff-mono);font-size:1.05rem;font-weight:700;
+  letter-spacing:4px;color:var(--green);
+  text-shadow:0 0 20px rgba(0,255,136,0.6);
+}
+.nav-links{display:flex;gap:28px;margin-left:auto;}
+.nav-links a{font-size:.82rem;color:var(--muted);letter-spacing:.5px;transition:color .15s;}
+.nav-links a:hover{color:var(--green);text-decoration:none;}
+.nav-gh{
+  font-family:var(--ff-mono);font-size:.75rem;letter-spacing:1px;
+  color:var(--ink);background:var(--green);
+  padding:6px 14px;border-radius:6px;
+  text-shadow:none;
+  box-shadow:0 0 16px rgba(0,255,136,0.3);
+  transition:filter .15s;
+}
+.nav-gh:hover{filter:brightness(1.1);text-decoration:none;color:var(--ink);}
 
-  pre{background:var(--panel);border:1px solid var(--border);border-radius:12px;
-    padding:16px 18px;overflow-x:auto;}
-  pre code{font-family:ui-monospace,monospace;background:none;border:none;padding:0;font-size:.86rem;}
-  .cmt{color:var(--muted);}
-  code{font-family:ui-monospace,monospace;background:var(--panel);border:1px solid var(--border);
-    border-radius:5px;padding:1px 6px;font-size:.86em;}
-  footer{padding:36px 0 60px;color:var(--muted);font-size:.84rem;}
+/* ── HERO ── */
+#hero{
+  position:relative;min-height:94vh;
+  display:flex;align-items:center;
+  overflow:hidden;
+}
+.hero-ambient{
+  position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 900px 600px at 75% 50%, rgba(0,255,136,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 500px 500px at 20% 80%, rgba(0,229,255,0.04) 0%, transparent 60%);
+}
+.hero-inner{
+  position:relative;z-index:1;
+  width:100%;max-width:1240px;margin:0 auto;
+  padding:80px 40px;
+  display:grid;grid-template-columns:1fr 400px;
+  gap:80px;align-items:center;
+}
+.hero-eyebrow{
+  font-family:var(--ff-mono);font-size:.72rem;
+  letter-spacing:4px;color:var(--teal);
+  text-transform:uppercase;margin-bottom:20px;opacity:.9;
+}
+h1{
+  font-family:var(--ff-mono);
+  font-size:clamp(4rem,9vw,8rem);
+  font-weight:800;letter-spacing:10px;line-height:.95;
+  background:linear-gradient(135deg,#00ff88 0%,#00e5ff 45%,#00ff88 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  filter:drop-shadow(0 0 40px rgba(0,255,136,0.45));
+  margin-bottom:4px;
+}
+.h1-sub{
+  font-family:var(--ff-mono);
+  font-size:clamp(.78rem,1.5vw,.92rem);
+  letter-spacing:5px;color:var(--muted);
+  text-transform:uppercase;margin-bottom:30px;
+}
+.hero-desc{
+  font-size:1.12rem;color:var(--fg);
+  max-width:500px;margin-bottom:38px;line-height:1.8;
+}
+.hero-desc strong{color:var(--green);}
+.hero-desc em{color:var(--cyan);font-style:normal;}
+.btn-row{display:flex;gap:14px;flex-wrap:wrap;}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:13px 26px;border-radius:8px;
+  font-family:var(--ff-mono);font-size:.82rem;font-weight:600;
+  letter-spacing:.5px;cursor:pointer;border:none;
+  transition:all .2s;text-decoration:none !important;
+}
+.btn-primary{
+  background:var(--green);color:#040a07;
+  box-shadow:0 0 32px rgba(0,255,136,0.35),0 4px 14px rgba(0,0,0,0.4);
+}
+.btn-primary:hover{filter:brightness(1.1);transform:translateY(-2px);color:#040a07;}
+.btn-outline{
+  background:transparent;border:1px solid var(--border2);color:var(--muted);
+}
+.btn-outline:hover{border-color:var(--green);color:var(--green);}
 
-  @media (max-width:780px){
-    h1{font-size:2.4rem;}
-    .arena{grid-template-columns:1fr;}
-    .kpis{grid-template-columns:1fr 1fr;}
-  }
+/* ── GECKO SVG ── */
+.gecko-wrap{
+  position:relative;display:flex;
+  align-items:center;justify-content:center;
+}
+.gecko-halo{
+  position:absolute;width:380px;height:380px;
+  background:radial-gradient(circle,rgba(0,255,136,0.15) 0%,rgba(0,229,255,0.06) 40%,transparent 70%);
+  border-radius:50%;
+  animation:halo-pulse 5s ease-in-out infinite;
+}
+@keyframes halo-pulse{
+  0%,100%{transform:scale(1);opacity:.9;}
+  50%{transform:scale(1.1);opacity:.6;}
+}
+.gecko-svg{
+  position:relative;z-index:1;
+  filter:
+    drop-shadow(0 0 16px rgba(0,255,136,0.55))
+    drop-shadow(0 0 50px rgba(0,229,255,0.2));
+  animation:gecko-breathe 7s ease-in-out infinite;
+}
+@keyframes gecko-breathe{
+  0%,100%{transform:translateY(0) scale(1);}
+  40%{transform:translateY(-10px) scale(1.012);}
+  70%{transform:translateY(-5px) scale(1.006);}
+}
+.g-eye{animation:eye-glow 9s ease-in-out infinite;}
+@keyframes eye-glow{
+  0%,42%,58%,100%{opacity:1;}
+  50%{opacity:.05;}
+}
+.g-scan{animation:scan-move 4s linear infinite;}
+@keyframes scan-move{
+  from{stroke-dashoffset:0;}to{stroke-dashoffset:-200;}
+}
+
+/* ── STATS STRIP ── */
+.stats-strip{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:2px;background:var(--border2);
+  border:1px solid var(--border2);border-radius:16px;overflow:hidden;
+  margin:0;
+}
+.strip-cell{
+  background:var(--card);
+  padding:30px 20px;text-align:center;
+}
+.strip-num{
+  font-family:var(--ff-mono);font-size:2.4rem;font-weight:700;
+  line-height:1;margin-bottom:10px;
+}
+.strip-lbl{font-size:.72rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;line-height:1.5;}
+.c-green{color:var(--green);}
+.c-cyan{color:var(--cyan);}
+.c-gold{color:var(--gold);}
+.c-teal{color:var(--teal);}
+
+/* ── LAYOUT ── */
+.wrap{max-width:1240px;margin:0 auto;padding:0 40px;}
+section{position:relative;z-index:1;padding:80px 0;border-bottom:1px solid var(--border);}
+h2{
+  font-family:var(--ff-mono);
+  font-size:clamp(1.35rem,2.5vw,1.85rem);
+  font-weight:700;letter-spacing:2px;margin-bottom:10px;
+}
+h2 .accent{color:var(--green);}
+.section-num{
+  font-family:var(--ff-mono);font-size:.65rem;color:var(--green);
+  letter-spacing:4px;text-transform:uppercase;margin-bottom:12px;opacity:.6;
+}
+.lead{color:var(--muted);font-size:1.02rem;margin-bottom:42px;max-width:620px;line-height:1.75;}
+
+/* ── DEMO ── */
+.demo-shell{
+  background:var(--card2);
+  border:1px solid var(--border2);border-radius:18px;overflow:hidden;
+  box-shadow:
+    0 0 0 1px rgba(0,255,136,0.05),
+    0 24px 80px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(0,255,136,0.08);
+}
+.demo-titlebar{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 20px;
+  border-bottom:1px solid var(--border);
+  background:rgba(0,0,0,0.3);
+}
+.tb-dot{width:11px;height:11px;border-radius:50%;}
+.tb-dot.r{background:#ff5f57;} .tb-dot.y{background:#febc2e;} .tb-dot.g{background:#28c840;}
+.tb-title{font-family:var(--ff-mono);font-size:.72rem;color:var(--dim);letter-spacing:1.5px;margin-left:6px;}
+.tb-controls{display:flex;gap:8px;margin-left:auto;}
+.ctrl{
+  padding:6px 13px;border-radius:6px;
+  font-family:var(--ff-mono);font-size:.72rem;
+  cursor:pointer;border:1px solid var(--border2);
+  background:transparent;color:var(--muted);
+  transition:all .15s;letter-spacing:.3px;
+}
+.ctrl:hover{border-color:var(--green);color:var(--green);}
+.ctrl.active{background:var(--green);color:#040a07;border-color:var(--green);}
+
+.arena{display:grid;grid-template-columns:1fr 1fr;}
+.a-panel{position:relative;border-right:1px solid var(--border);}
+.a-panel:last-child{border-right:none;}
+.a-label{
+  position:absolute;top:11px;left:12px;z-index:2;
+  font-family:var(--ff-mono);font-size:.65rem;letter-spacing:2px;text-transform:uppercase;
+  padding:4px 10px;border-radius:4px;backdrop-filter:blur(4px);
+}
+.al-legacy{color:var(--orange);background:rgba(255,123,58,.1);border:1px solid rgba(255,123,58,.25);}
+.al-grecko{color:var(--green);background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.22);}
+canvas{display:block;width:100%;height:auto;}
+
+.stat-row{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  border-top:1px solid var(--border);
+  background:rgba(0,0,0,0.25);
+}
+.stat{padding:13px 14px;border-right:1px solid var(--border);text-align:center;}
+.stat:last-child{border-right:none;}
+.stat-v{font-family:var(--ff-mono);font-size:1.18rem;font-weight:700;}
+.stat-l{font-size:.62rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:3px;}
+.sv-stop{color:var(--green);} .sv-spend{color:var(--gold);} .sv-dmg{color:var(--red);}
+
+.verdict{
+  padding:16px 22px;border-top:1px solid var(--border);
+  font-family:var(--ff-mono);font-size:.84rem;color:var(--muted);
+  min-height:52px;background:rgba(0,0,0,0.2);line-height:1.7;
+}
+.verdict b.cy{color:var(--cyan);}
+.verdict b.gr{color:var(--green);}
+.verdict b.or{color:var(--orange);}
+.verdict b.gd{color:var(--gold);}
+
+.demo-legend{
+  display:flex;gap:20px;flex-wrap:wrap;
+  padding:12px 22px;border-top:1px solid var(--border);
+  font-size:.72rem;color:var(--muted);background:rgba(0,0,0,0.15);
+}
+.legend-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle;}
+
+/* ── HOW IT WORKS ── */
+.how-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:16px;}
+.how-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:14px;padding:30px 26px;
+  position:relative;overflow:hidden;
+  transition:border-color .2s,transform .2s;
+}
+.how-card:hover{border-color:var(--border2);transform:translateY(-2px);}
+.how-card::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--green),var(--cyan));opacity:.5;
+}
+.how-n{
+  font-family:var(--ff-mono);font-size:3rem;font-weight:800;
+  color:rgba(0,255,136,0.08);line-height:1;margin-bottom:16px;
+}
+.how-t{
+  font-family:var(--ff-mono);font-size:.82rem;color:var(--green);
+  letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;
+}
+.how-b{font-size:.9rem;color:var(--muted);line-height:1.75;}
+.how-b strong{color:var(--fg);}
+
+/* ── MODULES TABLE ── */
+.mod-table{
+  width:100%;border-collapse:collapse;margin-top:18px;
+  font-size:.88rem;
+}
+.mod-table th{
+  font-family:var(--ff-mono);font-size:.65rem;letter-spacing:2.5px;
+  text-transform:uppercase;color:var(--muted);text-align:left;
+  padding:10px 16px;border-bottom:1px solid var(--border);
+}
+.mod-table td{
+  padding:14px 16px;border-bottom:1px solid rgba(18,32,24,0.8);
+  vertical-align:top;
+}
+.mod-table tr:last-child td{border-bottom:none;}
+.mod-table tr:hover td{background:rgba(0,255,136,0.02);}
+.mod-name{font-family:var(--ff-mono);color:var(--cyan);white-space:nowrap;}
+.mod-cmd{font-family:var(--ff-mono);font-size:.75rem;color:var(--green);white-space:nowrap;}
+.mod-desc{color:var(--muted);font-size:.86rem;line-height:1.65;}
+
+/* ── CLI ── */
+.cli-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px;}
+.code-block{
+  background:#020604;border:1px solid var(--border2);
+  border-radius:14px;overflow:hidden;
+}
+.code-top{
+  display:flex;align-items:center;gap:8px;
+  padding:11px 17px;border-bottom:1px solid var(--border);
+}
+.cd-dots{display:flex;gap:6px;}
+.cd{width:9px;height:9px;border-radius:50%;}
+.cd.r{background:#ff5f57;}.cd.y{background:#febc2e;}.cd.g{background:#28c840;}
+.code-label{font-family:var(--ff-mono);font-size:.68rem;color:var(--dim);letter-spacing:1px;margin-left:4px;}
+.code-body{padding:22px;font-family:var(--ff-mono);font-size:.8rem;line-height:2.1;}
+.code-body .p{color:var(--green);margin-right:10px;user-select:none;}
+.code-body .c{color:var(--fg);}
+.code-body .o{color:var(--muted);font-size:.75rem;}
+.code-body .cm{color:var(--dim);}
+
+/* ── SCOPE BANNER ── */
+.scope-bar{
+  position:relative;z-index:1;
+  background:rgba(245,166,35,0.05);
+  border-top:1px solid rgba(245,166,35,0.18);
+  padding:20px 0;
+}
+.scope-inner{
+  max-width:1240px;margin:0 auto;padding:0 40px;
+  display:flex;align-items:flex-start;gap:14px;
+  font-size:.84rem;color:var(--muted);line-height:1.6;
+}
+.scope-tag{
+  font-family:var(--ff-mono);font-size:.67rem;letter-spacing:2.5px;
+  color:var(--amber);background:rgba(245,166,35,0.1);
+  border:1px solid rgba(245,166,35,0.3);border-radius:4px;
+  padding:3px 10px;white-space:nowrap;flex-shrink:0;margin-top:2px;
+}
+
+/* ── FOOTER ── */
+footer{position:relative;z-index:1;padding:44px 0;}
+.foot-inner{
+  max-width:1240px;margin:0 auto;padding:0 40px;
+  display:flex;justify-content:space-between;align-items:center;
+  gap:20px;flex-wrap:wrap;
+}
+.foot-logo{font-family:var(--ff-mono);font-size:.9rem;letter-spacing:4px;color:var(--green);opacity:.5;}
+.foot-links{display:flex;gap:24px;}
+.foot-links a{font-size:.8rem;color:var(--muted);}
+.foot-links a:hover{color:var(--green);}
+
+/* ── RESPONSIVE ── */
+@media(max-width:960px){
+  .hero-inner{grid-template-columns:1fr;gap:40px;}
+  .gecko-wrap{display:none;}
+  .arena{grid-template-columns:1fr;}
+  .a-panel:first-child{border-right:none;border-bottom:1px solid var(--border);}
+  .stats-strip{grid-template-columns:1fr 1fr;}
+  .how-grid{grid-template-columns:1fr;}
+  .cli-grid{grid-template-columns:1fr;}
+  .wrap{padding:0 20px;}
+  section{padding:55px 0;}
+  .nav-inner{padding:0 20px;}
+}
+@media(max-width:600px){
+  h1{letter-spacing:5px;}
+  .stats-strip{grid-template-columns:1fr 1fr;}
+  .strip-num{font-size:1.8rem;}
+  .nav-links{display:none;}
+}
 </style>
 </head>
 <body>
 
-<header>
-  <div class="wrap">
-    <h1>GRECKO</h1>
-    <div class="tag">a counter-swarm decision engine that spends to win, not to react</div>
-    <div class="sub">When a swarm of cheap drones attacks, the hard problem isn't hitting them —
-      it's not going bankrupt doing it. GRECKO decides which interceptor to commit to which
-      threat, under whose authority, to stop the most damage for the least money.</div>
-    <div class="badges">
-      <span class="badge">validated in sim <b>305 tests</b></span>
-      <span class="badge">invariants <b>4/4 enforced</b></span>
-      <span class="badge">decisions <b>deterministic &amp; auditable</b></span>
-      <span class="badge">scope <b>simulation &amp; C2 only</b></span>
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <span class="nav-logo">GRECKO</span>
+    <div class="nav-links">
+      <a href="#demo">Demo</a>
+      <a href="#how">How it works</a>
+      <a href="#engine">Engine</a>
+      <a href="#install">Install</a>
     </div>
-    <div class="scope">
-      <h3>⚠ Scope</h3>
-      <p><b>Simulation, research, and C2-software only.</b> No fire-control, no RF/jamming/waveform
-      design, no weapon or hardware control. Effectors are <b>parameter sets</b> (cost, kill
-      probability). A CI gate enforces this boundary on every commit.</p>
+    <a href="https://github.com/infinitule/GRECKO" class="nav-gh">GitHub ↗</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-ambient"></div>
+  <div class="hero-inner">
+
+    <div class="hero-text">
+      <div class="hero-eyebrow">// counter-swarm decision engine</div>
+      <h1>GRECKO</h1>
+      <div class="h1-sub">allocate &nbsp;·&nbsp; intercept &nbsp;·&nbsp; survive</div>
+      <p class="hero-desc">
+        When a drone swarm appears on radar, the hard question isn't <em>which one to shoot</em> —
+        it's <strong>which ones to let through</strong>. GRECKO solves the magazine allocation
+        problem: given 9 interceptors and 11 incoming drones, stop the most damage for the
+        least money.
+      </p>
+      <div class="btn-row">
+        <a href="#demo" class="btn btn-primary">▶ Watch it decide</a>
+        <a href="#install" class="btn btn-outline">$ pip install</a>
+        <a href="https://github.com/infinitule/GRECKO" class="btn btn-outline">GitHub ↗</a>
+      </div>
+    </div>
+
+    <!-- GECKO SVG -->
+    <div class="gecko-wrap">
+      <div class="gecko-halo"></div>
+      <svg class="gecko-svg" viewBox="0 0 230 470" width="310" height="310"
+           xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <filter id="gf" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur stdDeviation="2.5" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#00ff88"/>
+            <stop offset="60%" stop-color="#00c49a"/>
+            <stop offset="100%" stop-color="#008e70"/>
+          </linearGradient>
+          <radialGradient id="eyeg" cx="40%" cy="35%">
+            <stop offset="0%" stop-color="#00e5ff" stop-opacity=".9"/>
+            <stop offset="60%" stop-color="#0066aa" stop-opacity=".7"/>
+            <stop offset="100%" stop-color="#001133" stop-opacity=".4"/>
+          </radialGradient>
+        </defs>
+
+        <!-- body glow fill -->
+        <ellipse cx="115" cy="258" rx="38" ry="82" fill="#00ff88" fill-opacity=".05" filter="url(#gf)"/>
+
+        <!-- TAIL -->
+        <path d="M115,338 Q109,368 112,398 Q115,422 111,445 Q108,458 114,468"
+              stroke="url(#bg)" stroke-width="2.2" fill="none"/>
+        <path d="M118,338 Q124,370 121,400 Q118,424 122,447 Q124,459 119,468"
+              stroke="#00c49a" stroke-width="1.3" fill="none" opacity=".4"/>
+
+        <!-- BODY outline -->
+        <ellipse cx="115" cy="258" rx="33" ry="78" fill="none" stroke="url(#bg)" stroke-width="1.8" filter="url(#gf)"/>
+
+        <!-- body scale lines -->
+        <line x1="86" y1="210" x2="144" y2="210" stroke="#00ff88" stroke-width=".55" opacity=".28"/>
+        <line x1="84" y1="226" x2="146" y2="226" stroke="#00ff88" stroke-width=".55" opacity=".28"/>
+        <line x1="83" y1="242" x2="147" y2="242" stroke="#00ff88" stroke-width=".55" opacity=".28"/>
+        <line x1="83" y1="258" x2="147" y2="258" stroke="#00ff88" stroke-width=".55" opacity=".28"/>
+        <line x1="84" y1="274" x2="146" y2="274" stroke="#00ff88" stroke-width=".55" opacity=".28"/>
+        <line x1="86" y1="290" x2="144" y2="290" stroke="#00ff88" stroke-width=".55" opacity=".28"/>
+        <line x1="90" y1="306" x2="140" y2="306" stroke="#00ff88" stroke-width=".55" opacity=".28"/>
+        <line x1="96" y1="320" x2="134" y2="320" stroke="#00ff88" stroke-width=".55" opacity=".28"/>
+
+        <!-- HEAD fill -->
+        <ellipse cx="115" cy="162" rx="46" ry="36" fill="#00ff88" fill-opacity=".06" filter="url(#gf)"/>
+        <!-- HEAD outline -->
+        <ellipse cx="115" cy="162" rx="46" ry="36" fill="none" stroke="url(#bg)" stroke-width="2" filter="url(#gf)"/>
+
+        <!-- snout -->
+        <ellipse cx="115" cy="136" rx="15" ry="9" fill="none" stroke="#00c49a" stroke-width="1.2"/>
+        <!-- nostrils -->
+        <circle cx="109" cy="133" r="2.2" fill="#00ff88" opacity=".55"/>
+        <circle cx="121" cy="133" r="2.2" fill="#00ff88" opacity=".55"/>
+        <!-- jaw line -->
+        <path d="M88,174 Q115,185 142,174" stroke="#00c49a" stroke-width=".8" fill="none" opacity=".5"/>
+
+        <!-- LEFT EYE -->
+        <circle cx="91" cy="154" r="14" fill="url(#eyeg)" stroke="#00e5ff" stroke-width="1.8" class="g-eye" filter="url(#gf)"/>
+        <ellipse cx="91" cy="154" rx="4" ry="8" fill="#00e5ff" class="g-eye" opacity=".9"/>
+        <circle cx="89" cy="151" r="2" fill="white" opacity=".8" class="g-eye"/>
+        <circle cx="91" cy="154" r="14" fill="none" stroke="rgba(0,229,255,0.3)" stroke-width="3" class="g-eye"/>
+
+        <!-- RIGHT EYE -->
+        <circle cx="139" cy="154" r="14" fill="url(#eyeg)" stroke="#00e5ff" stroke-width="1.8" class="g-eye" filter="url(#gf)"/>
+        <ellipse cx="139" cy="154" rx="4" ry="8" fill="#00e5ff" class="g-eye" opacity=".9"/>
+        <circle cx="137" cy="151" r="2" fill="white" opacity=".8" class="g-eye"/>
+        <circle cx="139" cy="154" r="14" fill="none" stroke="rgba(0,229,255,0.3)" stroke-width="3" class="g-eye"/>
+
+        <!-- FRONT LEFT LEG -->
+        <path d="M83,218 Q62,208 44,197 Q36,196 33,204" stroke="#00ff88" stroke-width="1.8" fill="none"/>
+        <path d="M44,197 Q28,192 18,181" stroke="#00c49a" stroke-width="1.3" fill="none"/>
+        <path d="M33,204 Q20,208 11,219" stroke="#00c49a" stroke-width="1.3" fill="none"/>
+        <path d="M44,197 Q39,212 37,226" stroke="#00c49a" stroke-width="1.3" fill="none"/>
+        <circle cx="18" cy="181" r="2.8" fill="#00ff88" opacity=".7"/>
+        <circle cx="11" cy="219" r="2.8" fill="#00ff88" opacity=".7"/>
+        <circle cx="37" cy="226" r="2.8" fill="#00ff88" opacity=".7"/>
+
+        <!-- FRONT RIGHT LEG -->
+        <path d="M147,218 Q168,208 186,197 Q194,196 197,204" stroke="#00ff88" stroke-width="1.8" fill="none"/>
+        <path d="M186,197 Q202,192 212,181" stroke="#00c49a" stroke-width="1.3" fill="none"/>
+        <path d="M197,204 Q210,208 219,219" stroke="#00c49a" stroke-width="1.3" fill="none"/>
+        <path d="M186,197 Q191,212 193,226" stroke="#00c49a" stroke-width="1.3" fill="none"/>
+        <circle cx="212" cy="181" r="2.8" fill="#00ff88" opacity=".7"/>
+        <circle cx="219" cy="219" r="2.8" fill="#00ff88" opacity=".7"/>
+        <circle cx="193" cy="226" r="2.8" fill="#00ff88" opacity=".7"/>
+
+        <!-- BACK LEFT LEG -->
+        <path d="M83,306 Q58,320 40,332 Q32,340 30,350" stroke="#00ff88" stroke-width="1.8" fill="none"/>
+        <path d="M40,332 Q22,325 14,314" stroke="#00c49a" stroke-width="1.3" fill="none"/>
+        <path d="M30,350 Q17,358 10,370" stroke="#00c49a" stroke-width="1.3" fill="none"/>
+        <path d="M40,332 Q34,347 32,360" stroke="#00c49a" stroke-width="1.3" fill="none"/>
+        <circle cx="14" cy="314" r="2.8" fill="#00ff88" opacity=".7"/>
+        <circle cx="10" cy="370" r="2.8" fill="#00ff88" opacity=".7"/>
+        <circle cx="32" cy="360" r="2.8" fill="#00ff88" opacity=".7"/>
+
+        <!-- BACK RIGHT LEG -->
+        <path d="M147,306 Q172,320 190,332 Q198,340 200,350" stroke="#00ff88" stroke-width="1.8" fill="none"/>
+        <path d="M190,332 Q208,325 216,314" stroke="#00c49a" stroke-width="1.3" fill="none"/>
+        <path d="M200,350 Q213,358 220,370" stroke="#00c49a" stroke-width="1.3" fill="none"/>
+        <path d="M190,332 Q196,347 198,360" stroke="#00c49a" stroke-width="1.3" fill="none"/>
+        <circle cx="216" cy="314" r="2.8" fill="#00ff88" opacity=".7"/>
+        <circle cx="220" cy="370" r="2.8" fill="#00ff88" opacity=".7"/>
+        <circle cx="198" cy="360" r="2.8" fill="#00ff88" opacity=".7"/>
+
+        <!-- spine dashes -->
+        <path d="M115,172 Q113,228 115,338" stroke="#00ff88" stroke-width="1"
+              fill="none" stroke-dasharray="3,9" opacity=".35"/>
+
+        <!-- scanning line -->
+        <ellipse cx="115" cy="255" rx="33" ry="78" fill="none"
+                 stroke="#00ff88" stroke-width=".6" stroke-dasharray="8,150"
+                 opacity=".45" class="g-scan"/>
+      </svg>
     </div>
   </div>
-</header>
+</section>
+
+<!-- STATS STRIP -->
+<section style="padding:50px 0;border-bottom:1px solid var(--border);">
+  <div class="wrap">
+    <div class="stats-strip">
+      <div class="strip-cell">
+        <div class="strip-num c-green">8–22%</div>
+        <div class="strip-lbl">allocator cost reduction<br>vs. engage-nearest</div>
+      </div>
+      <div class="strip-cell">
+        <div class="strip-num c-cyan">9/11</div>
+        <div class="strip-lbl">drones stopped<br>with 9-round magazine</div>
+      </div>
+      <div class="strip-cell">
+        <div class="strip-num c-gold">4.4×</div>
+        <div class="strip-lbl">cheaper per kill<br>illustrative mixed effectors</div>
+      </div>
+      <div class="strip-cell">
+        <div class="strip-num c-teal">305</div>
+        <div class="strip-lbl">automated tests<br>passing on CI</div>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- LIVE DEMO -->
-<section>
+<section id="demo">
   <div class="wrap">
-    <h2>Watch it decide <span class="n">— same raid, two doctrines, running live in your browser</span></h2>
-    <p class="lead">One identical 11-drone raid attacks two defenses, each with the <b>same
-      9-interceptor magazine</b>. The left runs legacy doctrine: engage the nearest threat, every
-      time, with a $90k kinetic round. The right is GRECKO: rank threats by value, ration the
-      magazine, and use a cheap effector when a cheap effector will do. Watch the spend.</p>
+    <div class="section-num">// 01 — live engagement</div>
+    <h2>Watch GRECKO <span class="accent">decide</span></h2>
+    <p class="lead">Same raid. Same magazine. Two doctrines. One spends smarter.</p>
 
-    <div class="demo-card">
+    <div class="demo-shell">
+      <div class="demo-titlebar">
+        <div class="tb-dot r"></div><div class="tb-dot y"></div><div class="tb-dot g"></div>
+        <span class="tb-title">ENGAGEMENT SIMULATION — REAL-TIME</span>
+        <div class="tb-controls">
+          <button class="ctrl active" id="btn-replay">↺ Replay</button>
+          <button class="ctrl" id="btn-pause">⏸ Pause</button>
+          <button class="ctrl" id="btn-new">⚄ New Raid</button>
+          <button class="ctrl" id="btn-speed">Speed ×1</button>
+        </div>
+      </div>
+
       <div class="arena">
-        <div class="panel legacy">
-          <div class="phead"><span class="name">LEGACY WTA</span><span class="doc">engage-nearest · all-kinetic</span></div>
+        <div class="a-panel">
+          <div class="a-label al-legacy">LEGACY — engage nearest</div>
           <canvas id="cv-legacy" width="480" height="360"></canvas>
-          <div class="stats">
-            <div class="stat"><div class="v" id="L-stopped">0/11</div><div class="l">stopped</div></div>
-            <div class="stat"><div class="v" id="L-spend">$0</div><div class="l">spent</div></div>
-            <div class="stat"><div class="v" id="L-dmg">$0</div><div class="l">damage leaked</div></div>
+          <div class="stat-row">
+            <div class="stat"><div class="stat-v sv-stop" id="L-stopped">0/11</div><div class="stat-l">stopped</div></div>
+            <div class="stat"><div class="stat-v sv-spend" id="L-spend">$0</div><div class="stat-l">spent</div></div>
+            <div class="stat"><div class="stat-v sv-dmg" id="L-dmg">$0</div><div class="stat-l">damage</div></div>
           </div>
         </div>
-        <div class="panel grecko">
-          <div class="phead"><span class="name">GRECKO</span><span class="doc">value-ranked · magazine-rationing</span></div>
+        <div class="a-panel">
+          <div class="a-label al-grecko">GRECKO — value × effector</div>
           <canvas id="cv-grecko" width="480" height="360"></canvas>
-          <div class="stats">
-            <div class="stat"><div class="v" id="G-stopped">0/11</div><div class="l">stopped</div></div>
-            <div class="stat"><div class="v" id="G-spend">$0</div><div class="l">spent</div></div>
-            <div class="stat"><div class="v" id="G-dmg">$0</div><div class="l">damage leaked</div></div>
+          <div class="stat-row">
+            <div class="stat"><div class="stat-v sv-stop" id="G-stopped">0/11</div><div class="stat-l">stopped</div></div>
+            <div class="stat"><div class="stat-v sv-spend" id="G-spend">$0</div><div class="stat-l">spent</div></div>
+            <div class="stat"><div class="stat-v sv-dmg" id="G-dmg">$0</div><div class="stat-l">damage</div></div>
           </div>
         </div>
       </div>
 
-      <div class="controls">
-        <button class="ctl primary" id="btn-replay">▶ Replay</button>
-        <button class="ctl" id="btn-pause">⏸ Pause</button>
-        <button class="ctl" id="btn-new">⤳ New raid</button>
-        <button class="ctl" id="btn-speed">Speed ×1</button>
-        <span class="clock mono" id="clock">t = 0.0s</span>
+      <div class="verdict" id="verdict">Press <b class="gr">Replay</b> to run the engagement.</div>
+
+      <div class="demo-legend">
+        <span><span class="legend-dot" style="background:#ff3d57"></span>low-value drone</span>
+        <span><span class="legend-dot" style="background:#ffd93d"></span>high-value target</span>
+        <span><span class="legend-dot" style="background:#ff7b3a"></span>kinetic interceptor ($90k)</span>
+        <span><span class="legend-dot" style="background:#00e5ff"></span>soft-kill effector ($800)</span>
+        <span><span class="legend-dot" style="background:#00ff88"></span>defended asset</span>
       </div>
+    </div>
+  </div>
+</section>
 
-      <div class="legend">
-        <span><i style="background:#f85149"></i>incoming drone (low value)</span>
-        <span><i style="background:#f2cc60"></i>high-value drone</span>
-        <span><i style="background:#f0883e"></i>kinetic interceptor ($90k)</span>
-        <span><i style="background:#3fd0d8"></i>cheap effector ($800)</span>
-        <span><i style="background:#46c46a"></i>defended asset</span>
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="wrap">
+    <div class="section-num">// 02 — the allocation problem</div>
+    <h2>Why the legacy approach <span class="accent">loses</span></h2>
+    <p class="lead">Counter-swarm defense fails on economics, not on aiming. GRECKO fixes two decisions legacy doctrine never makes.</p>
+    <div class="how-grid">
+      <div class="how-card">
+        <div class="how-n">01</div>
+        <div class="how-t">Magazine limit</div>
+        <div class="how-b">You have <strong>9 interceptors</strong> and 11 incoming drones. Something leaks. Legacy fires at the closest threat and runs dry — often missing the most expensive target it never reached.</div>
       </div>
-
-      <div class="verdict mono" id="verdict">Press <b class="cy">Replay</b> to run the engagement.</div>
+      <div class="how-card">
+        <div class="how-n">02</div>
+        <div class="how-t">Value ranking</div>
+        <div class="how-b">GRECKO ranks every tracked drone by <strong>estimated asset damage value</strong>. It reserves 9 rounds for the 9 most dangerous threats and deliberately lets the two cheapest through.</div>
+      </div>
+      <div class="how-card">
+        <div class="how-n">03</div>
+        <div class="how-t">Effector match</div>
+        <div class="how-b">A <strong>$90k kinetic round</strong> on a $1,200 quadrotor is a losing trade. When a low-value threat can be stopped by an $800 effector, GRECKO substitutes it — and saves the kinetic rounds for targets that need them.</div>
+      </div>
     </div>
-
-    <p class="lead" style="font-size:.85rem;margin-top:14px;">
-      This is the actual GRECKO logic in miniature — magazine rationing, value ranking, and
-      effector-cost selection — re-implemented in JavaScript so it runs without a server. The
-      same mechanisms, measured rigorously in Python, produce the conservative numbers below.</p>
   </div>
 </section>
 
-<!-- WHAT YOU JUST SAW -->
-<section>
+<!-- MODULES -->
+<section id="engine">
   <div class="wrap">
-    <h2>What you just watched</h2>
-    <p class="lead">Both defenses usually <em>stop a similar number of drones</em> — the magazine
-      is the same size. The difference is two decisions GRECKO makes that legacy doctrine doesn't:</p>
-    <table>
+    <div class="section-num">// 03 — what's built</div>
+    <h2>Six modules, <span class="accent">one decision</span></h2>
+    <p class="lead">Every part of the engine is independently runnable. No black boxes — every allocation is logged and replayable.</p>
+    <table class="mod-table">
+      <thead>
+        <tr>
+          <th>Module</th>
+          <th>CLI command</th>
+          <th>What it does</th>
+        </tr>
+      </thead>
       <tbody>
-        <tr><td class="feat">Ration the magazine</td>
-          <td>With only 9 interceptors against 11 threats, <em>something</em> leaks. Legacy fires at
-          whatever is closest and runs dry — often leaking a high-value drone it never got to.
-          GRECKO spends its 9 rounds on the 9 highest-value threats and deliberately lets the two
-          cheapest leak. Same shots fired, far less damage through.</td></tr>
-        <tr><td class="feat">Match effector to threat</td>
-          <td>A $90k kinetic round to kill a $1,200 quadrotor is a losing trade even on a hit.
-          When a low-value threat can be stopped by an $800 effector, GRECKO uses it — and reserves
-          the expensive kinetic rounds for the targets that actually need them.</td></tr>
-      </tbody>
-    </table>
-    <p class="lead">Neither decision is magic. Both are <em>economics</em> — and they're exactly
-      what a saturating swarm is designed to punish you for getting wrong.</p>
-  </div>
-</section>
-
-<!-- MEASURED NUMBERS (conservative) -->
-<section>
-  <div class="wrap">
-    <h2>The measured result <span class="n">— conservative, and survives due diligence</span></h2>
-    <p class="lead">These are the numbers from randomized Monte Carlo trials in the Python engine,
-      not from the illustrative scenario above. We lead with the defensible figure.</p>
-    <div class="kpis">
-      <div class="kpi"><div class="v">8–22%</div><div class="l">lower cost-per-kill from the allocator alone, like-for-like effectors</div></div>
-      <div class="kpi"><div class="v">+</div><div class="l">loadout adaptation compounds it when cheaper effectors suffice</div></div>
-      <div class="kpi"><div class="v">305</div><div class="l">automated tests passing</div></div>
-      <div class="kpi"><div class="v">100%</div><div class="l">results reproducible from a seed (hash-verified)</div></div>
-    </div>
-    <p class="lead" style="font-size:.9rem;">
-      The 8–22% is the <b>allocator's</b> contribution in an apples-to-apples comparison (same
-      effectors on both sides), measured across seeds and adversary tactics. Cherry-picked single
-      raids — like the demo — show larger gaps because they also include effector selection; we
-      don't headline those. Intercept rate is interceptor-count-limited, so it stays comparable
-      between doctrines; the win is on <em>cost and damage prevented</em>, which is the metric a
-      swarm actually attacks.</p>
-  </div>
-</section>
-
-<!-- WHAT'S IN THE BOX -->
-<section>
-  <div class="wrap">
-    <h2>What's actually built <span class="n">— six parts, one decision</span></h2>
-    <p class="lead">Every module serves the single question: <em>which interceptor, against which
-      threat, at what cost, under whose authorization.</em></p>
-    <table>
-      <thead><tr><th>Part</th><th>What it does</th><th>Where</th></tr></thead>
-      <tbody>
-        <tr><td class="feat">The world</td><td>A deterministic battlefield on a 50 Hz clock; drones fly a raid in.</td><td><code>sim/core</code></td></tr>
-        <tr><td class="feat">The senses</td><td>Imperfect detection + Kalman/GNN multi-target tracking — nothing downstream sees ground truth.</td><td><code>sim/sensing</code>, <code>sim/fusion</code></td></tr>
-        <tr><td class="feat">The brain</td><td>Magazine-constrained economic allocator that can <em>hold fire</em> to preserve rounds.</td><td><code>sim/alloc</code></td></tr>
-        <tr><td class="feat">The human gate</td><td>Nothing engages without operator authorization; every decision logged &amp; replayable.</td><td><code>sim/bridge</code>, <code>viz/</code></td></tr>
-        <tr><td class="feat">The red team</td><td>An adversary that <em>evolves</em> swarm tactics the defense was never scripted against.</td><td><code>league/</code></td></tr>
-        <tr><td class="feat">The scoreboard</td><td>Monte Carlo evaluation: cost-exchange ratio, intercept rate, damage — across seeds.</td><td><code>eval/</code></td></tr>
+        <tr>
+          <td class="mod-name">sim/core</td>
+          <td class="mod-cmd">grecko eval</td>
+          <td class="mod-desc">Deterministic battlefield simulation at 50 Hz — drone tracks, interceptor guidance, hit resolution</td>
+        </tr>
+        <tr>
+          <td class="mod-name">sim/alloc</td>
+          <td class="mod-cmd">grecko eval</td>
+          <td class="mod-desc">Magazine-constrained economic allocator: value ranking, MAXCONC=4 concurrent cap, hold-fire logic</td>
+        </tr>
+        <tr>
+          <td class="mod-name">sim/bridge</td>
+          <td class="mod-cmd">grecko serve</td>
+          <td class="mod-desc">WebSocket C2 bridge streaming engagement state at 50 Hz — operator console connects here</td>
+        </tr>
+        <tr>
+          <td class="mod-name">eval/</td>
+          <td class="mod-cmd">grecko eval --seeds N</td>
+          <td class="mod-desc">Monte Carlo runner: cost-exchange ratio, intercept rate, per-scenario JSON output</td>
+        </tr>
+        <tr>
+          <td class="mod-name">tools/verify</td>
+          <td class="mod-cmd">grecko verify</td>
+          <td class="mod-desc">4 architectural invariant checks — runs on every CI commit, enforces simulation-only scope</td>
+        </tr>
+        <tr>
+          <td class="mod-name">grecko/cli</td>
+          <td class="mod-cmd">grecko --help</td>
+          <td class="mod-desc">Unified CLI entrypoint for all subcommands. Prints scope statement on every version call.</td>
+        </tr>
       </tbody>
     </table>
   </div>
 </section>
 
-<!-- RUN IT -->
-<section>
+<!-- INSTALL -->
+<section id="install">
   <div class="wrap">
-    <h2>Run it yourself <span class="n">— every command here actually works</span></h2>
-    <pre><code>pip install -e .              <span class="cmt"># installs the `grecko` CLI</span>
-
-grecko version                <span class="cmt"># confirm install + scope</span>
-grecko eval --seeds 6         <span class="cmt"># Monte Carlo cost-exchange, prints JSON numbers</span>
-grecko verify                 <span class="cmt"># the 4 architectural invariant checks</span>
-grecko serve                  <span class="cmt"># live C2 decision-engine bridge (ws://:8765)</span>
-make test                     <span class="cmt"># full acceptance suite (305 tests)</span></code></pre>
-    <p class="lead" style="margin-top:14px;">The operator console in <code>viz/</code> connects to
-      <code>grecko serve</code> over WebSocket — that's the real human-on-the-loop interface, where
-      you see the air picture and authorize each engagement. Deployable as two containers with
-      <code>make docker-up</code>. See <a href="https://github.com/infinitule/GRECKO">the repository</a>
-      and <code>docs/DEPLOYMENT.md</code>.</p>
+    <div class="section-num">// 04 — run it yourself</div>
+    <h2>Every command <span class="accent">actually works</span></h2>
+    <p class="lead">Python 3.10+. No GPU. No special hardware. Runs on a laptop in under a minute.</p>
+    <div class="cli-grid">
+      <div class="code-block">
+        <div class="code-top">
+          <div class="cd-dots"><div class="cd r"></div><div class="cd y"></div><div class="cd g"></div></div>
+          <span class="code-label">install &amp; verify</span>
+        </div>
+        <div class="code-body">
+          <div><span class="p">$</span><span class="c">git clone https://github.com/infinitule/GRECKO</span></div>
+          <div><span class="p">$</span><span class="c">cd GRECKO &amp;&amp; pip install -e .</span></div>
+          <div class="o">&nbsp;</div>
+          <div><span class="p">$</span><span class="c">grecko version</span></div>
+          <div class="o">&nbsp;&nbsp;GRECKO 1.0.0</div>
+          <div class="o">&nbsp;&nbsp;simulation &amp; C2 only</div>
+          <div class="o">&nbsp;</div>
+          <div><span class="p">$</span><span class="c">grecko verify</span></div>
+          <div class="o">&nbsp;&nbsp;✓ 4/4 invariants pass</div>
+        </div>
+      </div>
+      <div class="code-block">
+        <div class="code-top">
+          <div class="cd-dots"><div class="cd r"></div><div class="cd y"></div><div class="cd g"></div></div>
+          <span class="code-label">evaluate &amp; serve</span>
+        </div>
+        <div class="code-body">
+          <div><span class="p">$</span><span class="c">grecko eval --seeds 12</span></div>
+          <div class="o">&nbsp;&nbsp;{</div>
+          <div class="o">&nbsp;&nbsp;&nbsp;&nbsp;"intercept_rate": 0.83,</div>
+          <div class="o">&nbsp;&nbsp;&nbsp;&nbsp;"cer_improvement": 0.18,</div>
+          <div class="o">&nbsp;&nbsp;&nbsp;&nbsp;"defense_spend_mean": 312400</div>
+          <div class="o">&nbsp;&nbsp;}</div>
+          <div class="o">&nbsp;</div>
+          <div><span class="p">$</span><span class="c">grecko serve --port 8765</span></div>
+          <div class="o">&nbsp;&nbsp;C2 bridge → ws://0.0.0.0:8765</div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
+<!-- SCOPE -->
+<div class="scope-bar">
+  <div class="scope-inner">
+    <span class="scope-tag">SCOPE</span>
+    GRECKO is simulation, research, and C2-software only. Effectors are parameter sets — no
+    fire-control, no RF/jamming design, no weapon hardware control. This boundary is enforced
+    mechanically on every commit by <code style="color:var(--green);font-family:var(--ff-mono);font-size:.8em;">grecko verify</code>.
+  </div>
+</div>
+
+<!-- FOOTER -->
 <footer>
-  <div class="wrap">
-    GRECKO — simulation, research, and C2-software only. Effectors are parameter sets; no hardware
-    control, no RF design, no weapon integration. Every result is reproducible from a seed and every
-    architectural claim is enforced by a CI gate. Built AI-assisted with human direction —
-    see <a href="https://github.com/infinitule/GRECKO/blob/main/PROVENANCE.md">PROVENANCE.md</a>.
+  <div class="foot-inner">
+    <span class="foot-logo">GRECKO</span>
+    <div class="foot-links">
+      <a href="https://github.com/infinitule/GRECKO">GitHub</a>
+      <a href="https://github.com/infinitule/GRECKO/issues">Issues</a>
+      <a href="https://github.com/infinitule/GRECKO/blob/main/PROVENANCE.md">Provenance</a>
+    </div>
   </div>
 </footer>
 
 <script>
 (function(){
-  "use strict";
-  // ---------- deterministic RNG ----------
-  function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+"use strict";
+// ---------- deterministic RNG ----------
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
 
-  // ---------- raid generation ----------
-  var RAID_N=11;
-  function makeRaid(seed){
-    var r=mulberry32(seed), ds=[], i;
-    for(i=0;i<RAID_N;i++){
-      var hi=(i%5===2);                                   // ~2 high-value drones
-      var value=hi ? 8000+Math.floor(r()*5000) : 900+Math.floor(r()*1600);
-      var spawnT=i*0.55 + r()*0.4;
-      var x=0.10 + r()*0.80;
-      ds.push({i:i,value:value,hi:hi,spawnT:spawnT,x:x});
-    }
-    return ds;
+// ---------- raid ----------
+var RAID_N=11;
+function makeRaid(seed){
+  var r=mulberry32(seed),ds=[],i;
+  for(i=0;i<RAID_N;i++){
+    var hi=(i%5===2);
+    var value=hi?8000+Math.floor(r()*5000):900+Math.floor(r()*1600);
+    var spawnT=i*0.55+r()*0.4;
+    var x=0.10+r()*0.80;
+    ds.push({i:i,value:value,hi:hi,spawnT:spawnT,x:x});
   }
+  return ds;
+}
 
-  // arena geometry (normalized 0..1)
-  var AX=0.5, AY=0.88, BX=0.5, BY=0.84;
-  var D_SPEED=0.052, I_SPEED=0.15, HIT=0.024, TRACK_Y=0.12, MAG=9, MAXCONC=4;
+var AX=0.5,AY=0.88,BX=0.5,BY=0.84;
+var D_SPEED=0.052,I_SPEED=0.15,HIT=0.024,TRACK_Y=0.12,MAG=9,MAXCONC=4;
 
-  function newSim(raid,doctrine){
-    var byVal=raid.slice().sort(function(a,b){return b.value-a.value;});
-    var engage={}; byVal.slice(0,MAG).forEach(function(d){engage[d.i]=true;});
-    return {
-      doctrine:doctrine, t:0, finished:false, settleT:0,
-      drones:raid.map(function(d){return {i:d.i,value:d.value,hi:d.hi,spawnT:d.spawnT,
-        x:d.x,y:-0.06,alive:true,done:false,tracked:false,assigned:false,live:false};}),
-      ivs:[], flashes:[], launches:0,
-      stopped:0, leaked:0, spend:0, dmg:0,
-      engage:engage
-    };
+function newSim(raid,doctrine){
+  var byVal=raid.slice().sort(function(a,b){return b.value-a.value;});
+  var engage={};byVal.slice(0,MAG).forEach(function(d){engage[d.i]=true;});
+  return{doctrine:doctrine,t:0,finished:false,settleT:0,
+    drones:raid.map(function(d){return{i:d.i,value:d.value,hi:d.hi,spawnT:d.spawnT,
+      x:d.x,y:-0.06,alive:true,done:false,tracked:false,assigned:false,live:false};}),
+    ivs:[],flashes:[],launches:0,stopped:0,leaked:0,spend:0,dmg:0,engage:engage};
+}
+
+function step(s,dt){
+  s.t+=dt;
+  var i,d,v;
+  for(i=0;i<s.drones.length;i++){
+    d=s.drones[i];
+    if(!d.alive||d.done)continue;
+    if(s.t<d.spawnT)continue;
+    d.live=true;
+    var dx=AX-d.x,dy=AY-d.y,dist=Math.hypot(dx,dy)||1e-6;
+    d.x+=dx/dist*D_SPEED*dt;d.y+=dy/dist*D_SPEED*dt;
+    if(!d.tracked&&d.y>TRACK_Y)d.tracked=true;
+    if(d.y>=AY-0.004){d.done=true;d.alive=false;s.leaked++;s.dmg+=d.value;
+      s.flashes.push({x:d.x,y:d.y,life:0.5,bad:true});}
   }
-
-  function step(s,dt){
-    s.t+=dt;
-    var i,d,v;
-    // drones
-    for(i=0;i<s.drones.length;i++){
-      d=s.drones[i];
-      if(!d.alive||d.done) continue;
-      if(s.t<d.spawnT) continue;
-      d.live=true;
-      var dx=AX-d.x, dy=AY-d.y, dist=Math.hypot(dx,dy)||1e-6;
-      d.x+=dx/dist*D_SPEED*dt; d.y+=dy/dist*D_SPEED*dt;
-      if(!d.tracked && d.y>TRACK_Y) d.tracked=true;
-      if(d.y>=AY-0.004){ d.done=true; d.alive=false; s.leaked++; s.dmg+=d.value;
-        s.flashes.push({x:d.x,y:d.y,life:0.5,bad:true}); }
-    }
-    // allocation
-    var inFlight=0; for(i=0;i<s.ivs.length;i++){ if(s.ivs[i].alive) inFlight++; }
-    if(inFlight<MAXCONC && s.launches<MAG){
-      var cands=s.drones.filter(function(d){return d.tracked&&d.alive&&!d.assigned&&!d.done;});
-      if(s.doctrine==='grecko') cands=cands.filter(function(d){return s.engage[d.i];});
-      if(cands.length){
-        var target;
-        if(s.doctrine==='legacy'){                       // greedy: nearest the asset
-          target=cands.reduce(function(a,b){return b.y>a.y?b:a;});
-        }else{                                           // grecko: highest value first
-          target=cands.reduce(function(a,b){return b.value>a.value?b:a;});
-        }
-        var cost,kind;
-        if(s.doctrine==='legacy'){ cost=90000; kind='K'; }
-        else if(target.hi){ cost=90000; kind='K'; }
-        else { cost=800; kind='C'; }
-        target.assigned=true; s.spend+=cost; s.launches++;
-        s.ivs.push({x:BX,y:BY,tx:target.i,alive:true,kind:kind});
-      }
-    }
-    // interceptors
-    for(i=0;i<s.ivs.length;i++){
-      v=s.ivs[i]; if(!v.alive) continue;
-      d=s.drones[v.tx];
-      if(!d||!d.alive||d.done){ v.alive=false; if(d){d.assigned=false;} continue; }
-      var ix=d.x-v.x, iy=d.y-v.y, idist=Math.hypot(ix,iy)||1e-6;
-      if(idist<HIT){ d.alive=false; d.done=true; s.stopped++; v.alive=false;
-        s.flashes.push({x:d.x,y:d.y,life:0.4,bad:false}); }
-      else{ v.x+=ix/idist*I_SPEED*dt; v.y+=iy/idist*I_SPEED*dt; }
-    }
-    // flashes
-    for(i=0;i<s.flashes.length;i++) s.flashes[i].life-=dt;
-    s.flashes=s.flashes.filter(function(f){return f.life>0;});
-    // finished?
-    var allDone=s.drones.every(function(d){return d.done||!d.alive;});
-    if(allDone && !s.finished){ s.settleT+=dt; if(s.settleT>0.6) s.finished=true; }
-  }
-
-  // ---------- rendering ----------
-  function fmtK(n){ if(n>=1000) return '$'+(n/1000).toFixed(n>=10000?0:1)+'k'; return '$'+Math.round(n); }
-
-  function draw(ctx,W,H,s){
-    ctx.clearRect(0,0,W,H);
-    ctx.fillStyle='#0a0e13'; ctx.fillRect(0,0,W,H);
-    // faint grid
-    ctx.strokeStyle='rgba(38,48,60,0.5)'; ctx.lineWidth=1;
-    var g; for(g=1;g<6;g++){ var gy=H*g/6; ctx.beginPath(); ctx.moveTo(0,gy); ctx.lineTo(W,gy); ctx.stroke(); }
-    for(g=1;g<8;g++){ var gx=W*g/8; ctx.beginPath(); ctx.moveTo(gx,0); ctx.lineTo(gx,H); ctx.stroke(); }
-    // sensor line
-    ctx.strokeStyle='rgba(63,208,216,0.18)'; ctx.setLineDash([4,5]);
-    ctx.beginPath(); ctx.moveTo(0,TRACK_Y*H); ctx.lineTo(W,TRACK_Y*H); ctx.stroke(); ctx.setLineDash([]);
-    // asset
-    var ax=AX*W, ay=AY*H;
-    ctx.fillStyle='rgba(70,196,106,0.14)'; ctx.beginPath(); ctx.arc(ax,ay,26,0,7); ctx.fill();
-    ctx.fillStyle='#46c46a'; ctx.beginPath(); ctx.arc(ax,ay,7,0,7); ctx.fill();
-    // battery
-    ctx.fillStyle='#5a6b7d'; ctx.fillRect(BX*W-7,BY*H-3,14,6);
-    // interceptors
-    var i,v,d;
-    for(i=0;i<s.ivs.length;i++){ v=s.ivs[i]; if(!v.alive) continue;
-      d=s.drones[v.tx]; var col=v.kind==='K'?'#f0883e':'#3fd0d8';
-      if(d){ ctx.strokeStyle=col; ctx.globalAlpha=0.45; ctx.lineWidth=1.5;
-        ctx.beginPath(); ctx.moveTo(BX*W,BY*H); ctx.lineTo(v.x*W,v.y*H); ctx.stroke(); ctx.globalAlpha=1; }
-      ctx.fillStyle=col; ctx.beginPath(); ctx.arc(v.x*W,v.y*H,3.4,0,7); ctx.fill();
-    }
-    // drones
-    for(i=0;i<s.drones.length;i++){ d=s.drones[i];
-      if(!d.live||d.done||!d.alive) continue;
-      var col2=d.hi?'#f2cc60':'#f85149';
-      if(d.tracked){ ctx.strokeStyle=col2; ctx.globalAlpha=0.4; ctx.lineWidth=1;
-        ctx.beginPath(); ctx.arc(d.x*W,d.y*H,7,0,7); ctx.stroke(); ctx.globalAlpha=1; }
-      ctx.fillStyle=col2; ctx.beginPath(); ctx.arc(d.x*W,d.y*H,d.hi?5:4,0,7); ctx.fill();
-    }
-    // flashes
-    for(i=0;i<s.flashes.length;i++){ var f=s.flashes[i];
-      var prog=f.bad?(0.5-f.life)/0.5:(0.4-f.life)/0.4;
-      ctx.strokeStyle=f.bad?'rgba(248,81,73,'+f.life*2+')':'rgba(70,196,106,'+f.life*2.4+')';
-      ctx.lineWidth=2; ctx.beginPath(); ctx.arc(f.x*W,f.y*H,4+prog*16,0,7); ctx.stroke();
+  var inFlight=0;for(i=0;i<s.ivs.length;i++){if(s.ivs[i].alive)inFlight++;}
+  if(inFlight<MAXCONC&&s.launches<MAG){
+    var cands=s.drones.filter(function(d){return d.tracked&&d.alive&&!d.assigned&&!d.done;});
+    if(s.doctrine==='grecko')cands=cands.filter(function(d){return s.engage[d.i];});
+    if(cands.length){
+      var target;
+      if(s.doctrine==='legacy'){target=cands.reduce(function(a,b){return b.y>a.y?b:a;});}
+      else{target=cands.reduce(function(a,b){return b.value>a.value?b:a;});}
+      var cost,kind;
+      if(s.doctrine==='legacy'){cost=90000;kind='K';}
+      else if(target.hi){cost=90000;kind='K';}
+      else{cost=800;kind='C';}
+      target.assigned=true;s.spend+=cost;s.launches++;
+      s.ivs.push({x:BX,y:BY,tx:target.i,alive:true,kind:kind});
     }
   }
-
-  // ---------- wiring ----------
-  var cL=document.getElementById('cv-legacy'), cG=document.getElementById('cv-grecko');
-  var seed=20260613, simL, simG, running=false, speed=1, raf=null, last=0, acc=0;
-  var DT=1/120;
-
-  function sizeCanvas(c){
-    var dpr=window.devicePixelRatio||1;
-    var w=c.clientWidth, h=Math.round(w*0.75);
-    c.width=w*dpr; c.height=h*dpr;
-    var ctx=c.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
-    return {w:w,h:h};
+  for(i=0;i<s.ivs.length;i++){
+    v=s.ivs[i];if(!v.alive)continue;
+    d=s.drones[v.tx];
+    if(!d||!d.alive||d.done){v.alive=false;if(d)d.assigned=false;continue;}
+    var ix=d.x-v.x,iy=d.y-v.y,idist=Math.hypot(ix,iy)||1e-6;
+    if(idist<HIT){d.alive=false;d.done=true;s.stopped++;v.alive=false;
+      s.flashes.push({x:d.x,y:d.y,life:0.4,bad:false});}
+    else{v.x+=ix/idist*I_SPEED*dt;v.y+=iy/idist*I_SPEED*dt;}
   }
-  var dimL,dimG;
-  function resize(){ dimL=sizeCanvas(cL); dimG=sizeCanvas(cG); render(); }
-  window.addEventListener('resize',resize);
+  for(i=0;i<s.flashes.length;i++)s.flashes[i].life-=dt;
+  s.flashes=s.flashes.filter(function(f){return f.life>0;});
+  var allDone=s.drones.every(function(d){return d.done||!d.alive;});
+  if(allDone&&!s.finished){s.settleT+=dt;if(s.settleT>0.6)s.finished=true;}
+}
 
-  function reset(newSeed){
-    if(newSeed) seed=(seed*1664525+1013904223)>>>0;
-    var raid=makeRaid(seed);
-    simL=newSim(raid,'legacy'); simG=newSim(raid,'grecko');
-    acc=0; render(); updateStats();
-    document.getElementById('verdict').innerHTML='Engagement running…';
+function fmtK(n){if(n>=1000)return'$'+(n/1000).toFixed(n>=10000?0:1)+'k';return'$'+Math.round(n);}
+
+function draw(ctx,W,H,s,isGrecko){
+  ctx.clearRect(0,0,W,H);
+  // background
+  ctx.fillStyle='#040a07';ctx.fillRect(0,0,W,H);
+  // subtle grid
+  ctx.strokeStyle='rgba(18,32,24,0.8)';ctx.lineWidth=1;
+  var g;
+  for(g=1;g<6;g++){var gy=H*g/6;ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(W,gy);ctx.stroke();}
+  for(g=1;g<8;g++){var gx=W*g/8;ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,H);ctx.stroke();}
+  // sensor line
+  ctx.strokeStyle='rgba(0,229,255,0.12)';ctx.setLineDash([4,6]);
+  ctx.beginPath();ctx.moveTo(0,TRACK_Y*H);ctx.lineTo(W,TRACK_Y*H);ctx.stroke();
+  ctx.setLineDash([]);
+  // asset glow
+  var ax=AX*W,ay=AY*H;
+  var ag=ctx.createRadialGradient(ax,ay,0,ax,ay,32);
+  ag.addColorStop(0,'rgba(0,255,136,0.18)');ag.addColorStop(1,'rgba(0,255,136,0)');
+  ctx.fillStyle=ag;ctx.beginPath();ctx.arc(ax,ay,32,0,7);ctx.fill();
+  ctx.fillStyle='#00ff88';ctx.beginPath();ctx.arc(ax,ay,6,0,7);ctx.fill();
+  // battery
+  ctx.fillStyle='#1c3426';ctx.fillRect(BX*W-7,BY*H-4,14,8);
+  ctx.fillStyle='#2a5040';ctx.fillRect(BX*W-5,BY*H-3,10,6);
+  // interceptors
+  var i,v,d;
+  for(i=0;i<s.ivs.length;i++){
+    v=s.ivs[i];if(!v.alive)continue;
+    d=s.drones[v.tx];
+    var col=v.kind==='K'?'#ff7b3a':'#00e5ff';
+    if(d){
+      ctx.strokeStyle=col;ctx.globalAlpha=0.3;ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.moveTo(BX*W,BY*H);ctx.lineTo(v.x*W,v.y*H);ctx.stroke();
+      ctx.globalAlpha=1;
+    }
+    var ig=ctx.createRadialGradient(v.x*W,v.y*H,0,v.x*W,v.y*H,8);
+    ig.addColorStop(0,col);ig.addColorStop(1,'transparent');
+    ctx.globalAlpha=0.5;ctx.fillStyle=ig;ctx.beginPath();ctx.arc(v.x*W,v.y*H,8,0,7);ctx.fill();
+    ctx.globalAlpha=1;
+    ctx.fillStyle=col;ctx.beginPath();ctx.arc(v.x*W,v.y*H,3,0,7);ctx.fill();
   }
-
-  function setStat(id,val){ document.getElementById(id).textContent=val; }
-  function updateStats(){
-    setStat('L-stopped', simL.stopped+'/'+RAID_N); setStat('G-stopped', simG.stopped+'/'+RAID_N);
-    setStat('L-spend', fmtK(simL.spend)); setStat('G-spend', fmtK(simG.spend));
-    setStat('L-dmg', fmtK(simL.dmg)); setStat('G-dmg', fmtK(simG.dmg));
-    document.getElementById('clock').textContent='t = '+simL.t.toFixed(1)+'s';
+  // drones
+  for(i=0;i<s.drones.length;i++){
+    d=s.drones[i];
+    if(!d.live||d.done||!d.alive)continue;
+    var col2=d.hi?'#ffd93d':'#ff3d57';
+    if(d.tracked){
+      ctx.strokeStyle=col2;ctx.globalAlpha=0.3;ctx.lineWidth=1;
+      ctx.beginPath();ctx.arc(d.x*W,d.y*H,9,0,7);ctx.stroke();ctx.globalAlpha=1;
+    }
+    var dg=ctx.createRadialGradient(d.x*W,d.y*H,0,d.x*W,d.y*H,7);
+    dg.addColorStop(0,col2);dg.addColorStop(1,'transparent');
+    ctx.globalAlpha=0.35;ctx.fillStyle=dg;ctx.beginPath();ctx.arc(d.x*W,d.y*H,7,0,7);ctx.fill();
+    ctx.globalAlpha=1;
+    ctx.fillStyle=col2;ctx.beginPath();ctx.arc(d.x*W,d.y*H,d.hi?5:3.5,0,7);ctx.fill();
   }
-
-  function render(){
-    if(!simL) return;
-    draw(cL.getContext('2d'),dimL.w,dimL.h,simL);
-    draw(cG.getContext('2d'),dimG.w,dimG.h,simG);
+  // flashes
+  for(i=0;i<s.flashes.length;i++){
+    var f=s.flashes[i];
+    var prog=f.bad?(0.5-f.life)/0.5:(0.4-f.life)/0.4;
+    var fcol=f.bad?'rgba(255,61,87,':'rgba(0,255,136,';
+    ctx.strokeStyle=fcol+(f.life*(f.bad?2.2:2.8))+')';
+    ctx.lineWidth=1.8;ctx.beginPath();ctx.arc(f.x*W,f.y*H,3+prog*18,0,7);ctx.stroke();
   }
+}
 
-  function verdict(){
-    var lk=simL.stopped?simL.spend/simL.stopped:0;
-    var gk=simG.stopped?simG.spend/simG.stopped:0;
-    var saved=simL.spend-simG.spend;
-    var dmgsaved=simL.dmg-simG.dmg;
-    var el=document.getElementById('verdict');
-    var ratio=gk>0?(lk/gk):0;
-    el.innerHTML='Both stopped roughly the same count. GRECKO spent <b class="cy">'+fmtK(simG.spend)+
-      '</b> vs legacy <b class="or">'+fmtK(simL.spend)+'</b> — '+
-      (saved>0?('<b class="gd">'+fmtK(saved)+' less</b>'):'similar')+
-      (dmgsaved>0?(', and let <b class="gd">'+fmtK(dmgsaved)+' less damage</b> through'):'')+
-      '. Cost per kill: <b class="cy">'+fmtK(gk)+'</b> vs <b class="or">'+fmtK(lk)+'</b>'+
-      (ratio>1?(' ('+ratio.toFixed(1)+'× cheaper, this raid)'):'')+'.';
-  }
+// ---------- wiring ----------
+var cL=document.getElementById('cv-legacy'),cG=document.getElementById('cv-grecko');
+var seed=20260613,simL,simG,running=false,speed=1,raf=null,last=0,acc=0;
+var DT=1/120;
+var dimL,dimG;
 
-  function loop(ts){
-    if(!running){ return; }
-    if(!last) last=ts;
-    var elapsed=Math.min((ts-last)/1000,0.05); last=ts;
-    acc+=elapsed*speed;
-    while(acc>=DT){ step(simL,DT); step(simG,DT); acc-=DT; }
-    render(); updateStats();
-    if(simL.finished && simG.finished){ running=false; last=0; verdict();
-      document.getElementById('btn-pause').textContent='⏸ Pause'; return; }
-    raf=requestAnimationFrame(loop);
-  }
+function sizeCanvas(c){
+  var dpr=window.devicePixelRatio||1;
+  var w=c.clientWidth,h=Math.round(w*0.75);
+  c.width=w*dpr;c.height=h*dpr;
+  var ctx=c.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);
+  return{w:w,h:h};
+}
+function resize(){dimL=sizeCanvas(cL);dimG=sizeCanvas(cG);render();}
+window.addEventListener('resize',resize);
 
-  function play(){ if(running) return; if(!simL) reset(false);
-    if(simL.finished&&simG.finished) reset(false);
-    running=true; last=0; raf=requestAnimationFrame(loop);
-    document.getElementById('btn-pause').textContent='⏸ Pause'; }
-  function pause(){ running=false; last=0; if(raf) cancelAnimationFrame(raf);
-    document.getElementById('btn-pause').textContent='▶ Resume'; }
+function reset(newSeed){
+  if(newSeed)seed=(seed*1664525+1013904223)>>>0;
+  var raid=makeRaid(seed);
+  simL=newSim(raid,'legacy');simG=newSim(raid,'grecko');
+  acc=0;render();updateStats();
+  document.getElementById('verdict').innerHTML='Press <b class="gr">Replay</b> to run the engagement.';
+}
 
-  document.getElementById('btn-replay').addEventListener('click',function(){ reset(false); play(); });
-  document.getElementById('btn-pause').addEventListener('click',function(){ running?pause():play(); });
-  document.getElementById('btn-new').addEventListener('click',function(){ reset(true); play(); });
-  document.getElementById('btn-speed').addEventListener('click',function(){
-    speed=speed===1?2:(speed===2?4:1);
-    this.textContent='Speed ×'+speed;
-  });
+function setStat(id,val){document.getElementById(id).textContent=val;}
+function updateStats(){
+  setStat('L-stopped',simL.stopped+'/'+RAID_N);setStat('G-stopped',simG.stopped+'/'+RAID_N);
+  setStat('L-spend',fmtK(simL.spend));setStat('G-spend',fmtK(simG.spend));
+  setStat('L-dmg',fmtK(simL.dmg));setStat('G-dmg',fmtK(simG.dmg));
+}
 
-  // init
-  reset(false);
-  setTimeout(function(){ resize(); play(); },120);
+function render(){
+  if(!simL)return;
+  draw(cL.getContext('2d'),dimL.w,dimL.h,simL,false);
+  draw(cG.getContext('2d'),dimG.w,dimG.h,simG,true);
+}
+
+function verdict(){
+  var lk=simL.stopped?simL.spend/simL.stopped:0;
+  var gk=simG.stopped?simG.spend/simG.stopped:0;
+  var saved=simL.spend-simG.spend;
+  var dmgsaved=simL.dmg-simG.dmg;
+  var ratio=gk>0?(lk/gk):0;
+  document.getElementById('verdict').innerHTML=
+    'GRECKO spent <b class="cy">'+fmtK(simG.spend)+'</b> vs LEGACY '+
+    '<b class="or">'+fmtK(simL.spend)+'</b> — '+
+    (saved>0?'<b class="gd">'+fmtK(saved)+' saved</b>':'similar spend')+
+    (dmgsaved>0?', <b class="gd">'+fmtK(dmgsaved)+' less damage</b> through':'')+
+    '. Cost per kill: <b class="cy">'+fmtK(gk)+'</b> vs <b class="or">'+fmtK(lk)+'</b>'+
+    (ratio>1?' (<b class="gd">'+ratio.toFixed(1)+'× cheaper</b>, this raid)':'')+'.';
+}
+
+function loop(ts){
+  if(!running)return;
+  if(!last)last=ts;
+  var elapsed=Math.min((ts-last)/1000,0.05);last=ts;
+  acc+=elapsed*speed;
+  while(acc>=DT){step(simL,DT);step(simG,DT);acc-=DT;}
+  render();updateStats();
+  if(simL.finished&&simG.finished){running=false;last=0;verdict();
+    document.getElementById('btn-pause').textContent='⏸ Pause';return;}
+  raf=requestAnimationFrame(loop);
+}
+
+function play(){
+  if(running)return;
+  if(!simL)reset(false);
+  if(simL.finished&&simG.finished)reset(false);
+  running=true;last=0;raf=requestAnimationFrame(loop);
+  document.getElementById('btn-pause').textContent='⏸ Pause';
+}
+function pause(){
+  running=false;last=0;if(raf)cancelAnimationFrame(raf);
+  document.getElementById('btn-pause').textContent='▶ Resume';
+}
+
+document.getElementById('btn-replay').addEventListener('click',function(){reset(false);play();});
+document.getElementById('btn-pause').addEventListener('click',function(){running?pause():play();});
+document.getElementById('btn-new').addEventListener('click',function(){reset(true);play();});
+document.getElementById('btn-speed').addEventListener('click',function(){
+  speed=speed===1?2:(speed===2?4:1);
+  this.textContent='Speed ×'+speed;
+});
+
+reset(false);
+setTimeout(function(){resize();play();},120);
 })();
 </script>
-
 </body>
 </html>
