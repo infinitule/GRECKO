@@ -98,3 +98,61 @@ Understanding is built, not dumped, so the page is a narrative, not a feature li
   illustration renders static.
 - Canvas work avoids layout thrash; sims pause until scrolled into view via
   `IntersectionObserver`.
+
+---
+
+# "The Patient Predator" — 3D + real gecko imagery pass
+
+A gecko does not lunge at every insect. It holds still, computes which strike is
+worth the metabolic cost, and takes it with total economy. This pass makes that
+instinct the spine of the page: the gecko stops being an illustration and becomes
+the explanation.
+
+## Metaphor → meaning (nothing is decorative)
+
+| Gecko structure | Page element | Meaning carried |
+|---|---|---|
+| **Eye / vertical pupil** | Hero centerpiece — a real macro photograph whose dilated pupil contains the live engagement | The eye *is* the sensor aperture; the engagement literally runs **inside the pupil**. Cursor parallax + pupil dilation reinforce "this is what it's looking at." |
+| **Scales** | Tessellated ground grid in the 3D theater; the macro scales plate | Skin → data-surface → the track lattice the allocator reasons over. |
+| **Setae / grip foot** | Instrument plate; "lock the track" | Adhesion with exactly enough force = commitment to a target: precise, total, no waste. |
+| **Two animals, two hunts** | The 3D theater renders **both doctrines side by side** | Legacy lunges at the nearest and burns out; GRECKO waits, ranks, and strikes selectively. The viewer reads the economics by watching two predators hunt. |
+
+The single most important moment — the **deliberate let-through** — is made spatial:
+the drones GRECKO sacrifices float under an amber `LET THROUGH · #11/11` tag while
+its reserved strikes land elsewhere. You see the choice happen in 3D.
+
+## Why 3D here, and how it's kept from upstaging the point
+
+3D earns its place only where it makes the **let-through legible in space** — you
+cannot show "the expensive one sails through untouched" as clearly in 2D. Every
+number that carries the argument (the money ledgers, the decision log, the verdict)
+stays as flat, high-contrast DOM that does not depend on WebGL. If the lizard and
+the lighting were removed, the thesis would still land from the ledgers alone. That
+is the test the trap demanded, and the build is structured to pass it.
+
+## Real imagery + provenance
+
+All gecko photography is real macro work under CC0 / CC BY-SA, sourced from
+Wikimedia Commons and logged in full (file, subject, author, license) in
+`PROVENANCE.md`. Using a product about provenance with unlicensed scraped images
+would be self-refuting; the asset table is part of the argument.
+
+## Performance & access budget
+
+- **Progressive enhancement, not dependency.** The page is fully functional and
+  on-message with zero JavaScript frameworks and zero WebGL. The 3D theater is a
+  `<script type="module">` that *upgrades* the 2D console only when it can do so
+  well; any failure (offline CDN, no WebGL2, a thrown error) silently restores the
+  2D console via try/catch.
+- **Gate.** 3D activates only on WebGL2 + viewport ≥ 820px + motion allowed. Mobile
+  keeps the lean 2D scene; `prefers-reduced-motion` keeps a static annotated frame
+  with the verdict pre-filled.
+- **Frame budget.** One WebGL context, split-scissor viewports (no second context),
+  instanced meshes for the swarm and interceptors (no per-frame allocation in the
+  hot loop), pixel-ratio capped at 1.75, three.js lazy-imported below the hero.
+- **Assets.** Photography is cropped/tonally-graded and shipped as WebP
+  (~0.43 MB total), lazy-loaded; three.js is loaded from CDN at runtime, not
+  vendored.
+- **Colour is never the only channel.** Let-through vs struck is carried by shape +
+  text (`LET THROUGH`, `HOLD`, dashed rings) so it survives grayscale and colour
+  blindness.
