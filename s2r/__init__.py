@@ -1,6 +1,6 @@
 """P-S2R — sim-to-real validation strategy.
 
-Quantifies how much the AEGISNET headline conclusions depend on simulation
+Quantifies how much the GRECKO headline conclusions depend on simulation
 fidelity, and documents the real-world measurement that would validate each
 modelled parameter before any conclusion is carried across the reality gap.
 

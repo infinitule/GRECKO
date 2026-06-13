@@ -143,7 +143,7 @@ async def serve(
     )
 
     async with websockets.serve(on_connect, host, port):
-        print(f"AEGISNET C2 bridge listening on ws://{host}:{port}")
+        print(f"GRECKO C2 bridge listening on ws://{host}:{port}")
         await stop.wait()
 
     loop_task.cancel()
@@ -154,7 +154,7 @@ async def serve(
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description="AEGISNET C2 WebSocket bridge")
+    p = argparse.ArgumentParser(description="GRECKO C2 WebSocket bridge")
     p.add_argument("--host", default="127.0.0.1")
     p.add_argument("--port", type=int, default=8765)
     p.add_argument("--seed", type=int, default=42)

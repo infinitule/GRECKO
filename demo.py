@@ -1,4 +1,4 @@
-"""AEGISNET headline demo — one command, the whole story.
+"""GRECKO headline demo — one command, the whole story.
 
 Reproduces the project's headline result: the EconomicMDP allocator's
 cost-exchange advantage over a greedy baseline, measured by Monte Carlo
@@ -80,7 +80,7 @@ def _print_headline(result: dict) -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="AEGISNET headline demo")
+    parser = argparse.ArgumentParser(description="GRECKO headline demo")
     parser.add_argument("--fast", action="store_true",
                         help="reduced study for a quick look (~45 s)")
     parser.add_argument("--json", metavar="PATH", default=None,
@@ -89,7 +89,7 @@ def main(argv: list[str] | None = None) -> int:
                         help="skip the architectural invariant gate")
     args = parser.parse_args(argv)
 
-    print("AEGISNET — counter-swarm defense simulation")
+    print("GRECKO — counter-swarm defense simulation")
     print("Simulation / research / C2-software only. No weapon integration.")
 
     invariants_ok = True

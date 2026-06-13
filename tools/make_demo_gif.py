@@ -3,10 +3,10 @@
 Runs the SAME incoming attack swarm against two defenses, side by side:
 
   LEFT  "Legacy WTA doctrine"  — all-kinetic interceptors, engage-everything
-  RIGHT "AEGISNET"             — economic allocator + cost-adapted loadout
+  RIGHT "GRECKO"             — economic allocator + cost-adapted loadout
 
 Both stop the swarm; the live $-spent and cost-per-kill counters tell the real
-story — counter-swarm is a cost-exchange problem, and AEGISNET wins it.
+story — counter-swarm is a cost-exchange problem, and GRECKO wins it.
 
 Renders docs/figures/swarm_demo.gif. This is a SIMULATION: effectors are
 parameter sets (cost, Pk); nothing here is a weapon or hardware action.
@@ -164,7 +164,7 @@ def main():
     FIGDIR.mkdir(parents=True, exist_ok=True)
     print("running legacy doctrine (all-kinetic, greedy)...")
     legacy = _run(loadout=["kinetic_interceptor"] * N_DEFENSE, lambda_cost=0.0)
-    print("running AEGISNET (economic + adapted loadout)...")
+    print("running GRECKO (economic + adapted loadout)...")
     # cost-adapted: cheap collision drones, economic rationing
     aegis = _run(loadout=["collision_drone"] * N_DEFENSE, lambda_cost=0.1)
 
@@ -178,7 +178,7 @@ def main():
 
     def update(i):
         _draw_panel(axl, legacy[i], "Legacy WTA doctrine", ORANGE, N_ATTACK)
-        _draw_panel(axr, aegis[i], "AEGISNET", CYAN, N_ATTACK)
+        _draw_panel(axr, aegis[i], "GRECKO", CYAN, N_ATTACK)
         # verdict banner once both finish engaging
         if i == n - 1:
             ls, as_ = legacy[i]["spend"], aegis[i]["spend"]

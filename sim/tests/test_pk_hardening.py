@@ -179,7 +179,7 @@ class TestDocumentation:
 
     def test_every_phase_has_an_adr(self):
         """Each done phase in state.json points to an ADR that exists."""
-        state = json.loads((ROOT / ".aegisnet" / "state.json").read_text())
+        state = json.loads((ROOT / ".grecko" / "state.json").read_text())
         for phase in state["phases"]:
             adr = phase.get("adr", "")
             if adr:  # PK itself may have no separate ADR

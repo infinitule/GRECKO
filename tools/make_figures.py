@@ -61,17 +61,17 @@ def make_banner():
     ax = fig.add_axes([0, 0, 1, 1])
     ax.set_facecolor(BG)
     ax.axis("off")
-    ax.text(0.04, 0.66, "AEGISNET", color=FG, fontsize=58, fontweight="bold",
+    ax.text(0.04, 0.68, "GRECKO", color=FG, fontsize=58, fontweight="bold",
             family="monospace", va="center")
-    ax.text(0.045, 0.30, "counter-swarm air-defense simulation & research testbed",
-            color=CYAN, fontsize=17, va="center")
-    ax.text(0.045, 0.12, "sense → fuse → classify → predict → allocate → engage  ·  "
-                         "human-on-the-loop C2  ·  adversarial co-evolution",
+    ax.text(0.045, 0.34, "win the counter-swarm cost exchange",
+            color=CYAN, fontsize=18, va="center")
+    ax.text(0.045, 0.14, "small, fast, adaptive — beat the swarm by agility & economics, "
+                         "not by out-spending it",
             color=MUTED, fontsize=11.5, va="center")
     # right-side stat
-    ax.text(0.97, 0.62, "−22%", color=GREEN, fontsize=46, fontweight="bold",
+    ax.text(0.965, 0.64, "98×", color=GREEN, fontsize=52, fontweight="bold",
             ha="right", va="center")
-    ax.text(0.97, 0.27, "cost per intercepted threat\nvs greedy baseline",
+    ax.text(0.965, 0.26, "cheaper per intercept\nthan legacy doctrine",
             color=MUTED, fontsize=10.5, ha="right", va="center")
     fig.savefig(FIGDIR / "banner.png", dpi=140, facecolor=BG)
     plt.close(fig)
@@ -151,7 +151,7 @@ def make_coevolution(pm: dict | None):
 
 def make_scoreboard():
     """Static head-to-head scoreboard from the deterministic swarm demo run
-    (tools/make_demo_gif.py: legacy 7/11 @ $630k, AEGISNET 8/11 @ $6.4k)."""
+    (tools/make_demo_gif.py: legacy 7/11 @ $630k, GRECKO 8/11 @ $6.4k)."""
     fig = _fig(9.2, 4.6)
     ax = fig.add_axes([0, 0, 1, 1]); ax.set_facecolor(BG); ax.axis("off")
     ax.set_xlim(0, 1); ax.set_ylim(0, 1); ax.set_autoscale_on(False)
@@ -160,7 +160,7 @@ def make_scoreboard():
 
     cols = [
         ("Legacy WTA doctrine", ORANGE, "7 / 11", "$630,000", "$90,000"),
-        ("AEGISNET", CYAN, "8 / 11", "$6,400", "$800"),
+        ("GRECKO", CYAN, "8 / 11", "$6,400", "$800"),
     ]
     xs = [0.27, 0.73]
     rows = [("threats stopped", 0.66), ("total spend", 0.50), ("cost per kill", 0.34)]

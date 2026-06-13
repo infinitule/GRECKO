@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>AEGISNET — winning the counter-swarm cost exchange</title>
-<meta name="description" content="AEGISNET is a counter-swarm air-defense simulation that wins the cost exchange: it neutralizes UAS swarms at ~1% of the cost of legacy weapon-target-assignment doctrine. Simulation and C2-software only." />
+<title>GRECKO — winning the counter-swarm cost exchange</title>
+<meta name="description" content="GRECKO is a counter-swarm air-defense simulation that wins the cost exchange: it neutralizes UAS swarms at ~1% of the cost of legacy weapon-target-assignment doctrine. Simulation and C2-software only." />
 <style>
   :root {
     --bg: #0d1117; --panel: #161b22; --panel2:#11161d; --border: #30363d;
@@ -84,13 +84,13 @@
 
 <header>
   <div class="wrap">
-    <h1>AEGISNET</h1>
+    <h1>GRECKO</h1>
     <div class="tag">winning the counter-swarm cost exchange</div>
     <div class="sub">A defense decision engine that neutralizes UAS swarms at a fraction of
       the cost of legacy weapon-target-assignment doctrine — with a human on the loop and
       every decision auditable.</div>
     <div class="badges">
-      <span class="badge">validated in sim <b>299 tests</b></span>
+      <span class="badge">validated in sim <b>305 tests</b></span>
       <span class="badge">invariants <b>4/4 enforced</b></span>
       <span class="badge">decisions <b>deterministic &amp; auditable</b></span>
       <span class="badge">scope <b>simulation &amp; C2 only</b></span>
@@ -116,13 +116,13 @@
         it runs out of targets.</p>
         <div class="quote">Counter-swarm is not primarily a targeting problem.
           It is a <b>cost-exchange</b> problem.</div>
-        <p class="lead">AEGISNET treats the engagement as an economic decision —
+        <p class="lead">GRECKO treats the engagement as an economic decision —
           which interceptor, against which threat, at what cost, under whose
           authorization — and optimizes the dollar exchange directly.</p>
       </div>
       <div class="kpis" style="grid-template-columns:1fr 1fr;">
         <div class="kpi"><div class="v">98×</div><div class="l">cheaper than legacy doctrine, same raid</div></div>
-        <div class="kpi"><div class="v cy">$800</div><div class="l">AEGISNET cost per kill</div></div>
+        <div class="kpi"><div class="v cy">$800</div><div class="l">GRECKO cost per kill</div></div>
         <div class="kpi"><div class="v cy">$90k</div><div class="l">legacy cost per kill</div></div>
         <div class="kpi"><div class="v">0</div><div class="l">cost ground the adversary can win back</div></div>
       </div>
@@ -139,11 +139,11 @@
     <figure>
       <img src="figures/swarm_demo.gif" alt="Swarm-for-swarm animated demo" />
       <figcaption>Left: legacy weapon-target-assignment (all-kinetic, engage-everything).
-        Right: AEGISNET (economic allocation + cost-adapted loadout). Rendered directly from the simulator.</figcaption>
+        Right: GRECKO (economic allocation + cost-adapted loadout). Rendered directly from the simulator.</figcaption>
     </figure>
     <figure>
       <img src="figures/scoreboard.png" alt="Head-to-head scoreboard" />
-      <figcaption>AEGISNET stops one <em>more</em> threat for <b>1.0%</b> of the spend.</figcaption>
+      <figcaption>GRECKO stops one <em>more</em> threat for <b>1.0%</b> of the spend.</figcaption>
     </figure>
   </div>
 </section>
@@ -152,7 +152,7 @@
 <section>
   <div class="wrap">
     <h2>How we beat the field</h2>
-    <p class="lead">Every alternative gives up at least one axis that matters. AEGISNET holds all of them.</p>
+    <p class="lead">Every alternative gives up at least one axis that matters. GRECKO holds all of them.</p>
     <table>
       <thead>
         <tr>
@@ -161,7 +161,7 @@
           <th>Manual / human-only C2</th>
           <th>Fixed kinetic systems</th>
           <th>Black-box ML allocator</th>
-          <th class="us">AEGISNET</th>
+          <th class="us">GRECKO</th>
         </tr>
       </thead>
       <tbody>
@@ -192,7 +192,7 @@
       </tbody>
     </table>
     <p class="lead" style="font-size:0.9rem">Legacy-WTA and fixed-kinetic columns are
-      grounded in AEGISNET's own measured baselines (greedy allocator, all-kinetic loadout);
+      grounded in GRECKO's own measured baselines (greedy allocator, all-kinetic loadout);
       others characterize the approach class.</p>
   </div>
 </section>
@@ -229,7 +229,7 @@
   <div class="wrap">
     <h2>De-risked, not a slide deck</h2>
     <div class="kpis">
-      <div class="kpi"><div class="v cy">299</div><div class="l">automated tests passing</div></div>
+      <div class="kpi"><div class="v cy">305</div><div class="l">automated tests passing</div></div>
       <div class="kpi"><div class="v cy">12</div><div class="l">build phases, P0 → PM</div></div>
       <div class="kpi"><div class="v cy">4/4</div><div class="l">architectural invariants gated in CI</div></div>
       <div class="kpi"><div class="v cy">100%</div><div class="l">results reproducible from a seed</div></div>
@@ -245,18 +245,22 @@
 <section>
   <div class="wrap">
     <h2>See it yourself</h2>
-    <pre><code>pip install -e .
+    <pre><code>pip install -e .            # installs the `grecko` CLI
 
-python demo.py --fast                 # headline study + invariant gate (~45s)
-python -m tools.make_demo_gif         # render the swarm-for-swarm animation
-python -m tools.verify_invariants     # architectural invariant gate
-python -m pytest sim/tests -q         # full acceptance suite (299 tests)</code></pre>
+grecko demo --fast         # headline cost-exchange study (~45s)
+grecko verify              # architectural invariant gate
+grecko serve               # C2 decision-engine bridge (ws://:8765)
+make gif                   # render the swarm-for-swarm animation
+make test                  # full acceptance suite (305 tests)</code></pre>
+    <p class="lead" style="margin-top:14px">Deployable as two containers (C2 bridge +
+      operator console) with <code>make docker-up</code> — non-root, healthchecked, with a
+      documented integration boundary. See <code>docs/DEPLOYMENT.md</code>.</p>
   </div>
 </section>
 
 <footer>
   <div class="wrap">
-    AEGISNET — simulation, research, and C2-software only. Effectors are parameter sets;
+    GRECKO — simulation, research, and C2-software only. Effectors are parameter sets;
     no hardware control, no RF design, no weapon integration. Every result is reproducible
     from a seed and every architectural claim is enforced by a CI gate.
   </div>

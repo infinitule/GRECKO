@@ -1,6 +1,6 @@
 """Architectural invariant verifier — the hardening gate.
 
-AEGISNET rests on four invariants that are easy to violate by accident in a
+GRECKO rests on four invariants that are easy to violate by accident in a
 later edit and expensive to catch by eye. This script checks all four
 mechanically so CI (and a reviewer) can confirm them in one command:
 
@@ -38,7 +38,7 @@ from typing import List
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 # Production source trees (analysis, not tests, not eval benchmarks).
-_PROD_TREES = ["sim", "league", "s2r"]
+_PROD_TREES = ["sim", "league", "s2r", "grecko", "eval"]
 
 # Modules that are permitted to consume ground truth (eval / benchmark only).
 _TRUTH_ALLOWED = {
@@ -233,7 +233,7 @@ def run_all() -> List[CheckResult]:
 
 
 def main(argv: List[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="AEGISNET invariant verifier")
+    parser = argparse.ArgumentParser(description="GRECKO invariant verifier")
     parser.add_argument("--json", action="store_true", help="machine-readable output")
     parser.add_argument("--quiet", action="store_true", help="exit code only")
     args = parser.parse_args(argv)
@@ -247,7 +247,7 @@ def main(argv: List[str] | None = None) -> int:
             "checks": [r.to_dict() for r in results],
         }, indent=2))
     elif not args.quiet:
-        print("AEGISNET architectural invariants\n" + "=" * 40)
+        print("GRECKO architectural invariants\n" + "=" * 40)
         for r in results:
             mark = "PASS" if r.passed else "FAIL"
             print(f"[{mark}] {r.name:12s} {r.detail}")

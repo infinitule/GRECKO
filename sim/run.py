@@ -53,7 +53,7 @@ def run(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="AEGISNET headless engagement runner")
+    parser = argparse.ArgumentParser(description="GRECKO headless engagement runner")
     parser.add_argument("--scenario", required=True, help="Path to scenario YAML")
     parser.add_argument("--seed", type=int, default=42, help="RNG seed")
     parser.add_argument("--headless", action="store_true", default=True)

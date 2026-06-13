@@ -1,26 +1,34 @@
 <p align="center">
-  <img src="docs/figures/banner.png" alt="AEGISNET" width="100%" />
+  <img src="docs/figures/banner.png" alt="GRECKO" width="100%" />
 </p>
 
 <p align="center">
-  <img alt="tests" src="https://img.shields.io/badge/tests-299_passing-3fb950?style=flat-square" />
+  <img alt="version" src="https://img.shields.io/badge/version-1.0.0-39d0d8?style=flat-square" />
+  <img alt="tests" src="https://img.shields.io/badge/tests-305_passing-3fb950?style=flat-square" />
   <img alt="invariants" src="https://img.shields.io/badge/invariants-4%2F4_green-39d0d8?style=flat-square" />
   <img alt="python" src="https://img.shields.io/badge/python-3.11-blue?style=flat-square" />
-  <img alt="determinism" src="https://img.shields.io/badge/replay-seeded_%26_hashed-39d0d8?style=flat-square" />
-  <img alt="scope" src="https://img.shields.io/badge/scope-simulation_only-f0883e?style=flat-square" />
+  <img alt="docker" src="https://img.shields.io/badge/docker-ready-2496ed?style=flat-square" />
+  <img alt="license" src="https://img.shields.io/badge/license-Apache--2.0-blue?style=flat-square" />
+  <img alt="scope" src="https://img.shields.io/badge/scope-simulation_%26_C2_only-f0883e?style=flat-square" />
 </p>
 
-# AEGISNET
+# GRECKO
 
-A counter-swarm air-defense **simulation and research testbed**. AEGISNET
-models the full sense → fuse → classify → predict → allocate → engage decision
-loop against adversarial UAS swarms, with a human-on-the-loop command-and-control
+**GRECKO** is a counter-swarm air-defense **decision engine** — named for the
+gecko: small, fast, adhesive, adaptive. It wins the engagement the way a gecko
+does, by **agility and economics**, not by out-spending the threat.
+
+It models the full sense → fuse → classify → predict → allocate → engage loop
+against adversarial UAS swarms, with a human-on-the-loop command-and-control
 console and an adversarial co-evolution league that discovers attack tactics the
-defense was never scripted against.
+defense was never scripted against — then a mutual loop where the defense adapts
+back. Packaged to deploy: a `grecko` CLI, containers, and a CI-gated scope
+boundary.
 
-The headline result: a magazine-conscious **economic allocator** intercepts
-swarm raids at materially lower cost-per-kill than a greedy baseline, and the
-advantage is largest against the adversarially-discovered attacks.
+The headline result: a magazine-conscious **economic allocator** neutralizes
+swarm raids at a fraction of the cost-per-kill of legacy weapon-target-assignment
+doctrine, and the advantage is largest against the adversarially-discovered
+attacks.
 
 > 📊 **Investor / project landing page** (problem, demo, competitive comparison):
 > the GitHub Pages site is built from [`site/index.html`](site/index.html) and
@@ -31,20 +39,20 @@ advantage is largest against the adversarially-discovered attacks.
 Counter-swarm is fundamentally a **cost-exchange problem**: a $90,000 interceptor
 against a $1,000 quadrotor is a losing trade even when it hits. The same 11-UAS
 raid, run against a legacy weapon-target-assignment doctrine (left) and against
-AEGISNET (right), straight from the simulator:
+GRECKO (right), straight from the simulator:
 
 <p align="center"><img src="docs/figures/swarm_demo.gif" alt="Swarm-for-swarm demo" width="100%" /></p>
 
 <p align="center"><img src="docs/figures/scoreboard.png" alt="Head-to-head scoreboard" width="78%" /></p>
 
-**AEGISNET stops one _more_ threat for ~1% of the spend** — $6,400 vs $630,000.
+**GRECKO stops one _more_ threat for ~1% of the spend** — $6,400 vs $630,000.
 Reproduce it with `python -m tools.make_demo_gif`.
 
 ---
 
 ## Scope boundary (read this first)
 
-AEGISNET is **simulation, research, and C2-software only.** It deliberately
+GRECKO is **simulation, research, and C2-software only.** It deliberately
 contains none of the following, and a CI gate
 (`python -m tools.verify_invariants`) enforces their absence:
 
@@ -151,27 +159,32 @@ The three **Pillars** (PA / PB / PL) are the research contributions; the other
 phases are the substrate they need to be measured honestly.
 
 Each phase has an architecture decision record in [`docs/`](docs/)
-(ADR-000 … ADR-010).
+(ADR-000 … ADR-012).
 
 ---
 
 ## Quick start
 
 ```bash
-pip install -e .            # numpy, scipy, pyyaml
+pip install -e .            # installs the `grecko` CLI + deps
 
-python demo.py --fast       # headline study + invariant gate (~45 s)
-python demo.py              # full study (~3 min)
+grecko version              # version + scope banner
+grecko verify               # architectural invariant gate
+grecko demo --fast          # headline cost-exchange study (~45 s)
+grecko eval --seeds 6       # Monte Carlo evaluation, headline JSON
+grecko serve                # C2 WebSocket bridge (ws://0.0.0.0:8765)
 
-python -m tools.verify_invariants   # architectural invariant gate
-python -m pytest sim/tests -q       # full acceptance suite (259 tests)
+make test                   # full acceptance suite (305 tests)
+make gif                    # render the swarm-for-swarm demo animation
 ```
+
+`make help` lists every developer/operator target.
 
 ### The C2 console (human-on-the-loop)
 
 ```bash
-python -m sim.bridge.server          # asyncio WebSocket sim server
-cd viz && npm install && npm run dev # TypeScript C2 console
+grecko serve                          # decision-engine bridge
+cd viz && npm install && npm run dev  # TypeScript C2 console
 ```
 
 The console renders the live air picture with uncertainty ellipses, intent
@@ -179,6 +192,33 @@ forecasts, and the comms mesh; the operator authorizes, holds, or marks-friendly
 each track. The HOTL interlock is an *architectural* property: `world.assign()`
 is reachable on the production path only through `C2State.can_engage()`, and
 the invariant verifier proves there is exactly one such guarded call site.
+
+---
+
+## Deploy
+
+GRECKO ships as two containers — a C2 decision-engine bridge and an operator
+console — with a non-root runtime, healthchecks, and a documented integration
+boundary. Full guide in [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
+
+```bash
+make docker-up      # docker compose up --build -d  (bridge :8765 + console :8080)
+make docker         # build just the C2-server image
+```
+
+| `grecko` command | Purpose |
+|------------------|---------|
+| `grecko serve`   | start the C2 WebSocket bridge |
+| `grecko verify`  | run the architectural invariant gate (CI) |
+| `grecko demo`    | headline cost-exchange study |
+| `grecko eval`    | Monte Carlo evaluation → headline JSON |
+| `grecko figures` | regenerate result figures |
+
+> **Integration boundary.** In an operational integration GRECKO consumes a
+> track picture and emits *advisory* assignments under human authorization. It
+> does not command effectors, compute firing solutions, or touch RF — effectors
+> are parameter sets. That boundary is where real-world data attaches and where
+> GRECKO deliberately stops (see `docs/DEPLOYMENT.md`).
 
 ---
 
@@ -201,6 +241,7 @@ It exits non-zero on any violation, so it doubles as a CI gate.
 ## Repository layout
 
 ```
+grecko/     operator CLI (grecko serve|verify|demo|eval|figures) + version
 sim/        simulation kernel and the sense->...->engage pipeline
   core/     world, entities, kinematics, event log (P0)
   sensing/  imperfect sensor mesh (P1)
@@ -212,13 +253,13 @@ sim/        simulation kernel and the sense->...->engage pipeline
   bridge/   full-stack scenario + C2 WebSocket server (PV)
   tests/    acceptance suite, one file per phase
 learn/      intent model + training (PB)
-league/     adversarial co-evolution (PL)
+league/     adversarial co-evolution (PL) + mutual co-evolution (PM)
 s2r/        sim-to-real validation strategy (PS)
 eval/       Monte Carlo cost-exchange evaluation (PX)
-viz/        TypeScript + Vite C2 console (PV)
-tools/      architectural invariant verifier
-docs/       ADR-000 … ADR-010, figures
-demo.py     headline demo entry point
+viz/        TypeScript + Vite C2 console (PV) + nginx Dockerfile
+tools/      invariant verifier, figure + demo renderers
+docs/       ADR-000 … ADR-012, DEPLOYMENT.md, figures
+Dockerfile · docker-compose.yml · Makefile · demo.py
 ```
 
 ---
