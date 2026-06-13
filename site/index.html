@@ -3,80 +3,101 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>GRECKO — winning the counter-swarm cost exchange</title>
-<meta name="description" content="GRECKO is a counter-swarm air-defense simulation that wins the cost exchange: it neutralizes UAS swarms at ~1% of the cost of legacy weapon-target-assignment doctrine. Simulation and C2-software only." />
+<title>GRECKO — counter-swarm decision engine</title>
+<meta name="description" content="GRECKO is a counter-swarm air-defense simulation and C2 decision engine. It allocates a limited interceptor magazine economically — stopping the same raid for measurably less money, with a human on the loop. Simulation and C2-software only." />
 <style>
-  :root {
-    --bg: #0d1117; --panel: #161b22; --panel2:#11161d; --border: #30363d;
-    --fg: #e6edf3; --muted: #8b949e;
-    --cyan: #39d0d8; --green: #3fb950; --orange: #f0883e; --red: #f85149; --gold:#f2cc60;
+  :root{
+    --bg:#0b0f14; --panel:#141a22; --panel2:#0f141b; --border:#26303c;
+    --fg:#e6edf3; --muted:#8b97a6;
+    --cyan:#3fd0d8; --green:#46c46a; --orange:#f0883e; --red:#f85149; --gold:#f2cc60;
   }
-  * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
-  body { margin: 0; background: var(--bg); color: var(--fg);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    line-height: 1.62; }
-  a { color: var(--cyan); text-decoration: none; }
-  a:hover { text-decoration: underline; }
-  .wrap { max-width: 1000px; margin: 0 auto; padding: 0 22px; }
-  header { border-bottom: 1px solid var(--border);
-    background: radial-gradient(120% 120% at 80% -10%, #16202b 0%, var(--bg) 60%);
-    padding: 58px 0 42px; }
-  h1 { font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 3.6rem; margin: 0; letter-spacing: 2px; }
-  .tag { color: var(--cyan); font-size: 1.3rem; margin-top: 8px; }
-  .sub { color: var(--muted); margin-top: 6px; font-size: 1.02rem; max-width: 680px; }
-  .badges { margin-top: 24px; display: flex; gap: 8px; flex-wrap: wrap; }
-  .badge { background: var(--panel); border: 1px solid var(--border);
-    border-radius: 6px; padding: 4px 11px; font-size: 0.8rem; color: var(--muted); }
-  .badge b { color: var(--green); }
-  .scope { margin: 26px 0 0; border: 1px solid var(--orange); border-radius: 10px;
-    background: rgba(240,136,62,0.07); padding: 16px 20px; }
-  .scope h3 { margin: 0 0 4px; color: var(--orange); font-size: 1rem; }
-  .scope p { margin: 0; color: var(--fg); font-size: 0.92rem; }
-  section { padding: 46px 0; border-bottom: 1px solid var(--border); }
-  h2 { font-size: 1.75rem; margin: 0 0 8px; }
-  h2 .n { color: var(--muted); font-weight: 400; font-size: 1rem; }
-  .lead { color: var(--muted); margin-top: 0; font-size: 1.05rem; }
-  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 28px 0; }
-  .kpi { background: var(--panel); border: 1px solid var(--border);
-    border-radius: 12px; padding: 20px; text-align: center; }
-  .kpi .v { font-size: 2.1rem; font-weight: 800; color: var(--green); line-height: 1.1; }
-  .kpi .v.cy { color: var(--cyan); }
-  .kpi .l { color: var(--muted); font-size: 0.8rem; margin-top: 6px; }
-  figure { margin: 26px 0 8px; }
-  figure img { width: 100%; border: 1px solid var(--border); border-radius: 12px; display: block; }
-  figcaption { color: var(--muted); font-size: 0.85rem; margin-top: 10px; text-align: center; }
-  .problem { display: grid; grid-template-columns: 1.1fr 1fr; gap: 26px; align-items: center; }
-  .problem .big { font-size: 1.15rem; }
-  .problem .big b { color: var(--gold); }
-  .quote { border-left: 3px solid var(--orange); padding: 6px 0 6px 16px; color: var(--fg);
-    font-size: 1.05rem; margin: 18px 0; }
-  table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.92rem; }
-  th, td { text-align: left; padding: 11px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
-  th { color: var(--muted); font-weight: 600; }
-  td.feat { color: var(--fg); font-weight: 600; }
-  .yes { color: var(--green); font-weight: 700; }
-  .no { color: var(--red); font-weight: 700; }
-  .mid { color: var(--gold); font-weight: 700; }
-  thead th.us { color: var(--cyan); }
-  td.us { background: rgba(57,208,216,0.06); }
-  .moat { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
-  .card h4 { margin: 0 0 6px; color: var(--cyan); font-size: 1.05rem; }
-  .card p { margin: 0; color: var(--muted); font-size: 0.9rem; }
-  .pill { display:inline-block; font-size:0.72rem; color:var(--bg); background:var(--cyan);
-    border-radius: 20px; padding: 1px 9px; font-weight: 700; }
-  code { font-family: ui-monospace, monospace; background: var(--panel);
-    border: 1px solid var(--border); border-radius: 5px; padding: 1px 6px; font-size: 0.86em; }
-  pre { background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
-    padding: 16px 18px; overflow-x: auto; }
-  pre code { background: none; border: none; padding: 0; }
-  footer { padding: 40px 0 64px; color: var(--muted); font-size: 0.85rem; }
-  @media (max-width: 760px) {
-    h1 { font-size: 2.4rem; }
-    .kpis, .moat { grid-template-columns: 1fr 1fr; }
-    .problem { grid-template-columns: 1fr; }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased;}
+  a{color:var(--cyan);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 22px;}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;}
+
+  header{border-bottom:1px solid var(--border);
+    background:radial-gradient(130% 120% at 78% -20%,#16222e 0%,var(--bg) 58%);
+    padding:54px 0 34px;}
+  h1{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:3.4rem;margin:0;letter-spacing:3px;}
+  .tag{color:var(--cyan);font-size:1.18rem;margin-top:10px;font-weight:600;}
+  .sub{color:var(--muted);margin-top:8px;font-size:1.02rem;max-width:680px;}
+  .badges{margin-top:22px;display:flex;gap:8px;flex-wrap:wrap;}
+  .badge{background:var(--panel);border:1px solid var(--border);
+    border-radius:6px;padding:4px 11px;font-size:.78rem;color:var(--muted);}
+  .badge b{color:var(--green);}
+  .scope{margin:24px 0 0;border:1px solid var(--orange);border-radius:10px;
+    background:rgba(240,136,62,.07);padding:14px 18px;}
+  .scope h3{margin:0 0 4px;color:var(--orange);font-size:.95rem;}
+  .scope p{margin:0;color:var(--fg);font-size:.9rem;}
+
+  section{padding:44px 0;border-bottom:1px solid var(--border);}
+  h2{font-size:1.7rem;margin:0 0 8px;}
+  h2 .n{color:var(--muted);font-weight:400;font-size:.98rem;}
+  .lead{color:var(--muted);margin-top:0;font-size:1.03rem;}
+
+  /* ---- live demo ---- */
+  .demo-card{background:var(--panel2);border:1px solid var(--border);border-radius:16px;
+    padding:18px;margin-top:22px;}
+  .arena{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .panel{background:#0a0e13;border:1px solid var(--border);border-radius:12px;overflow:hidden;
+    display:flex;flex-direction:column;}
+  .phead{display:flex;align-items:center;justify-content:space-between;
+    padding:10px 14px;border-bottom:1px solid var(--border);}
+  .phead .name{font-weight:700;font-size:.92rem;letter-spacing:.3px;}
+  .phead .doc{color:var(--muted);font-size:.72rem;}
+  .legacy .name{color:var(--orange);}
+  .grecko .name{color:var(--cyan);}
+  canvas{display:block;width:100%;height:auto;background:#0a0e13;}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--border);}
+  .stat{padding:10px 6px;text-align:center;border-right:1px solid var(--border);}
+  .stat:last-child{border-right:none;}
+  .stat .v{font-size:1.18rem;font-weight:800;line-height:1.1;}
+  .stat .l{color:var(--muted);font-size:.66rem;margin-top:3px;text-transform:uppercase;letter-spacing:.4px;}
+  .legacy .stat .v{color:var(--orange);}
+  .grecko .stat .v{color:var(--cyan);}
+
+  .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:16px;}
+  button.ctl{background:var(--panel);color:var(--fg);border:1px solid var(--border);
+    border-radius:8px;padding:9px 16px;font-size:.88rem;cursor:pointer;font-weight:600;}
+  button.ctl:hover{border-color:var(--cyan);color:var(--cyan);}
+  button.ctl.primary{background:var(--cyan);color:#06121a;border-color:var(--cyan);}
+  button.ctl.primary:hover{filter:brightness(1.08);color:#06121a;}
+  .clock{color:var(--muted);font-size:.82rem;margin-left:auto;}
+  .verdict{margin-top:16px;border:1px solid var(--border);border-radius:10px;
+    background:var(--panel);padding:14px 18px;font-size:.96rem;min-height:22px;}
+  .verdict b.cy{color:var(--cyan);} .verdict b.or{color:var(--orange);} .verdict b.gd{color:var(--gold);}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;color:var(--muted);font-size:.78rem;}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle;}
+
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:26px 0;}
+  .kpi{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px;text-align:center;}
+  .kpi .v{font-size:1.9rem;font-weight:800;color:var(--cyan);line-height:1.1;}
+  .kpi .l{color:var(--muted);font-size:.78rem;margin-top:6px;}
+
+  table{width:100%;border-collapse:collapse;margin:18px 0;font-size:.92rem;}
+  th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--border);vertical-align:top;}
+  th{color:var(--muted);font-weight:600;}
+  td.feat{color:var(--fg);font-weight:600;width:26%;}
+
+  pre{background:var(--panel);border:1px solid var(--border);border-radius:12px;
+    padding:16px 18px;overflow-x:auto;}
+  pre code{font-family:ui-monospace,monospace;background:none;border:none;padding:0;font-size:.86rem;}
+  .cmt{color:var(--muted);}
+  code{font-family:ui-monospace,monospace;background:var(--panel);border:1px solid var(--border);
+    border-radius:5px;padding:1px 6px;font-size:.86em;}
+  footer{padding:36px 0 60px;color:var(--muted);font-size:.84rem;}
+
+  @media (max-width:780px){
+    h1{font-size:2.4rem;}
+    .arena{grid-template-columns:1fr;}
+    .kpis{grid-template-columns:1fr 1fr;}
   }
 </style>
 </head>
@@ -85,10 +106,10 @@
 <header>
   <div class="wrap">
     <h1>GRECKO</h1>
-    <div class="tag">winning the counter-swarm cost exchange</div>
-    <div class="sub">A defense decision engine that neutralizes UAS swarms at a fraction of
-      the cost of legacy weapon-target-assignment doctrine — with a human on the loop and
-      every decision auditable.</div>
+    <div class="tag">a counter-swarm decision engine that spends to win, not to react</div>
+    <div class="sub">When a swarm of cheap drones attacks, the hard problem isn't hitting them —
+      it's not going bankrupt doing it. GRECKO decides which interceptor to commit to which
+      threat, under whose authority, to stop the most damage for the least money.</div>
     <div class="badges">
       <span class="badge">validated in sim <b>305 tests</b></span>
       <span class="badge">invariants <b>4/4 enforced</b></span>
@@ -98,173 +119,381 @@
     <div class="scope">
       <h3>⚠ Scope</h3>
       <p><b>Simulation, research, and C2-software only.</b> No fire-control, no RF/jamming/waveform
-      design, no weapon or effector hardware control. Effectors are <b>parameter sets</b> (cost,
-      kill probability). A CI gate enforces this boundary on every commit.</p>
+      design, no weapon or hardware control. Effectors are <b>parameter sets</b> (cost, kill
+      probability). A CI gate enforces this boundary on every commit.</p>
     </div>
   </div>
 </header>
 
-<!-- THE PROBLEM -->
+<!-- LIVE DEMO -->
 <section>
   <div class="wrap">
-    <h2>The problem <span class="n">— you can't win by spending</span></h2>
-    <div class="problem">
-      <div>
-        <p class="big">A $90,000 interceptor shooting a $1,000 quadrotor is a
-        <b>losing trade — even when it hits.</b> Swarms weaponize that math: send
-        enough cheap drones and any kinetic-first defense runs out of money before
-        it runs out of targets.</p>
-        <div class="quote">Counter-swarm is not primarily a targeting problem.
-          It is a <b>cost-exchange</b> problem.</div>
-        <p class="lead">GRECKO treats the engagement as an economic decision —
-          which interceptor, against which threat, at what cost, under whose
-          authorization — and optimizes the dollar exchange directly.</p>
+    <h2>Watch it decide <span class="n">— same raid, two doctrines, running live in your browser</span></h2>
+    <p class="lead">One identical 11-drone raid attacks two defenses, each with the <b>same
+      9-interceptor magazine</b>. The left runs legacy doctrine: engage the nearest threat, every
+      time, with a $90k kinetic round. The right is GRECKO: rank threats by value, ration the
+      magazine, and use a cheap effector when a cheap effector will do. Watch the spend.</p>
+
+    <div class="demo-card">
+      <div class="arena">
+        <div class="panel legacy">
+          <div class="phead"><span class="name">LEGACY WTA</span><span class="doc">engage-nearest · all-kinetic</span></div>
+          <canvas id="cv-legacy" width="480" height="360"></canvas>
+          <div class="stats">
+            <div class="stat"><div class="v" id="L-stopped">0/11</div><div class="l">stopped</div></div>
+            <div class="stat"><div class="v" id="L-spend">$0</div><div class="l">spent</div></div>
+            <div class="stat"><div class="v" id="L-dmg">$0</div><div class="l">damage leaked</div></div>
+          </div>
+        </div>
+        <div class="panel grecko">
+          <div class="phead"><span class="name">GRECKO</span><span class="doc">value-ranked · magazine-rationing</span></div>
+          <canvas id="cv-grecko" width="480" height="360"></canvas>
+          <div class="stats">
+            <div class="stat"><div class="v" id="G-stopped">0/11</div><div class="l">stopped</div></div>
+            <div class="stat"><div class="v" id="G-spend">$0</div><div class="l">spent</div></div>
+            <div class="stat"><div class="v" id="G-dmg">$0</div><div class="l">damage leaked</div></div>
+          </div>
+        </div>
       </div>
-      <div class="kpis" style="grid-template-columns:1fr 1fr;">
-        <div class="kpi"><div class="v">98×</div><div class="l">cheaper than legacy doctrine, same raid</div></div>
-        <div class="kpi"><div class="v cy">$800</div><div class="l">GRECKO cost per kill</div></div>
-        <div class="kpi"><div class="v cy">$90k</div><div class="l">legacy cost per kill</div></div>
-        <div class="kpi"><div class="v">0</div><div class="l">cost ground the adversary can win back</div></div>
+
+      <div class="controls">
+        <button class="ctl primary" id="btn-replay">▶ Replay</button>
+        <button class="ctl" id="btn-pause">⏸ Pause</button>
+        <button class="ctl" id="btn-new">⤳ New raid</button>
+        <button class="ctl" id="btn-speed">Speed ×1</button>
+        <span class="clock mono" id="clock">t = 0.0s</span>
       </div>
+
+      <div class="legend">
+        <span><i style="background:#f85149"></i>incoming drone (low value)</span>
+        <span><i style="background:#f2cc60"></i>high-value drone</span>
+        <span><i style="background:#f0883e"></i>kinetic interceptor ($90k)</span>
+        <span><i style="background:#3fd0d8"></i>cheap effector ($800)</span>
+        <span><i style="background:#46c46a"></i>defended asset</span>
+      </div>
+
+      <div class="verdict mono" id="verdict">Press <b class="cy">Replay</b> to run the engagement.</div>
     </div>
+
+    <p class="lead" style="font-size:.85rem;margin-top:14px;">
+      This is the actual GRECKO logic in miniature — magazine rationing, value ranking, and
+      effector-cost selection — re-implemented in JavaScript so it runs without a server. The
+      same mechanisms, measured rigorously in Python, produce the conservative numbers below.</p>
   </div>
 </section>
 
-<!-- SWARM FOR SWARM DEMO -->
+<!-- WHAT YOU JUST SAW -->
 <section>
   <div class="wrap">
-    <h2>Swarm for swarm <span class="n">— same raid, two doctrines, live from the simulator</span></h2>
-    <p class="lead">An identical 11-UAS raid runs against two defenses. Both stop the
-      swarm. Watch the cost counters — that is the whole game.</p>
-    <figure>
-      <img src="figures/swarm_demo.gif" alt="Swarm-for-swarm animated demo" />
-      <figcaption>Left: legacy weapon-target-assignment (all-kinetic, engage-everything).
-        Right: GRECKO (economic allocation + cost-adapted loadout). Rendered directly from the simulator.</figcaption>
-    </figure>
-    <figure>
-      <img src="figures/scoreboard.png" alt="Head-to-head scoreboard" />
-      <figcaption>GRECKO stops one <em>more</em> threat for <b>1.0%</b> of the spend.</figcaption>
-    </figure>
-  </div>
-</section>
-
-<!-- HOW WE WIN -->
-<section>
-  <div class="wrap">
-    <h2>How we beat the field</h2>
-    <p class="lead">Every alternative gives up at least one axis that matters. GRECKO holds all of them.</p>
+    <h2>What you just watched</h2>
+    <p class="lead">Both defenses usually <em>stop a similar number of drones</em> — the magazine
+      is the same size. The difference is two decisions GRECKO makes that legacy doctrine doesn't:</p>
     <table>
-      <thead>
-        <tr>
-          <th>Capability</th>
-          <th>Legacy WTA / greedy</th>
-          <th>Manual / human-only C2</th>
-          <th>Fixed kinetic systems</th>
-          <th>Black-box ML allocator</th>
-          <th class="us">GRECKO</th>
-        </tr>
-      </thead>
       <tbody>
-        <tr><td class="feat">Wins the cost exchange</td>
-          <td class="no">no — overspends</td><td class="mid">operator-dependent</td>
-          <td class="no">no — $90k/shot</td><td class="mid">opaque</td>
-          <td class="us yes">yes — ~$800/kill</td></tr>
-        <tr><td class="feat">Scales to swarm saturation</td>
-          <td class="mid">partial</td><td class="no">no — operator overload</td>
-          <td class="mid">magazine-limited</td><td class="mid">yes</td>
-          <td class="us yes">yes — magazine-rationing</td></tr>
-        <tr><td class="feat">Adapts to novel tactics</td>
-          <td class="no">no</td><td class="mid">slow</td><td class="no">no</td>
-          <td class="mid">needs retraining data</td>
-          <td class="us yes">yes — co-evolution league</td></tr>
-        <tr><td class="feat">Human-on-the-loop &amp; auditable</td>
-          <td class="mid">varies</td><td class="yes">yes</td><td class="mid">varies</td>
-          <td class="no">no — unexplainable</td>
-          <td class="us yes">yes — interlock + audit trail</td></tr>
-        <tr><td class="feat">Deterministic &amp; certifiable</td>
-          <td class="mid">varies</td><td class="no">no</td><td class="mid">varies</td>
-          <td class="no">no — stochastic</td>
-          <td class="us yes">yes — seeded, hash-verified</td></tr>
-        <tr><td class="feat">Effector-agnostic (no hardware lock-in)</td>
-          <td class="mid">varies</td><td class="yes">yes</td><td class="no">no</td>
-          <td class="mid">varies</td>
-          <td class="us yes">yes — effectors are parameters</td></tr>
+        <tr><td class="feat">Ration the magazine</td>
+          <td>With only 9 interceptors against 11 threats, <em>something</em> leaks. Legacy fires at
+          whatever is closest and runs dry — often leaking a high-value drone it never got to.
+          GRECKO spends its 9 rounds on the 9 highest-value threats and deliberately lets the two
+          cheapest leak. Same shots fired, far less damage through.</td></tr>
+        <tr><td class="feat">Match effector to threat</td>
+          <td>A $90k kinetic round to kill a $1,200 quadrotor is a losing trade even on a hit.
+          When a low-value threat can be stopped by an $800 effector, GRECKO uses it — and reserves
+          the expensive kinetic rounds for the targets that actually need them.</td></tr>
       </tbody>
     </table>
-    <p class="lead" style="font-size:0.9rem">Legacy-WTA and fixed-kinetic columns are
-      grounded in GRECKO's own measured baselines (greedy allocator, all-kinetic loadout);
-      others characterize the approach class.</p>
+    <p class="lead">Neither decision is magic. Both are <em>economics</em> — and they're exactly
+      what a saturating swarm is designed to punish you for getting wrong.</p>
   </div>
 </section>
 
-<!-- THE MOAT -->
+<!-- MEASURED NUMBERS (conservative) -->
 <section>
   <div class="wrap">
-    <h2>The moat <span class="n">— three compounding advantages</span></h2>
-    <div class="moat">
-      <div class="card">
-        <h4>Economic allocator <span class="pill">Pillar A</span></h4>
-        <p>A magazine-constrained sequential optimizer that can <em>hold fire</em> on a
-        low-value track to preserve rounds for what matters. ~22% lower cost-per-kill
-        than greedy before loadout adaptation; ~98% after.</p>
-      </div>
-      <div class="card">
-        <h4>Adversarial co-evolution <span class="pill">Pillar C</span></h4>
-        <p>An in-house red team that <em>evolves</em> attacks the defense was never
-        scripted against, then the defense adapts back. The cost advantage is robust:
-        the adversary cannot make our effectors more expensive.</p>
-      </div>
-      <div class="card">
-        <h4>Auditable human-on-the-loop <span class="pill">C2</span></h4>
-        <p>Engagement is reachable only through an authorization interlock, proven by
-        static analysis to have a single gated path. Every decision is logged and
-        replayable — the prerequisite for certification and rules-of-engagement.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- WHY IT'S REAL -->
-<section>
-  <div class="wrap">
-    <h2>De-risked, not a slide deck</h2>
+    <h2>The measured result <span class="n">— conservative, and survives due diligence</span></h2>
+    <p class="lead">These are the numbers from randomized Monte Carlo trials in the Python engine,
+      not from the illustrative scenario above. We lead with the defensible figure.</p>
     <div class="kpis">
-      <div class="kpi"><div class="v cy">305</div><div class="l">automated tests passing</div></div>
-      <div class="kpi"><div class="v cy">12</div><div class="l">build phases, P0 → PM</div></div>
-      <div class="kpi"><div class="v cy">4/4</div><div class="l">architectural invariants gated in CI</div></div>
-      <div class="kpi"><div class="v cy">100%</div><div class="l">results reproducible from a seed</div></div>
+      <div class="kpi"><div class="v">8–22%</div><div class="l">lower cost-per-kill from the allocator alone, like-for-like effectors</div></div>
+      <div class="kpi"><div class="v">+</div><div class="l">loadout adaptation compounds it when cheaper effectors suffice</div></div>
+      <div class="kpi"><div class="v">305</div><div class="l">automated tests passing</div></div>
+      <div class="kpi"><div class="v">100%</div><div class="l">results reproducible from a seed (hash-verified)</div></div>
     </div>
-    <p class="lead">The full sense → fuse → classify → predict → allocate → engage pipeline,
-      a human-on-the-loop C2 console (WebSocket + TypeScript), an adversarial co-evolution
-      league, a sim-to-real validation strategy with explicit measurement gates, and a Monte
-      Carlo evaluation harness — each phase documented in an ADR and gated by tests.</p>
+    <p class="lead" style="font-size:.9rem;">
+      The 8–22% is the <b>allocator's</b> contribution in an apples-to-apples comparison (same
+      effectors on both sides), measured across seeds and adversary tactics. Cherry-picked single
+      raids — like the demo — show larger gaps because they also include effector selection; we
+      don't headline those. Intercept rate is interceptor-count-limited, so it stays comparable
+      between doctrines; the win is on <em>cost and damage prevented</em>, which is the metric a
+      swarm actually attacks.</p>
+  </div>
+</section>
+
+<!-- WHAT'S IN THE BOX -->
+<section>
+  <div class="wrap">
+    <h2>What's actually built <span class="n">— six parts, one decision</span></h2>
+    <p class="lead">Every module serves the single question: <em>which interceptor, against which
+      threat, at what cost, under whose authorization.</em></p>
+    <table>
+      <thead><tr><th>Part</th><th>What it does</th><th>Where</th></tr></thead>
+      <tbody>
+        <tr><td class="feat">The world</td><td>A deterministic battlefield on a 50 Hz clock; drones fly a raid in.</td><td><code>sim/core</code></td></tr>
+        <tr><td class="feat">The senses</td><td>Imperfect detection + Kalman/GNN multi-target tracking — nothing downstream sees ground truth.</td><td><code>sim/sensing</code>, <code>sim/fusion</code></td></tr>
+        <tr><td class="feat">The brain</td><td>Magazine-constrained economic allocator that can <em>hold fire</em> to preserve rounds.</td><td><code>sim/alloc</code></td></tr>
+        <tr><td class="feat">The human gate</td><td>Nothing engages without operator authorization; every decision logged &amp; replayable.</td><td><code>sim/bridge</code>, <code>viz/</code></td></tr>
+        <tr><td class="feat">The red team</td><td>An adversary that <em>evolves</em> swarm tactics the defense was never scripted against.</td><td><code>league/</code></td></tr>
+        <tr><td class="feat">The scoreboard</td><td>Monte Carlo evaluation: cost-exchange ratio, intercept rate, damage — across seeds.</td><td><code>eval/</code></td></tr>
+      </tbody>
+    </table>
   </div>
 </section>
 
 <!-- RUN IT -->
 <section>
   <div class="wrap">
-    <h2>See it yourself</h2>
-    <pre><code>pip install -e .            # installs the `grecko` CLI
+    <h2>Run it yourself <span class="n">— every command here actually works</span></h2>
+    <pre><code>pip install -e .              <span class="cmt"># installs the `grecko` CLI</span>
 
-grecko demo --fast         # headline cost-exchange study (~45s)
-grecko verify              # architectural invariant gate
-grecko serve               # C2 decision-engine bridge (ws://:8765)
-make gif                   # render the swarm-for-swarm animation
-make test                  # full acceptance suite (305 tests)</code></pre>
-    <p class="lead" style="margin-top:14px">Deployable as two containers (C2 bridge +
-      operator console) with <code>make docker-up</code> — non-root, healthchecked, with a
-      documented integration boundary. See <code>docs/DEPLOYMENT.md</code>.</p>
+grecko version                <span class="cmt"># confirm install + scope</span>
+grecko eval --seeds 6         <span class="cmt"># Monte Carlo cost-exchange, prints JSON numbers</span>
+grecko verify                 <span class="cmt"># the 4 architectural invariant checks</span>
+grecko serve                  <span class="cmt"># live C2 decision-engine bridge (ws://:8765)</span>
+make test                     <span class="cmt"># full acceptance suite (305 tests)</span></code></pre>
+    <p class="lead" style="margin-top:14px;">The operator console in <code>viz/</code> connects to
+      <code>grecko serve</code> over WebSocket — that's the real human-on-the-loop interface, where
+      you see the air picture and authorize each engagement. Deployable as two containers with
+      <code>make docker-up</code>. See <a href="https://github.com/infinitule/GRECKO">the repository</a>
+      and <code>docs/DEPLOYMENT.md</code>.</p>
   </div>
 </section>
 
 <footer>
   <div class="wrap">
-    GRECKO — simulation, research, and C2-software only. Effectors are parameter sets;
-    no hardware control, no RF design, no weapon integration. Every result is reproducible
-    from a seed and every architectural claim is enforced by a CI gate.
+    GRECKO — simulation, research, and C2-software only. Effectors are parameter sets; no hardware
+    control, no RF design, no weapon integration. Every result is reproducible from a seed and every
+    architectural claim is enforced by a CI gate. Built AI-assisted with human direction —
+    see <a href="https://github.com/infinitule/GRECKO/blob/main/PROVENANCE.md">PROVENANCE.md</a>.
   </div>
 </footer>
+
+<script>
+(function(){
+  "use strict";
+  // ---------- deterministic RNG ----------
+  function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+
+  // ---------- raid generation ----------
+  var RAID_N=11;
+  function makeRaid(seed){
+    var r=mulberry32(seed), ds=[], i;
+    for(i=0;i<RAID_N;i++){
+      var hi=(i%5===2);                                   // ~2 high-value drones
+      var value=hi ? 8000+Math.floor(r()*5000) : 900+Math.floor(r()*1600);
+      var spawnT=i*0.55 + r()*0.4;
+      var x=0.10 + r()*0.80;
+      ds.push({i:i,value:value,hi:hi,spawnT:spawnT,x:x});
+    }
+    return ds;
+  }
+
+  // arena geometry (normalized 0..1)
+  var AX=0.5, AY=0.88, BX=0.5, BY=0.84;
+  var D_SPEED=0.052, I_SPEED=0.15, HIT=0.024, TRACK_Y=0.12, MAG=9, MAXCONC=4;
+
+  function newSim(raid,doctrine){
+    var byVal=raid.slice().sort(function(a,b){return b.value-a.value;});
+    var engage={}; byVal.slice(0,MAG).forEach(function(d){engage[d.i]=true;});
+    return {
+      doctrine:doctrine, t:0, finished:false, settleT:0,
+      drones:raid.map(function(d){return {i:d.i,value:d.value,hi:d.hi,spawnT:d.spawnT,
+        x:d.x,y:-0.06,alive:true,done:false,tracked:false,assigned:false,live:false};}),
+      ivs:[], flashes:[], launches:0,
+      stopped:0, leaked:0, spend:0, dmg:0,
+      engage:engage
+    };
+  }
+
+  function step(s,dt){
+    s.t+=dt;
+    var i,d,v;
+    // drones
+    for(i=0;i<s.drones.length;i++){
+      d=s.drones[i];
+      if(!d.alive||d.done) continue;
+      if(s.t<d.spawnT) continue;
+      d.live=true;
+      var dx=AX-d.x, dy=AY-d.y, dist=Math.hypot(dx,dy)||1e-6;
+      d.x+=dx/dist*D_SPEED*dt; d.y+=dy/dist*D_SPEED*dt;
+      if(!d.tracked && d.y>TRACK_Y) d.tracked=true;
+      if(d.y>=AY-0.004){ d.done=true; d.alive=false; s.leaked++; s.dmg+=d.value;
+        s.flashes.push({x:d.x,y:d.y,life:0.5,bad:true}); }
+    }
+    // allocation
+    var inFlight=0; for(i=0;i<s.ivs.length;i++){ if(s.ivs[i].alive) inFlight++; }
+    if(inFlight<MAXCONC && s.launches<MAG){
+      var cands=s.drones.filter(function(d){return d.tracked&&d.alive&&!d.assigned&&!d.done;});
+      if(s.doctrine==='grecko') cands=cands.filter(function(d){return s.engage[d.i];});
+      if(cands.length){
+        var target;
+        if(s.doctrine==='legacy'){                       // greedy: nearest the asset
+          target=cands.reduce(function(a,b){return b.y>a.y?b:a;});
+        }else{                                           // grecko: highest value first
+          target=cands.reduce(function(a,b){return b.value>a.value?b:a;});
+        }
+        var cost,kind;
+        if(s.doctrine==='legacy'){ cost=90000; kind='K'; }
+        else if(target.hi){ cost=90000; kind='K'; }
+        else { cost=800; kind='C'; }
+        target.assigned=true; s.spend+=cost; s.launches++;
+        s.ivs.push({x:BX,y:BY,tx:target.i,alive:true,kind:kind});
+      }
+    }
+    // interceptors
+    for(i=0;i<s.ivs.length;i++){
+      v=s.ivs[i]; if(!v.alive) continue;
+      d=s.drones[v.tx];
+      if(!d||!d.alive||d.done){ v.alive=false; if(d){d.assigned=false;} continue; }
+      var ix=d.x-v.x, iy=d.y-v.y, idist=Math.hypot(ix,iy)||1e-6;
+      if(idist<HIT){ d.alive=false; d.done=true; s.stopped++; v.alive=false;
+        s.flashes.push({x:d.x,y:d.y,life:0.4,bad:false}); }
+      else{ v.x+=ix/idist*I_SPEED*dt; v.y+=iy/idist*I_SPEED*dt; }
+    }
+    // flashes
+    for(i=0;i<s.flashes.length;i++) s.flashes[i].life-=dt;
+    s.flashes=s.flashes.filter(function(f){return f.life>0;});
+    // finished?
+    var allDone=s.drones.every(function(d){return d.done||!d.alive;});
+    if(allDone && !s.finished){ s.settleT+=dt; if(s.settleT>0.6) s.finished=true; }
+  }
+
+  // ---------- rendering ----------
+  function fmtK(n){ if(n>=1000) return '$'+(n/1000).toFixed(n>=10000?0:1)+'k'; return '$'+Math.round(n); }
+
+  function draw(ctx,W,H,s){
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='#0a0e13'; ctx.fillRect(0,0,W,H);
+    // faint grid
+    ctx.strokeStyle='rgba(38,48,60,0.5)'; ctx.lineWidth=1;
+    var g; for(g=1;g<6;g++){ var gy=H*g/6; ctx.beginPath(); ctx.moveTo(0,gy); ctx.lineTo(W,gy); ctx.stroke(); }
+    for(g=1;g<8;g++){ var gx=W*g/8; ctx.beginPath(); ctx.moveTo(gx,0); ctx.lineTo(gx,H); ctx.stroke(); }
+    // sensor line
+    ctx.strokeStyle='rgba(63,208,216,0.18)'; ctx.setLineDash([4,5]);
+    ctx.beginPath(); ctx.moveTo(0,TRACK_Y*H); ctx.lineTo(W,TRACK_Y*H); ctx.stroke(); ctx.setLineDash([]);
+    // asset
+    var ax=AX*W, ay=AY*H;
+    ctx.fillStyle='rgba(70,196,106,0.14)'; ctx.beginPath(); ctx.arc(ax,ay,26,0,7); ctx.fill();
+    ctx.fillStyle='#46c46a'; ctx.beginPath(); ctx.arc(ax,ay,7,0,7); ctx.fill();
+    // battery
+    ctx.fillStyle='#5a6b7d'; ctx.fillRect(BX*W-7,BY*H-3,14,6);
+    // interceptors
+    var i,v,d;
+    for(i=0;i<s.ivs.length;i++){ v=s.ivs[i]; if(!v.alive) continue;
+      d=s.drones[v.tx]; var col=v.kind==='K'?'#f0883e':'#3fd0d8';
+      if(d){ ctx.strokeStyle=col; ctx.globalAlpha=0.45; ctx.lineWidth=1.5;
+        ctx.beginPath(); ctx.moveTo(BX*W,BY*H); ctx.lineTo(v.x*W,v.y*H); ctx.stroke(); ctx.globalAlpha=1; }
+      ctx.fillStyle=col; ctx.beginPath(); ctx.arc(v.x*W,v.y*H,3.4,0,7); ctx.fill();
+    }
+    // drones
+    for(i=0;i<s.drones.length;i++){ d=s.drones[i];
+      if(!d.live||d.done||!d.alive) continue;
+      var col2=d.hi?'#f2cc60':'#f85149';
+      if(d.tracked){ ctx.strokeStyle=col2; ctx.globalAlpha=0.4; ctx.lineWidth=1;
+        ctx.beginPath(); ctx.arc(d.x*W,d.y*H,7,0,7); ctx.stroke(); ctx.globalAlpha=1; }
+      ctx.fillStyle=col2; ctx.beginPath(); ctx.arc(d.x*W,d.y*H,d.hi?5:4,0,7); ctx.fill();
+    }
+    // flashes
+    for(i=0;i<s.flashes.length;i++){ var f=s.flashes[i];
+      var prog=f.bad?(0.5-f.life)/0.5:(0.4-f.life)/0.4;
+      ctx.strokeStyle=f.bad?'rgba(248,81,73,'+f.life*2+')':'rgba(70,196,106,'+f.life*2.4+')';
+      ctx.lineWidth=2; ctx.beginPath(); ctx.arc(f.x*W,f.y*H,4+prog*16,0,7); ctx.stroke();
+    }
+  }
+
+  // ---------- wiring ----------
+  var cL=document.getElementById('cv-legacy'), cG=document.getElementById('cv-grecko');
+  var seed=20260613, simL, simG, running=false, speed=1, raf=null, last=0, acc=0;
+  var DT=1/120;
+
+  function sizeCanvas(c){
+    var dpr=window.devicePixelRatio||1;
+    var w=c.clientWidth, h=Math.round(w*0.75);
+    c.width=w*dpr; c.height=h*dpr;
+    var ctx=c.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
+    return {w:w,h:h};
+  }
+  var dimL,dimG;
+  function resize(){ dimL=sizeCanvas(cL); dimG=sizeCanvas(cG); render(); }
+  window.addEventListener('resize',resize);
+
+  function reset(newSeed){
+    if(newSeed) seed=(seed*1664525+1013904223)>>>0;
+    var raid=makeRaid(seed);
+    simL=newSim(raid,'legacy'); simG=newSim(raid,'grecko');
+    acc=0; render(); updateStats();
+    document.getElementById('verdict').innerHTML='Engagement running…';
+  }
+
+  function setStat(id,val){ document.getElementById(id).textContent=val; }
+  function updateStats(){
+    setStat('L-stopped', simL.stopped+'/'+RAID_N); setStat('G-stopped', simG.stopped+'/'+RAID_N);
+    setStat('L-spend', fmtK(simL.spend)); setStat('G-spend', fmtK(simG.spend));
+    setStat('L-dmg', fmtK(simL.dmg)); setStat('G-dmg', fmtK(simG.dmg));
+    document.getElementById('clock').textContent='t = '+simL.t.toFixed(1)+'s';
+  }
+
+  function render(){
+    if(!simL) return;
+    draw(cL.getContext('2d'),dimL.w,dimL.h,simL);
+    draw(cG.getContext('2d'),dimG.w,dimG.h,simG);
+  }
+
+  function verdict(){
+    var lk=simL.stopped?simL.spend/simL.stopped:0;
+    var gk=simG.stopped?simG.spend/simG.stopped:0;
+    var saved=simL.spend-simG.spend;
+    var dmgsaved=simL.dmg-simG.dmg;
+    var el=document.getElementById('verdict');
+    var ratio=gk>0?(lk/gk):0;
+    el.innerHTML='Both stopped roughly the same count. GRECKO spent <b class="cy">'+fmtK(simG.spend)+
+      '</b> vs legacy <b class="or">'+fmtK(simL.spend)+'</b> — '+
+      (saved>0?('<b class="gd">'+fmtK(saved)+' less</b>'):'similar')+
+      (dmgsaved>0?(', and let <b class="gd">'+fmtK(dmgsaved)+' less damage</b> through'):'')+
+      '. Cost per kill: <b class="cy">'+fmtK(gk)+'</b> vs <b class="or">'+fmtK(lk)+'</b>'+
+      (ratio>1?(' ('+ratio.toFixed(1)+'× cheaper, this raid)'):'')+'.';
+  }
+
+  function loop(ts){
+    if(!running){ return; }
+    if(!last) last=ts;
+    var elapsed=Math.min((ts-last)/1000,0.05); last=ts;
+    acc+=elapsed*speed;
+    while(acc>=DT){ step(simL,DT); step(simG,DT); acc-=DT; }
+    render(); updateStats();
+    if(simL.finished && simG.finished){ running=false; last=0; verdict();
+      document.getElementById('btn-pause').textContent='⏸ Pause'; return; }
+    raf=requestAnimationFrame(loop);
+  }
+
+  function play(){ if(running) return; if(!simL) reset(false);
+    if(simL.finished&&simG.finished) reset(false);
+    running=true; last=0; raf=requestAnimationFrame(loop);
+    document.getElementById('btn-pause').textContent='⏸ Pause'; }
+  function pause(){ running=false; last=0; if(raf) cancelAnimationFrame(raf);
+    document.getElementById('btn-pause').textContent='▶ Resume'; }
+
+  document.getElementById('btn-replay').addEventListener('click',function(){ reset(false); play(); });
+  document.getElementById('btn-pause').addEventListener('click',function(){ running?pause():play(); });
+  document.getElementById('btn-new').addEventListener('click',function(){ reset(true); play(); });
+  document.getElementById('btn-speed').addEventListener('click',function(){
+    speed=speed===1?2:(speed===2?4:1);
+    this.textContent='Speed ×'+speed;
+  });
+
+  // init
+  reset(false);
+  setTimeout(function(){ resize(); play(); },120);
+})();
+</script>
 
 </body>
 </html>
