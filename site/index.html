@@ -94,30 +94,76 @@ h1 .strike{color:var(--legacy);text-decoration:line-through;
 .btn-o{background:transparent;border-color:var(--line2);color:var(--muted);}
 .btn-o:hover{border-color:var(--grecko);color:var(--grecko);}
 
-/* hero key-moment card */
-.hero-card{background:linear-gradient(180deg,var(--panel),var(--void2));
-  border:1px solid var(--line2);border-radius:16px;overflow:hidden;
-  box-shadow:0 30px 80px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.03);}
-.hc-top{display:flex;align-items:center;gap:8px;padding:11px 16px;
-  border-bottom:1px solid var(--line);font-family:var(--ff-m);
-  font-size:.68rem;letter-spacing:1.5px;color:var(--dim);}
-.hc-live{margin-left:auto;display:flex;align-items:center;gap:6px;color:var(--legacy);}
+/* hero — the gecko eye as sensor aperture */
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+.hc-live{display:flex;align-items:center;gap:6px;color:var(--legacy);
+  font-family:var(--ff-m);font-size:.62rem;letter-spacing:1.5px;}
 .hc-live i{width:7px;height:7px;border-radius:50%;background:var(--legacy);
   animation:blink 1.3s infinite;}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
-.hc-cv{position:relative;}
-.hc-cv canvas{display:block;width:100%;height:auto;background:#04070d;}
-/* two net counters overlaid on hero canvas */
-.net-bug{position:absolute;top:12px;font-family:var(--ff-m);}
-.net-bug .lbl{font-size:.58rem;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;}
-.net-bug .val{font-size:1.35rem;font-weight:700;line-height:1.1;}
-.net-l{left:14px;} .net-l .val{color:var(--legacy);}
-.net-g{right:14px;text-align:right;} .net-g .val{color:var(--grecko);}
-.hc-foot{padding:13px 16px;border-top:1px solid var(--line);
-  font-family:var(--ff-m);font-size:.78rem;color:var(--muted);min-height:46px;
-  display:flex;align-items:center;}
+
+.eye-stage{position:relative;}
+.eye-rim{position:relative;width:100%;max-width:430px;margin:0 auto;aspect-ratio:1/1;
+  border-radius:50%;overflow:hidden;
+  box-shadow:0 30px 90px rgba(0,0,0,.6),0 0 0 1px var(--line2),
+    0 0 60px rgba(255,210,61,.12),inset 0 0 70px rgba(0,0,0,.55);
+  will-change:transform;}
+.eye-img{position:absolute;inset:-6%;width:112%;height:112%;object-fit:cover;
+  transition:transform .25s ease-out;}
+.eye-grade{position:absolute;inset:0;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle at 50% 50%,transparent 30%,rgba(2,5,9,.35) 64%,rgba(2,5,9,.85) 100%);}
+/* the dilated pupil holds the live engagement */
+.eye-pupil{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:60%;height:70%;border-radius:48%/50%;overflow:hidden;
+  background:#04070d;border:1.5px solid rgba(8,14,20,.9);
+  box-shadow:0 0 26px 6px rgba(0,0,0,.85),inset 0 0 22px rgba(0,0,0,.9),
+    0 0 0 3px rgba(255,210,61,.18);
+  transition:width .3s ease,height .3s ease;}
+.eye-pupil canvas{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:148%;height:100%;display:block;}
+.pupil-sheen{position:absolute;inset:0;pointer-events:none;border-radius:48%/50%;
+  background:radial-gradient(120% 80% at 32% 22%,rgba(120,220,255,.16),transparent 42%),
+    radial-gradient(circle at 50% 50%,transparent 60%,rgba(0,0,0,.5) 100%);}
+.eye-hud{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+.eye-scan{transform-origin:50% 50%;animation:eyescan 7s linear infinite;}
+@keyframes eyescan{to{transform:rotate(360deg);}}
+.eye-glint{position:absolute;width:60px;height:60px;border-radius:50%;pointer-events:none;
+  left:30%;top:24%;transform:translate(-50%,-50%);
+  background:radial-gradient(circle,rgba(255,255,255,.5),transparent 65%);
+  mix-blend-mode:screen;transition:left .2s,top .2s;}
+.net-bug{position:absolute;top:8px;z-index:3;font-family:var(--ff-m);text-shadow:0 1px 5px #000;}
+.net-bug .lbl{display:block;font-size:.5rem;letter-spacing:1px;color:var(--muted);text-transform:uppercase;}
+.net-bug .val{font-size:.96rem;font-weight:700;line-height:1.1;}
+.net-l{left:8px;} .net-l .val{color:var(--legacy);}
+.net-g{right:8px;text-align:right;} .net-g .val{color:var(--grecko);}
+.eye-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  max-width:430px;margin:16px auto 0;font-family:var(--ff-m);}
+.eye-cap{font-size:.62rem;letter-spacing:1px;color:var(--dim);text-transform:uppercase;}
+.hc-foot{max-width:430px;margin:10px auto 0;font-family:var(--ff-m);
+  font-size:.76rem;color:var(--muted);min-height:40px;line-height:1.5;text-align:center;}
 .hc-foot b.g{color:var(--grecko);} .hc-foot b.r{color:var(--legacy);}
 .hc-foot b.gd{color:var(--gold);}
+
+/* 3D engagement theater */
+.theater3d{position:relative;background:#03060c;}
+.theater3d canvas{display:block;width:100%;height:430px;cursor:grab;touch-action:pan-y;}
+.theater3d canvas:active{cursor:grabbing;}
+.t3-tag{position:absolute;top:11px;font-family:var(--ff-m);font-size:.64rem;
+  letter-spacing:1.5px;text-transform:uppercase;padding:4px 9px;border-radius:5px;
+  backdrop-filter:blur(4px);pointer-events:none;}
+.t3-tag.l{left:11px;color:var(--legacy);background:rgba(255,107,74,.1);border:1px solid rgba(255,107,74,.28);}
+.t3-tag.g{right:11px;color:var(--grecko);background:rgba(0,245,160,.08);border:1px solid rgba(0,245,160,.24);}
+.t3-tag.l::after,.t3-tag.g::after{content:'';position:absolute;top:100%;
+  width:1px;height:419px;background:linear-gradient(rgba(34,47,68,.6),transparent);}
+.theater3d::after{content:'';position:absolute;top:42px;bottom:0;left:50%;width:1px;
+  background:linear-gradient(var(--line2),transparent);pointer-events:none;}
+.t3-labels{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+.t3-let{position:absolute;font-family:var(--ff-m);font-size:.6rem;color:var(--hold);
+  background:rgba(255,176,32,.12);border:1px solid rgba(255,176,32,.4);border-radius:4px;
+  padding:2px 6px;white-space:nowrap;transform:translate(-50%,-140%);
+  box-shadow:0 2px 10px rgba(0,0,0,.5);}
+.t3-hint{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);
+  font-family:var(--ff-m);font-size:.64rem;color:var(--dim);pointer-events:none;text-align:center;}
+.t3-hint b{color:var(--hold);}
 
 /* ───────── SECTIONS ───────── */
 .sec{position:relative;z-index:1;padding:66px 0;border-top:1px solid var(--line);}
@@ -339,8 +385,23 @@ footer{position:relative;z-index:1;padding:40px 0;border-top:1px solid var(--lin
 .trait .tx em{color:var(--grecko);font-style:normal;font-weight:500;}
 .trait .tx .amb{color:var(--hold);font-style:normal;font-weight:500;}
 
+/* instrument plate — real macro photography */
+.plate{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:40px;}
+.pl{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;}
+.pl-img{position:relative;aspect-ratio:16/10;overflow:hidden;background:#04070d;}
+.pl-img::after{content:'';position:absolute;inset:0;
+  box-shadow:inset 0 0 50px rgba(3,6,12,.7);pointer-events:none;}
+.pl-img img{width:100%;height:100%;object-fit:cover;filter:saturate(.9) contrast(1.05);
+  transition:transform .4s ease;}
+.pl:hover .pl-img img{transform:scale(1.05);}
+.pl figcaption{padding:15px 17px;font-size:.84rem;color:var(--muted);line-height:1.55;}
+.pl figcaption b{display:block;font-family:var(--ff-m);font-size:.74rem;letter-spacing:.5px;
+  color:var(--grecko);margin-bottom:5px;text-transform:uppercase;}
+.plate-cred{margin-top:14px;font-family:var(--ff-m);font-size:.7rem;color:var(--dim);}
+
 @media(max-width:920px){
   .gk-grid{grid-template-columns:1fr;gap:24px;}
+  .plate{grid-template-columns:1fr;}
   .gk-art{min-height:260px;}
   .hero-grid{grid-template-columns:1fr;gap:34px;}
   .con-body{grid-template-columns:1fr;}
@@ -400,13 +461,28 @@ footer{position:relative;z-index:1;padding:40px 0;border-top:1px solid var(--lin
       </div>
     </div>
 
-    <div class="hero-card">
-      <div class="hc-top">KEY MOMENT — SAME RAID, BOTH DOCTRINES
-        <span class="hc-live"><i></i>LIVE SIM</span></div>
-      <div class="hc-cv">
-        <canvas id="h-cv" width="520" height="300"></canvas>
-        <div class="net-bug net-l"><div class="lbl">Legacy — net cost</div><div class="val" id="h-net-l">$0</div></div>
-        <div class="net-bug net-g"><div class="lbl">GRECKO — net cost</div><div class="val" id="h-net-g">$0</div></div>
+    <div class="eye-stage" id="eyeStage">
+      <div class="eye-rim" id="eyeRim">
+        <img class="eye-img" src="assets/gecko/eye.webp" width="900" height="900"
+          alt="Macro photograph of a gecko's eye — its vertical-pupil sensor aperture"
+          fetchpriority="high"/>
+        <div class="eye-grade"></div>
+        <!-- the engagement plays INSIDE the dilated pupil: eye = sensor aperture -->
+        <div class="eye-pupil" id="eyePupil">
+          <canvas id="h-cv" width="300" height="360"></canvas>
+          <div class="pupil-sheen"></div>
+          <div class="net-bug net-l"><span class="lbl">Legacy</span><span class="val" id="h-net-l">$0</span></div>
+          <div class="net-bug net-g"><span class="lbl">GRECKO</span><span class="val" id="h-net-g">$0</span></div>
+        </div>
+        <svg class="eye-hud" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+          <circle cx="50" cy="50" r="48" fill="none" stroke="rgba(255,210,61,.22)" stroke-width=".3" stroke-dasharray="1,3"/>
+          <circle class="eye-scan" cx="50" cy="50" r="43" fill="none" stroke="rgba(255,210,61,.55)" stroke-width=".5" stroke-dasharray="5,180"/>
+        </svg>
+        <div class="eye-glint" id="eyeGlint"></div>
+      </div>
+      <div class="eye-meta">
+        <span class="eye-cap">SENSOR APERTURE — engagement runs inside the pupil</span>
+        <span class="hc-live"><i></i>LIVE</span>
       </div>
       <div class="hc-foot" id="h-foot">Legacy fires at the nearest threat, every time…</div>
     </div>
@@ -435,7 +511,7 @@ footer{position:relative;z-index:1;padding:40px 0;border-top:1px solid var(--lin
       </div>
 
       <div class="con-body">
-        <div class="arena">
+        <div class="arena" id="arena2d">
           <div class="apanel">
             <span class="atag l">Legacy · engage nearest</span>
             <canvas id="cv-l" width="420" height="340"></canvas>
@@ -444,6 +520,14 @@ footer{position:relative;z-index:1;padding:40px 0;border-top:1px solid var(--lin
             <span class="atag g">GRECKO · value × effector</span>
             <canvas id="cv-g" width="420" height="340"></canvas>
           </div>
+        </div>
+        <!-- 3D engagement theater mounts here when WebGL is available (desktop, motion on) -->
+        <div class="theater3d" id="theater3d" hidden>
+          <canvas id="cv3d"></canvas>
+          <span class="t3-tag l">Legacy · engage nearest</span>
+          <span class="t3-tag g">GRECKO · value × effector</span>
+          <div class="t3-labels" id="t3labels"></div>
+          <span class="t3-hint">drag to orbit · the gold tracks are deliberately <b>let through</b></span>
         </div>
 
         <div class="log">
@@ -545,7 +629,7 @@ footer{position:relative;z-index:1;padding:40px 0;border-top:1px solid var(--lin
     <div class="gk-grid">
       <div class="gk-art">
         <div class="gk-halo"></div>
-        <svg class="gk-svg" viewBox="0 0 200 380" width="230" height="auto"
+        <svg class="gk-svg" viewBox="0 0 200 380" width="230" height="437"
              xmlns="http://www.w3.org/2000/svg" aria-label="Stylized gecko shedding its tail">
           <defs>
             <linearGradient id="gkb" x1="0" y1="0" x2="0" y2="1">
@@ -635,6 +719,27 @@ footer{position:relative;z-index:1;padding:40px 0;border-top:1px solid var(--lin
         </li>
       </ul>
     </div>
+
+    <!-- instrument plate: real gecko macro structures → engine functions -->
+    <div class="plate">
+      <figure class="pl">
+        <div class="pl-img"><img src="assets/gecko/eye.webp" loading="lazy" width="900" height="900"
+          alt="Macro photograph of a gecko eye showing the vertical slit pupil"/></div>
+        <figcaption><b>Eye → sensor aperture</b>The vertical pupil meters light with precision. In GRECKO, the sensing layer holds the full air picture before a round is committed.</figcaption>
+      </figure>
+      <figure class="pl">
+        <div class="pl-img"><img src="assets/gecko/scales.webp" loading="lazy" width="720" height="720"
+          alt="Macro photograph of tessellated gecko scales"/></div>
+        <figcaption><b>Scales → data surface</b>A tessellation of identical cells, each carrying signal. The same grid is the track lattice the allocator reasons over.</figcaption>
+      </figure>
+      <figure class="pl">
+        <div class="pl-img"><img src="assets/gecko/foot.webp" loading="lazy" width="760" height="760"
+          alt="Macro photograph of a gecko foot gripping glass, showing adhesive toe pads"/></div>
+        <figcaption><b>Setae → lock the track</b>Millions of hairs grip with exactly enough force. Commitment to a target is the same: precise, total, no waste.</figcaption>
+      </figure>
+    </div>
+    <p class="plate-cred">Macro photography: CC0 / CC BY-SA — full attribution in
+      <a href="https://github.com/infinitule/GRECKO/blob/main/PROVENANCE.md">PROVENANCE.md</a>.</p>
   </div>
 </section>
 
@@ -997,6 +1102,7 @@ function Engine(cvL,cvG,opts){
   }
 
   function render(){
+    if(self.suppress2D) return;   // a 3D theater has taken over the visualization
     if(!simL) return;
     draw(ctxL,dimL.w,dimL.h,simL,false);
     draw(ctxG,dimG.w,dimG.h,simG,!!opts.showRank);
@@ -1061,8 +1167,31 @@ function Engine(cvL,cvG,opts){
   var elNL=document.getElementById('h-net-l'), elNG=document.getElementById('h-net-g'), foot=document.getElementById('h-foot');
   var dispL=0, dispG=0;
 
-  function size(){ var dpr=window.devicePixelRatio||1; var w=cv.clientWidth,h=Math.round(w*0.5);
+  function size(){ var dpr=window.devicePixelRatio||1;
+    var w=cv.clientWidth||300, h=cv.clientHeight||Math.round(w*0.78);
     cv.width=w*dpr;cv.height=h*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);dim={w:w,h:h}; }
+  // cursor parallax + pupil dilation on the gecko eye
+  (function eyeParallax(){
+    var rim=document.getElementById('eyeRim'), img=rim&&rim.querySelector('.eye-img');
+    var glint=document.getElementById('eyeGlint'), pupil=document.getElementById('eyePupil');
+    if(!rim||REDUCED) return;
+    var stage=document.getElementById('hero')||rim;
+    stage.addEventListener('pointermove',function(e){
+      var r=rim.getBoundingClientRect();
+      var dx=(e.clientX-(r.left+r.width/2))/r.width;   // -0.5..0.5
+      var dy=(e.clientY-(r.top+r.height/2))/r.height;
+      var cl=Math.max(-0.6,Math.min(0.6,dx)), ct=Math.max(-0.6,Math.min(0.6,dy));
+      if(img) img.style.transform='translate('+(cl*-14)+'px,'+(ct*-14)+'px) scale(1.04)';
+      if(glint){ glint.style.left=(38+cl*26)+'%'; glint.style.top=(26+ct*22)+'%'; }
+      // pupil dilates toward the cursor (closer = wider aperture)
+      var near=1-Math.min(1,Math.hypot(dx,dy)*1.6);
+      if(pupil){ pupil.style.width=(60+near*8)+'%'; pupil.style.height=(70+near*6)+'%'; }
+    });
+    stage.addEventListener('pointerleave',function(){
+      if(img) img.style.transform='';
+      if(pupil){ pupil.style.width='60%'; pupil.style.height='70%'; }
+    });
+  })();
   function reset(){ raid=makeRaid(seed,11); a=newSim(raid,'legacy',true); b=newSim(raid,'grecko',true);
     finished=false; restT=0; dispL=dispG=0; }
   function renderHero(){
@@ -1147,6 +1276,8 @@ function Engine(cvL,cvG,opts){
     seed:20260613, ratio:0.81, showRank:true,
     onTick:onTick, onFinish:onFinish, onState:onState, onLoad:onLoad
   });
+  // Expose for the optional 3D engagement-theater layer (progressive enhancement).
+  window.__greckoEngine=eng;
 
   function onLoad(e){
     // build markers
@@ -1311,6 +1442,220 @@ function Engine(cvL,cvG,opts){
   } else start();
 })();
 
+})();
+</script>
+
+<!-- ═══════════ 3D ENGAGEMENT THEATER — progressive enhancement ═══════════ -->
+<script type="module">
+// Upgrades the 2D console into a 3D airspace when the device can do it well.
+// Drives entirely from the shared deterministic engine (window.__greckoEngine);
+// if anything fails, the 2D console stays — the message never depends on WebGL.
+(async function(){
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const eng = window.__greckoEngine;
+  const mount = document.getElementById('theater3d');
+  const cv = document.getElementById('cv3d');
+  const arena2d = document.getElementById('arena2d');
+  const labelHost = document.getElementById('t3labels');
+  if(!eng || !mount || !cv || reduced) return;
+  if(innerWidth < 820) return;                 // mobile keeps the lean 2D scene
+  // WebGL2 capability probe
+  try{ const t=document.createElement('canvas').getContext('webgl2'); if(!t) return; }catch(e){ return; }
+
+  let THREE;
+  try{ THREE = await import('https://unpkg.com/three@0.160.0/build/three.module.js'); }
+  catch(e){ return; }   // offline / CDN blocked → 2D stays
+
+  try{
+    // ---- geometry mapping: sim normalized (x,y)∈[0,1] → 3D airspace ----
+    // asset at origin; threats ingress from far (-Z) on an altitude arc.
+    const SPAN=7.4, DEPTH=15, ARC=2.4;
+    function place(x,y,out){
+      out.set((x-0.5)*SPAN, Math.sin(Math.min(1,Math.max(0,y))*Math.PI)*ARC + 0.25, -(1-y)*DEPTH + 0.6);
+    }
+    const COL = {
+      low:new THREE.Color('#ff3b5c'), hvt:new THREE.Color('#ffd23d'),
+      hold:new THREE.Color('#ffb020'), kin:new THREE.Color('#ff6b4a'),
+      soft:new THREE.Color('#4cc9ff'), asset:new THREE.Color('#00f5a0')
+    };
+
+    const renderer = new THREE.WebGLRenderer({canvas:cv, antialias:true, alpha:false});
+    renderer.setClearColor(0x03060c, 1);
+    const DPR = Math.min(devicePixelRatio||1, 1.75);
+    renderer.setPixelRatio(DPR);
+
+    const camera = new THREE.PerspectiveCamera(52, 1, 0.1, 100);
+    // build one scene per doctrine; share renderer+camera via split scissor
+    function buildScene(){
+      const sc = new THREE.Scene();
+      sc.fog = new THREE.FogExp2(0x03060c, 0.045);
+      sc.add(new THREE.AmbientLight(0x8090a0, 1.1));
+      const key = new THREE.PointLight(0x9fe8ff, 60, 40); key.position.set(0,8,4); sc.add(key);
+
+      // ground grid (the "scale tessellation → sensor grid" motif)
+      const grid = new THREE.GridHelper(30, 30, 0x12324a, 0x0c1c2a);
+      grid.position.y=0; sc.add(grid);
+
+      // track dome (hemispherical sensor volume)
+      const dome = new THREE.Mesh(
+        new THREE.SphereGeometry(13, 26, 12, 0, Math.PI*2, 0, Math.PI/2),
+        new THREE.MeshBasicMaterial({color:0x163a55, wireframe:true, transparent:true, opacity:0.16}));
+      dome.position.set(0,0,-DEPTH*0.45); dome.scale.set(1,0.42,1.05); sc.add(dome);
+
+      // defended asset
+      const asset = new THREE.Mesh(new THREE.OctahedronGeometry(0.5),
+        new THREE.MeshStandardMaterial({color:COL.asset, emissive:COL.asset, emissiveIntensity:0.9, roughness:.3}));
+      sc.add(asset);
+      const halo = new THREE.Mesh(new THREE.RingGeometry(0.7,0.95,40),
+        new THREE.MeshBasicMaterial({color:COL.asset, transparent:true, opacity:0.35, side:THREE.DoubleSide}));
+      halo.rotation.x=-Math.PI/2; sc.add(halo);
+
+      // instanced drones (capacity 18) and interceptors (capacity 12)
+      const dGeo=new THREE.IcosahedronGeometry(0.2,0);
+      const dMat=new THREE.MeshStandardMaterial({roughness:.45,metalness:.1,emissiveIntensity:.6,vertexColors:false});
+      const drones=new THREE.InstancedMesh(dGeo, dMat, 18);
+      drones.instanceColor=new THREE.InstancedBufferAttribute(new Float32Array(18*3),3);
+      drones.frustumCulled=false; sc.add(drones);
+
+      const iGeo=new THREE.SphereGeometry(0.11,10,10);
+      const iMat=new THREE.MeshStandardMaterial({roughness:.3,emissiveIntensity:1.0});
+      const ivs=new THREE.InstancedMesh(iGeo, iMat, 12);
+      ivs.instanceColor=new THREE.InstancedBufferAttribute(new Float32Array(12*3),3);
+      ivs.frustumCulled=false; sc.add(ivs);
+
+      // hold-fire "let through" rings (capacity 4)
+      const rings=[];
+      for(let i=0;i<4;i++){
+        const r=new THREE.Mesh(new THREE.RingGeometry(0.32,0.4,24),
+          new THREE.MeshBasicMaterial({color:COL.hold, transparent:true, opacity:0.9, side:THREE.DoubleSide}));
+        r.visible=false; sc.add(r); rings.push(r);
+      }
+      return {sc,asset,halo,drones,ivs,rings};
+    }
+    const S = {legacy:buildScene(), grecko:buildScene()};
+
+    const dummy=new THREE.Object3D(), vtmp=new THREE.Vector3();
+    function updateScene(scn, sim, isG){
+      let n=0;
+      const order=[];
+      for(let i=0;i<sim.drones.length;i++){
+        const d=sim.drones[i];
+        if(!d.live||d.done||!d.alive) continue;
+        place(d.x,d.y,vtmp);
+        dummy.position.copy(vtmp);
+        const s=d.hi?1.5:1.0; dummy.scale.set(s,s,s);
+        dummy.rotation.set(d.y*6, d.x*6, 0);
+        dummy.updateMatrix();
+        if(n<18){
+          scn.drones.setMatrixAt(n, dummy.matrix);
+          const c = d.hold?COL.hold:(d.hi?COL.hvt:COL.low);
+          scn.drones.setColorAt(n, c);
+          if(d.hold) order.push({d,pos:vtmp.clone()});
+          n++;
+        }
+      }
+      // hide unused instances by scaling to zero
+      for(let k=n;k<18;k++){ dummy.position.set(0,-50,0); dummy.scale.set(0,0,0); dummy.updateMatrix(); scn.drones.setMatrixAt(k,dummy.matrix); }
+      scn.drones.count=18; scn.drones.instanceMatrix.needsUpdate=true;
+      if(scn.drones.instanceColor) scn.drones.instanceColor.needsUpdate=true;
+      // emissive tint follows the palette via material (single mat) — set per-frame mild glow
+      scn.drones.material.emissive = new THREE.Color(0x223040);
+
+      // interceptors
+      let m=0;
+      for(let i=0;i<sim.ivs.length;i++){
+        const v=sim.ivs[i]; if(!v.alive) continue;
+        place(v.x,v.y,vtmp); dummy.position.copy(vtmp); dummy.scale.set(1,1,1); dummy.rotation.set(0,0,0); dummy.updateMatrix();
+        if(m<12){ scn.ivs.setMatrixAt(m,dummy.matrix);
+          scn.ivs.setColorAt(m, v.kind==='K'?COL.kin:COL.soft); m++; }
+      }
+      for(let k=m;k<12;k++){ dummy.position.set(0,-50,0); dummy.scale.set(0,0,0); dummy.updateMatrix(); scn.ivs.setMatrixAt(k,dummy.matrix); }
+      scn.ivs.count=12; scn.ivs.instanceMatrix.needsUpdate=true;
+      if(scn.ivs.instanceColor) scn.ivs.instanceColor.needsUpdate=true;
+      scn.ivs.material.emissive=new THREE.Color(0x101820);
+
+      // let-through rings (GRECKO only carries hold semantics)
+      for(let i=0;i<scn.rings.length;i++){
+        const r=scn.rings[i];
+        if(i<order.length){ r.visible=true; r.position.copy(order[i].pos);
+          r.lookAt(camera.position); r.material.opacity=0.55+0.35*Math.sin(performance.now()*0.005+i); }
+        else r.visible=false;
+      }
+      // pulse asset halo
+      scn.halo.rotation.z+=0.01;
+      return order;
+    }
+
+    // ---- camera orbit (shared) ----
+    let az=0.0, el=0.62, drag=false, px=0, py=0, auto=true;
+    function camPos(){
+      const R=13.5, cx=Math.sin(az)*Math.cos(el)*R, cy=Math.sin(el)*R+1.4, cz=Math.cos(az)*Math.cos(el)*R;
+      camera.position.set(cx, cy, cz - DEPTH*0.42);
+      camera.lookAt(0, 0.8, -DEPTH*0.42);
+    }
+    cv.addEventListener('pointerdown',e=>{drag=true;auto=false;px=e.clientX;py=e.clientY;cv.setPointerCapture(e.pointerId);});
+    cv.addEventListener('pointermove',e=>{ if(!drag)return;
+      az -= (e.clientX-px)*0.006; el += (e.clientY-py)*0.004;
+      el=Math.max(0.12,Math.min(1.25,el)); px=e.clientX; py=e.clientY; });
+    cv.addEventListener('pointerup',e=>{drag=false;});
+    cv.addEventListener('pointerleave',e=>{drag=false;});
+
+    function resize(){
+      const w=mount.clientWidth, h=430;
+      renderer.setSize(w,h,false);
+      camera.aspect=(w/2)/h; camera.updateProjectionMatrix();
+    }
+    addEventListener('resize',resize);
+
+    // project a world point (within a viewport half) to label-host pixels
+    function projectLabel(el, world, isRight){
+      vtmp.copy(world).project(camera);
+      const w=mount.clientWidth, h=430;
+      const halfW=w/2;
+      const sx=(vtmp.x*0.5+0.5)*halfW + (isRight?halfW:0);
+      const sy=(-vtmp.y*0.5+0.5)*h;
+      if(vtmp.z>1){ el.style.display='none'; return; }
+      el.style.display=''; el.style.left=sx+'px'; el.style.top=sy+'px';
+    }
+    // pooled DOM labels for let-through tags
+    const pool=[];
+    function label(i){ if(!pool[i]){ const e=document.createElement('div'); e.className='t3-let'; labelHost.appendChild(e); pool[i]=e; } return pool[i]; }
+    // activate: swap 2D → 3D, suppress 2D drawing, start when visible
+    eng.suppress2D = true;
+    arena2d.hidden = true; arena2d.style.display='none';
+    mount.hidden = false;
+    resize(); camPos();
+
+    // unified render+pump loop (single rAF)
+    (function tick(){
+      if(auto && !drag) az+=0.0016;
+      camPos();
+      const w=mount.clientWidth, h=430;
+      const L=eng.simL, G=eng.simG;
+      if(L) updateScene(S.legacy, L, false);
+      let order=[];
+      if(G) order=updateScene(S.grecko, G, true)||[];
+      renderer.setScissorTest(true);
+      renderer.setViewport(0,0,w/2,h); renderer.setScissor(0,0,w/2,h); renderer.render(S.legacy.sc, camera);
+      renderer.setViewport(w/2,0,w/2,h); renderer.setScissor(w/2,0,w/2,h); renderer.render(S.grecko.sc, camera);
+      // let-through labels
+      let j=0;
+      for(let i=0;i<order.length;i++){ const e=label(j++); const d=order[i].d;
+        e.textContent='LET THROUGH · #'+d.rank+'/'+(G?G.n:'?'); projectLabel(e, order[i].pos, true); }
+      for(let k=j;k<pool.length;k++) pool[k].style.display='none';
+      requestAnimationFrame(tick);
+    })();
+
+    if('IntersectionObserver' in window){
+      const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ eng.play&&eng.play(); io.disconnect(); }}),{threshold:0.25});
+      io.observe(mount);
+    } else { eng.play&&eng.play(); }
+
+  }catch(err){
+    // any failure → restore the 2D console
+    try{ eng.suppress2D=false; mount.hidden=true; arena2d.hidden=false; arena2d.style.display=''; }catch(e){}
+    console.warn('3D theater disabled:', err);
+  }
 })();
 </script>
 </body>

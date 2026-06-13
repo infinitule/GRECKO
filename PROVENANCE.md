@@ -46,3 +46,26 @@ make test             # full acceptance suite
 grecko demo --fast    # headline cost-exchange study
 make gif              # the swarm-for-swarm demo animation
 ```
+
+## Landing-page visual assets (`site/assets/gecko/`)
+
+The GitHub Pages landing page uses real gecko macro photography under
+permissive licenses. Each asset is recorded here in full; nothing is scraped
+without a license, consistent with the project's own provenance posture.
+
+| File | Subject | Source (Wikimedia Commons) | Author | License |
+|------|---------|----------------------------|--------|---------|
+| `eye.webp` | Gecko eye macro — sensor aperture | [Eye detail, Gecko *Hoplodactylus marlborough*](https://commons.wikimedia.org/wiki/File:Eye_detail,_from-_Gecko_Hoplodactylus_marlborough_(cropped).jpg) | John Pons | [CC0 1.0](http://creativecommons.org/publicdomain/zero/1.0/) |
+| `scales.webp` | Scale tessellation — data-surface motif | [*Paroedura rennerae* scales](https://commons.wikimedia.org/wiki/File:Paroedura_rennerae_scales.jpg) | A. Miralles, T. Bruy, A. Crottini, A. Rakotoarison, et al. (doi:10.3897/vz.71.e59495) | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| `foot.webp` | Setae / adhesive toe-pads — "lock the track" | [Gecko foot on glass](https://commons.wikimedia.org/wiki/File:Gecko_foot_on_glass.JPG) | Bjørn Christian Tørrissen | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+
+Images were cropped, resized, and tonally adjusted (contrast/brightness/
+saturation) for the instrument aesthetic; no subject was altered or
+misrepresented. CC BY-SA assets retain attribution above; derivatives of those
+images on the page are offered under the same CC BY-SA terms.
+
+### Third-party code
+
+- **three.js** r160 — 3D engagement theater — loaded at runtime from the
+  unpkg CDN ([MIT License](https://github.com/mrdoob/three.js/blob/dev/LICENSE)).
+  Not vendored into the repo.
