@@ -1,0 +1,9 @@
+.grecko/
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+viz/node_modules/
+viz/dist/
+viz/playwright-report/
+viz/test-results/

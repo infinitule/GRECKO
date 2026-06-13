@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Assignment",
+  "description": "One interceptor-target assignment OR a deliberate HOLD-FIRE decision. Every entry carries full provenance: bid value, value estimate, magazine state, and the auction-round that produced it. This is the audit log the human-on-the-loop console displays.",
+  "type": "object",
+  "required": ["t", "interceptor_id", "action", "provenance"],
+  "properties": {
+    "t":              {"type": "number"},
+    "interceptor_id": {"type": "string"},
+    "action": {
+      "type": "string",
+      "enum": ["ASSIGN", "HOLD_FIRE", "RTB"],
+      "description": "ASSIGN: engage the target. HOLD_FIRE: deliberate decline (magazine rationing). RTB: return to base (endurance/reload)."
+    },
+    "track_id":       {"type": ["string", "null"], "description": "Target track id; null for HOLD_FIRE/RTB."},
+    "effector_id":    {"type": ["string", "null"], "description": "Effector type chosen; null for non-ASSIGN actions."},
+    "provenance": {
+      "type": "object",
+      "required": ["solver", "bid_value", "track_value_estimate", "magazine_state", "round"],
+      "properties": {
+        "solver":                {"type": "string"},
+        "bid_value":             {"type": "number"},
+        "track_value_estimate":  {"type": "number", "description": "v_j: expected asset damage if this track reaches the asset"},
+        "magazine_state":        {"type": "object", "description": "Remaining rounds per effector type at decision time"},
+        "round":                 {"type": "integer", "description": "Auction or optimisation round index"},
+        "hold_reason":           {"type": ["string", "null"], "description": "Human-readable rationale for a HOLD_FIRE decision"}
+      }
+    }
+  },
+  "additionalProperties": false
+}

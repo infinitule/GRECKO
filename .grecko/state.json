@@ -1,0 +1,147 @@
+{
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Kernel & deterministic replay",
+      "deps": [],
+      "status": "done",
+      "acceptance": "pass",
+      "adr": "docs/ADR-000.md",
+      "commit": "",
+      "notes": "12/12 tests pass. Determinism confirmed: same seed -> identical SHA-256 hash. 5/5 intercepts, 0 leakers on baseline.yaml."
+    },
+    {
+      "id": "P1",
+      "title": "Sensing mesh (imperfect observers)",
+      "deps": ["P0"],
+      "status": "done",
+      "acceptance": "pass",
+      "adr": "docs/ADR-001.md",
+      "commit": "",
+      "notes": "14/14 tests pass. Empirical Pd within 2% of config over 10k trials; SensorReport structurally truth-free; demo figure at docs/figures/p1_sensing_demo.png."
+    },
+    {
+      "id": "P2",
+      "title": "Fusion & multi-target tracking",
+      "deps": ["P1"],
+      "status": "done",
+      "acceptance": "pass",
+      "adr": "docs/ADR-002.md",
+      "commit": "",
+      "notes": "6/6 tests pass (32 cumulative). 40-target purity 1.000 at 4.3x realtime; saturation knee at 80-100 targets. Two-pass association fixed duplicate-track competition."
+    },
+    {
+      "id": "P3",
+      "title": "Classification (transparent, swappable)",
+      "deps": ["P2"],
+      "status": "done",
+      "acceptance": "pass",
+      "adr": "docs/ADR-003.md",
+      "commit": "",
+      "notes": "12/12 tests pass (44 cumulative). Birds non-hostile ≥95%; 1000-trial friendly stress test zero violations; every assessment carries non-empty why; Classifier interface verified swappable."
+    },
+    {
+      "id": "PC",
+      "title": "Comms & degradation model",
+      "deps": ["P0"],
+      "status": "done",
+      "acceptance": "pass",
+      "adr": "docs/ADR-005.md",
+      "commit": "",
+      "notes": "16/16 tests pass (60 cumulative). Degradation curve monotone; 5 config scenarios; isolation invariant enforced."
+    },
+    {
+      "id": "PE",
+      "title": "Effector heterogeneity (params only)",
+      "deps": ["P0"],
+      "status": "done",
+      "acceptance": "pass",
+      "adr": "docs/ADR-007.md",
+      "commit": "",
+      "notes": "34/34 tests pass (94 cumulative). EW scope-boundary disclaimer enforced by test. Cost-effective selection verified per threat type."
+    },
+    {
+      "id": "PA",
+      "title": "PILLAR A — economic magazine-rationing allocator",
+      "deps": ["P3", "PC", "PE"],
+      "status": "done",
+      "acceptance": "pass",
+      "adr": "docs/ADR-004.md",
+      "commit": "",
+      "notes": "15/15 tests pass (109 cumulative). Decoy scenario: EconomicMDP holds decoys at λ=0.5, engages main axis. Units fix: cost normalised by asset_value so λ is dimensionless [0,1] knob."
+    },
+    {
+      "id": "PB",
+      "title": "PILLAR B — swarm intent prediction",
+      "deps": ["P2"],
+      "status": "done",
+      "acceptance": "pass",
+      "adr": "docs/ADR-005b.md",
+      "commit": "",
+      "notes": "9/9 tests pass (118 cumulative). Lead-time +24.2s vs heading heuristic at 40% occlusion; ECE 0.011; held-out acc 99.6%. PA wiring delta: feint rounds 1->0 (stub->wired), recorded per staged wiring protocol."
+    },
+    {
+      "id": "PV",
+      "title": "P-C2 — human-on-the-loop console",
+      "deps": ["PA", "PB"],
+      "status": "done",
+      "acceptance": "pass",
+      "adr": "docs/ADR-009.md",
+      "commit": "",
+      "notes": "43/43 tests pass (161 cumulative, 1 skip). WEAPONS HOLD interlock: zero world.assign() calls while hold active. Auth interlock: unauth tracks never engaged across 600 ticks. Replay determinism confirmed. TypeScript tsc --noEmit clean. Playwright spec at viz/tests/pv_console.spec.ts."
+    },
+    {
+      "id": "PL",
+      "title": "PILLAR C — adversarial co-evolution league",
+      "deps": ["PA", "PB"],
+      "status": "done",
+      "acceptance": "pass",
+      "adr": "docs/ADR-006.md",
+      "commit": "",
+      "notes": "35/35 tests pass (196 cumulative, 1 skip). Win rate trend non-negative. ≥3 distinct attack clusters in tactic library. Exported Scenarios pass PB structural validation. Double-expend fix: magazine.expend() gated on new interceptor-entity pairs only. PARAM_BOUNDS reduced to main_range=[300,900]m for CI speed (agents arrive within 25s window). ES (μ+λ) converges in 6 generations."
+    },
+    {
+      "id": "PS",
+      "title": "P-S2R — sim-to-real validation strategy",
+      "deps": ["P1"],
+      "status": "done",
+      "acceptance": "pass",
+      "adr": "docs/ADR-008.md",
+      "commit": "",
+      "notes": "36/36 tests pass (232 cumulative, 1 skip). 8-dim RealityGap envelope, gate coverage machine-checked (coverage_check()==[]). Tornado: noise_scale -133.7m, update_rate -96.1m, target_speed -76.6m margin loss at worst bound. 3 insensitive dims surfaced as fidelity limitations (latency invisible to fusion; comms geometry never binds) — each still gated. Domain-randomized stability 0.75 over envelope, worst-case margin 45.1m. Headline metric = engagement margin (intercept count is truth-space-pursuit-insensitive, rejected)."
+    },
+    {
+      "id": "PX",
+      "title": "P-EVAL — Monte Carlo + headline figure",
+      "deps": ["PA", "PB", "PV", "PL", "PS"],
+      "status": "done",
+      "acceptance": "pass",
+      "adr": "docs/ADR-010.md",
+      "commit": "",
+      "notes": "27/27 tests pass (259 cumulative, 1 skip). Headline: EconomicMDP CER=24.75 vs GreedyMyopic CER=32.00 — 22.5% cost-efficiency gain at -5pp intercept rate. Defense spend from physical INTERCEPT events (not alloc-cycle magazine bookkeeping). Largest improvement on PL-discovered adversarial formation (pl_0: 34% CER reduction). IR/CER trade-off surfaced explicitly."
+    },
+    {
+      "id": "PK",
+      "title": "Hardening, docs, demo packaging",
+      "deps": ["PX"],
+      "status": "done",
+      "acceptance": "pass",
+      "adr": "docs/ADR-011.md",
+      "commit": "",
+      "notes": "19/19 tests pass (278 cumulative, 1 skip). tools/verify_invariants.py mechanically gates POSG, C2 INTERLOCK (AST: 1 guarded world.assign in bridge), SCOPE (disclaimer-aware regex), DETERMINISM (replay hash). Negative controls prove the gate detects violations, not just passes. Capstone README (scope boundary first, headline, architecture table). demo.py one-command headline (gate + MC study). .github/workflows/ci.yml runs gate + suite. ADR-011."
+    },
+    {
+      "id": "PM",
+      "title": "Mutual co-evolution — Blue adapts back",
+      "deps": ["PL", "PX"],
+      "status": "done",
+      "acceptance": "pass",
+      "adr": "docs/ADR-012.md",
+      "commit": "",
+      "notes": "21/21 tests pass (300 collected, 299 pass, 1 skip). BluePolicy = effector loadout + lambda; injected into BridgeScenario (loadout/magazine). Exhaustive 30-policy Blue search vs PL-seeded 3-tactic Red library. Headline: adapted Blue (all-collision, lambda=0.1) cuts CER 34.4->0.8 (97.7%, ~43x) at IDENTICAL 25.8% intercept rate; Red counter-evolution claws back 0 on cost (cost axis outside Red's action space). Finding: intercept rate is interceptor-count-limited, so loadout is a pure cost lever. PS gap: adapted Blue holds 0.75 stability AND improves worst-case margin 45->73m. ADR-012."
+    }
+  ],
+  "current": "COMPLETE",
+  "mode": "checkpoint",
+  "updated": "2026-06-13T05:50:00Z"
+}

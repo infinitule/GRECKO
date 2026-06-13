@@ -1,0 +1,26 @@
+# GRECKO deployable stack: C2 decision-engine bridge + operator console.
+# Simulation & C2 software only.
+services:
+  c2-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: grecko/c2-server:1.0.0
+    environment:
+      GRECKO_HOST: "0.0.0.0"
+      GRECKO_PORT: "8765"
+      GRECKO_SEED: "42"
+    ports:
+      - "8765:8765"
+    restart: unless-stopped
+
+  console:
+    build:
+      context: ./viz
+      dockerfile: Dockerfile
+    image: grecko/console:1.0.0
+    ports:
+      - "8080:80"
+    depends_on:
+      - c2-server
+    restart: unless-stopped

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GRECKO C2 Console</title>
+    <style>
+      /* ------------------------------------------------------------------ */
+      /* Reset + base                                                        */
+      /* ------------------------------------------------------------------ */
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      :root {
+        --bg: #0a0d14;
+        --panel: #11161f;
+        --border: #1e2736;
+        --text: #c8d8e8;
+        --dim: #5a6a7a;
+        --hostile: #e03030;
+        --unknown: #e8a020;
+        --friendly: #28c860;
+        --hold: #505878;
+        --authorized: #28c860;
+        --main-axis: #e03030;
+        --feint: #e87820;
+        --isr: #3888e0;
+        --reserve: #8888aa;
+        --accent: #2080e8;
+        --danger: #e82020;
+        --warning: #f0a000;
+        --success: #20c850;
+        font-size: 13px;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "JetBrains Mono", "Consolas", "Courier New", monospace;
+        height: 100vh;
+        overflow: hidden;
+        display: grid;
+        grid-template-rows: 38px 1fr 200px;
+        grid-template-columns: 1fr 320px;
+        gap: 4px;
+        padding: 4px;
+      }
+
+      /* ------------------------------------------------------------------ */
+      /* Header                                                               */
+      /* ------------------------------------------------------------------ */
+      #header {
+        grid-column: 1 / -1;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        padding: 0 12px;
+        border-radius: 3px;
+      }
+
+      #header .title { font-weight: 700; letter-spacing: 2px; font-size: 11px; color: var(--accent); }
+      #header .sim-time { color: var(--dim); font-size: 11px; }
+      #header #connection-indicator {
+        width: 8px; height: 8px; border-radius: 50%;
+        background: var(--dim); margin-left: auto;
+      }
+      #header #connection-indicator.connected { background: var(--success); }
+      #header #connection-indicator.disconnected { background: var(--danger); }
+
+      /* ------------------------------------------------------------------ */
+      /* Weapons hold banner                                                  */
+      /* ------------------------------------------------------------------ */
+      #weapons-hold-banner {
+        display: none;
+        grid-column: 1 / -1;
+        background: var(--danger);
+        color: white;
+        text-align: center;
+        font-weight: 700;
+        letter-spacing: 3px;
+        font-size: 11px;
+        padding: 2px 0;
+      }
+      #weapons-hold-banner.active { display: block; }
+
+      /* ------------------------------------------------------------------ */
+      /* Air picture                                                          */
+      /* ------------------------------------------------------------------ */
+      #air-picture-panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 3px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      #air-picture {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+
+      #air-picture-controls {
+        position: absolute;
+        bottom: 8px;
+        left: 8px;
+        display: flex;
+        gap: 6px;
+      }
+
+      /* ------------------------------------------------------------------ */
+      /* Right panel: HOTL + ROE                                             */
+      /* ------------------------------------------------------------------ */
+      #right-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      /* ------------------------------------------------------------------ */
+      /* HOTL panel                                                           */
+      /* ------------------------------------------------------------------ */
+      #hotl-panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 3px;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        flex: 1;
+      }
+
+      .panel-header {
+        padding: 6px 10px;
+        border-bottom: 1px solid var(--border);
+        font-size: 10px;
+        letter-spacing: 1px;
+        color: var(--dim);
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+      }
+
+      #hotl-tracks-container {
+        flex: 1;
+        overflow-y: auto;
+        padding: 4px;
+      }
+
+      .track-row {
+        display: grid;
+        grid-template-columns: 60px 60px 1fr auto;
+        gap: 4px;
+        align-items: center;
+        padding: 4px 6px;
+        border-radius: 2px;
+        margin-bottom: 2px;
+        font-size: 11px;
+        border-left: 3px solid var(--border);
+      }
+
+      .track-row.hostile  { border-left-color: var(--hostile); }
+      .track-row.unknown  { border-left-color: var(--unknown); }
+      .track-row.friendly { border-left-color: var(--friendly); }
+
+      .track-row .track-id { font-weight: 700; }
+      .track-row .label    { font-size: 10px; }
+      .track-row .confidence { color: var(--dim); font-size: 10px; }
+
+      .track-actions { display: flex; gap: 3px; }
+
+      .btn {
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--text);
+        padding: 2px 6px;
+        border-radius: 2px;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 10px;
+        letter-spacing: 0.5px;
+        transition: background 0.1s, border-color 0.1s;
+      }
+      .btn:hover { background: rgba(255,255,255,0.06); }
+      .btn.auth    { border-color: var(--success);  color: var(--success);  }
+      .btn.hold    { border-color: var(--warning);  color: var(--warning);  }
+      .btn.friendly-btn { border-color: var(--friendly); color: var(--friendly); }
+      .btn.active  { background: rgba(40,200,96,0.15); border-color: var(--success); }
+      .btn.hold.active  { background: rgba(240,160,0,0.15); border-color: var(--warning); }
+
+      /* Global weapons hold */
+      #weapons-hold-btn {
+        margin: 6px;
+        padding: 6px;
+        background: transparent;
+        border: 2px solid var(--danger);
+        color: var(--danger);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        cursor: pointer;
+        border-radius: 2px;
+        font-family: inherit;
+        width: calc(100% - 12px);
+        transition: background 0.15s;
+        flex-shrink: 0;
+      }
+      #weapons-hold-btn.hold-active {
+        background: var(--danger);
+        color: white;
+      }
+      #weapons-hold-btn:hover { background: rgba(232,32,32,0.15); }
+
+      /* ------------------------------------------------------------------ */
+      /* ROE editor                                                           */
+      /* ------------------------------------------------------------------ */
+      #roe-panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 3px;
+        padding: 8px 10px;
+        flex-shrink: 0;
+      }
+
+      .roe-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 6px;
+        font-size: 11px;
+      }
+
+      .roe-row label { width: 80px; color: var(--dim); }
+      .roe-row input[type=range] { flex: 1; accent-color: var(--accent); }
+      .roe-row .roe-val { width: 36px; text-align: right; }
+
+      /* ------------------------------------------------------------------ */
+      /* Audit trail                                                          */
+      /* ------------------------------------------------------------------ */
+      #audit-panel {
+        grid-column: 1 / -1;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 3px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      #audit-list {
+        flex: 1;
+        overflow-y: auto;
+        padding: 4px 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+      }
+
+      .audit-entry {
+        display: grid;
+        grid-template-columns: 55px 48px 140px 1fr;
+        gap: 6px;
+        padding: 1px 0;
+        font-size: 10px;
+        color: var(--dim);
+        border-bottom: 1px solid rgba(30,39,54,0.5);
+      }
+      .audit-entry .t     { color: var(--accent); }
+      .audit-entry .event { color: var(--text); font-weight: 600; }
+      .audit-entry.authorized  .event { color: var(--success); }
+      .audit-entry.weapons-hold .event { color: var(--danger); }
+      .audit-entry.pending .event { color: var(--warning); }
+      .audit-entry.friendly-mark .event { color: var(--friendly); }
+    </style>
+  </head>
+  <body>
+    <div id="header">
+      <span class="title">GRECKO C2</span>
+      <span class="sim-time" id="sim-time">T+0.00s</span>
+      <span id="track-count">0 tracks</span>
+      <span id="asset-hp">HP:10</span>
+      <div id="connection-indicator" title="WebSocket connection"></div>
+    </div>
+
+    <div id="air-picture-panel">
+      <canvas id="air-picture"></canvas>
+      <div id="air-picture-controls">
+        <label style="font-size:10px;color:#5a6a7a">
+          <input type="checkbox" id="show-truth" /> truth
+        </label>
+        <label style="font-size:10px;color:#5a6a7a">
+          <input type="checkbox" id="show-comms" checked /> mesh
+        </label>
+        <label style="font-size:10px;color:#5a6a7a">
+          <input type="checkbox" id="show-intent" checked /> intent
+        </label>
+      </div>
+    </div>
+
+    <div id="right-panel">
+      <div id="hotl-panel">
+        <div class="panel-header">
+          HOTL — ENGAGEMENT AUTHORISATION
+          <span id="auth-count" style="margin-left:auto"></span>
+        </div>
+        <button id="weapons-hold-btn" data-testid="weapons-hold-btn">
+          WEAPONS HOLD
+        </button>
+        <div id="hotl-tracks-container"></div>
+      </div>
+
+      <div id="roe-panel">
+        <div class="panel-header">ROE PARAMETERS</div>
+        <div class="roe-row">
+          <label>λ cost</label>
+          <input type="range" id="lambda-slider" min="0" max="1" step="0.01" value="0.05" />
+          <span class="roe-val" id="lambda-val">0.05</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="audit-panel">
+      <div class="panel-header">AUDIT TRAIL</div>
+      <div id="audit-list" data-testid="audit-list"></div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

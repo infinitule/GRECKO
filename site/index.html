@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GRECKO — winning the counter-swarm cost exchange</title>
+<meta name="description" content="GRECKO is a counter-swarm air-defense simulation that wins the cost exchange: it neutralizes UAS swarms at ~1% of the cost of legacy weapon-target-assignment doctrine. Simulation and C2-software only." />
+<style>
+  :root {
+    --bg: #0d1117; --panel: #161b22; --panel2:#11161d; --border: #30363d;
+    --fg: #e6edf3; --muted: #8b949e;
+    --cyan: #39d0d8; --green: #3fb950; --orange: #f0883e; --red: #f85149; --gold:#f2cc60;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.62; }
+  a { color: var(--cyan); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 0 22px; }
+  header { border-bottom: 1px solid var(--border);
+    background: radial-gradient(120% 120% at 80% -10%, #16202b 0%, var(--bg) 60%);
+    padding: 58px 0 42px; }
+  h1 { font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 3.6rem; margin: 0; letter-spacing: 2px; }
+  .tag { color: var(--cyan); font-size: 1.3rem; margin-top: 8px; }
+  .sub { color: var(--muted); margin-top: 6px; font-size: 1.02rem; max-width: 680px; }
+  .badges { margin-top: 24px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .badge { background: var(--panel); border: 1px solid var(--border);
+    border-radius: 6px; padding: 4px 11px; font-size: 0.8rem; color: var(--muted); }
+  .badge b { color: var(--green); }
+  .scope { margin: 26px 0 0; border: 1px solid var(--orange); border-radius: 10px;
+    background: rgba(240,136,62,0.07); padding: 16px 20px; }
+  .scope h3 { margin: 0 0 4px; color: var(--orange); font-size: 1rem; }
+  .scope p { margin: 0; color: var(--fg); font-size: 0.92rem; }
+  section { padding: 46px 0; border-bottom: 1px solid var(--border); }
+  h2 { font-size: 1.75rem; margin: 0 0 8px; }
+  h2 .n { color: var(--muted); font-weight: 400; font-size: 1rem; }
+  .lead { color: var(--muted); margin-top: 0; font-size: 1.05rem; }
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 28px 0; }
+  .kpi { background: var(--panel); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px; text-align: center; }
+  .kpi .v { font-size: 2.1rem; font-weight: 800; color: var(--green); line-height: 1.1; }
+  .kpi .v.cy { color: var(--cyan); }
+  .kpi .l { color: var(--muted); font-size: 0.8rem; margin-top: 6px; }
+  figure { margin: 26px 0 8px; }
+  figure img { width: 100%; border: 1px solid var(--border); border-radius: 12px; display: block; }
+  figcaption { color: var(--muted); font-size: 0.85rem; margin-top: 10px; text-align: center; }
+  .problem { display: grid; grid-template-columns: 1.1fr 1fr; gap: 26px; align-items: center; }
+  .problem .big { font-size: 1.15rem; }
+  .problem .big b { color: var(--gold); }
+  .quote { border-left: 3px solid var(--orange); padding: 6px 0 6px 16px; color: var(--fg);
+    font-size: 1.05rem; margin: 18px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 11px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; }
+  td.feat { color: var(--fg); font-weight: 600; }
+  .yes { color: var(--green); font-weight: 700; }
+  .no { color: var(--red); font-weight: 700; }
+  .mid { color: var(--gold); font-weight: 700; }
+  thead th.us { color: var(--cyan); }
+  td.us { background: rgba(57,208,216,0.06); }
+  .moat { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .card h4 { margin: 0 0 6px; color: var(--cyan); font-size: 1.05rem; }
+  .card p { margin: 0; color: var(--muted); font-size: 0.9rem; }
+  .pill { display:inline-block; font-size:0.72rem; color:var(--bg); background:var(--cyan);
+    border-radius: 20px; padding: 1px 9px; font-weight: 700; }
+  code { font-family: ui-monospace, monospace; background: var(--panel);
+    border: 1px solid var(--border); border-radius: 5px; padding: 1px 6px; font-size: 0.86em; }
+  pre { background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 18px; overflow-x: auto; }
+  pre code { background: none; border: none; padding: 0; }
+  footer { padding: 40px 0 64px; color: var(--muted); font-size: 0.85rem; }
+  @media (max-width: 760px) {
+    h1 { font-size: 2.4rem; }
+    .kpis, .moat { grid-template-columns: 1fr 1fr; }
+    .problem { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>GRECKO</h1>
+    <div class="tag">winning the counter-swarm cost exchange</div>
+    <div class="sub">A defense decision engine that neutralizes UAS swarms at a fraction of
+      the cost of legacy weapon-target-assignment doctrine — with a human on the loop and
+      every decision auditable.</div>
+    <div class="badges">
+      <span class="badge">validated in sim <b>305 tests</b></span>
+      <span class="badge">invariants <b>4/4 enforced</b></span>
+      <span class="badge">decisions <b>deterministic &amp; auditable</b></span>
+      <span class="badge">scope <b>simulation &amp; C2 only</b></span>
+    </div>
+    <div class="scope">
+      <h3>⚠ Scope</h3>
+      <p><b>Simulation, research, and C2-software only.</b> No fire-control, no RF/jamming/waveform
+      design, no weapon or effector hardware control. Effectors are <b>parameter sets</b> (cost,
+      kill probability). A CI gate enforces this boundary on every commit.</p>
+    </div>
+  </div>
+</header>
+
+<!-- THE PROBLEM -->
+<section>
+  <div class="wrap">
+    <h2>The problem <span class="n">— you can't win by spending</span></h2>
+    <div class="problem">
+      <div>
+        <p class="big">A $90,000 interceptor shooting a $1,000 quadrotor is a
+        <b>losing trade — even when it hits.</b> Swarms weaponize that math: send
+        enough cheap drones and any kinetic-first defense runs out of money before
+        it runs out of targets.</p>
+        <div class="quote">Counter-swarm is not primarily a targeting problem.
+          It is a <b>cost-exchange</b> problem.</div>
+        <p class="lead">GRECKO treats the engagement as an economic decision —
+          which interceptor, against which threat, at what cost, under whose
+          authorization — and optimizes the dollar exchange directly.</p>
+      </div>
+      <div class="kpis" style="grid-template-columns:1fr 1fr;">
+        <div class="kpi"><div class="v">98×</div><div class="l">cheaper than legacy doctrine, same raid</div></div>
+        <div class="kpi"><div class="v cy">$800</div><div class="l">GRECKO cost per kill</div></div>
+        <div class="kpi"><div class="v cy">$90k</div><div class="l">legacy cost per kill</div></div>
+        <div class="kpi"><div class="v">0</div><div class="l">cost ground the adversary can win back</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SWARM FOR SWARM DEMO -->
+<section>
+  <div class="wrap">
+    <h2>Swarm for swarm <span class="n">— same raid, two doctrines, live from the simulator</span></h2>
+    <p class="lead">An identical 11-UAS raid runs against two defenses. Both stop the
+      swarm. Watch the cost counters — that is the whole game.</p>
+    <figure>
+      <img src="figures/swarm_demo.gif" alt="Swarm-for-swarm animated demo" />
+      <figcaption>Left: legacy weapon-target-assignment (all-kinetic, engage-everything).
+        Right: GRECKO (economic allocation + cost-adapted loadout). Rendered directly from the simulator.</figcaption>
+    </figure>
+    <figure>
+      <img src="figures/scoreboard.png" alt="Head-to-head scoreboard" />
+      <figcaption>GRECKO stops one <em>more</em> threat for <b>1.0%</b> of the spend.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- HOW WE WIN -->
+<section>
+  <div class="wrap">
+    <h2>How we beat the field</h2>
+    <p class="lead">Every alternative gives up at least one axis that matters. GRECKO holds all of them.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Capability</th>
+          <th>Legacy WTA / greedy</th>
+          <th>Manual / human-only C2</th>
+          <th>Fixed kinetic systems</th>
+          <th>Black-box ML allocator</th>
+          <th class="us">GRECKO</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="feat">Wins the cost exchange</td>
+          <td class="no">no — overspends</td><td class="mid">operator-dependent</td>
+          <td class="no">no — $90k/shot</td><td class="mid">opaque</td>
+          <td class="us yes">yes — ~$800/kill</td></tr>
+        <tr><td class="feat">Scales to swarm saturation</td>
+          <td class="mid">partial</td><td class="no">no — operator overload</td>
+          <td class="mid">magazine-limited</td><td class="mid">yes</td>
+          <td class="us yes">yes — magazine-rationing</td></tr>
+        <tr><td class="feat">Adapts to novel tactics</td>
+          <td class="no">no</td><td class="mid">slow</td><td class="no">no</td>
+          <td class="mid">needs retraining data</td>
+          <td class="us yes">yes — co-evolution league</td></tr>
+        <tr><td class="feat">Human-on-the-loop &amp; auditable</td>
+          <td class="mid">varies</td><td class="yes">yes</td><td class="mid">varies</td>
+          <td class="no">no — unexplainable</td>
+          <td class="us yes">yes — interlock + audit trail</td></tr>
+        <tr><td class="feat">Deterministic &amp; certifiable</td>
+          <td class="mid">varies</td><td class="no">no</td><td class="mid">varies</td>
+          <td class="no">no — stochastic</td>
+          <td class="us yes">yes — seeded, hash-verified</td></tr>
+        <tr><td class="feat">Effector-agnostic (no hardware lock-in)</td>
+          <td class="mid">varies</td><td class="yes">yes</td><td class="no">no</td>
+          <td class="mid">varies</td>
+          <td class="us yes">yes — effectors are parameters</td></tr>
+      </tbody>
+    </table>
+    <p class="lead" style="font-size:0.9rem">Legacy-WTA and fixed-kinetic columns are
+      grounded in GRECKO's own measured baselines (greedy allocator, all-kinetic loadout);
+      others characterize the approach class.</p>
+  </div>
+</section>
+
+<!-- THE MOAT -->
+<section>
+  <div class="wrap">
+    <h2>The moat <span class="n">— three compounding advantages</span></h2>
+    <div class="moat">
+      <div class="card">
+        <h4>Economic allocator <span class="pill">Pillar A</span></h4>
+        <p>A magazine-constrained sequential optimizer that can <em>hold fire</em> on a
+        low-value track to preserve rounds for what matters. ~22% lower cost-per-kill
+        than greedy before loadout adaptation; ~98% after.</p>
+      </div>
+      <div class="card">
+        <h4>Adversarial co-evolution <span class="pill">Pillar C</span></h4>
+        <p>An in-house red team that <em>evolves</em> attacks the defense was never
+        scripted against, then the defense adapts back. The cost advantage is robust:
+        the adversary cannot make our effectors more expensive.</p>
+      </div>
+      <div class="card">
+        <h4>Auditable human-on-the-loop <span class="pill">C2</span></h4>
+        <p>Engagement is reachable only through an authorization interlock, proven by
+        static analysis to have a single gated path. Every decision is logged and
+        replayable — the prerequisite for certification and rules-of-engagement.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY IT'S REAL -->
+<section>
+  <div class="wrap">
+    <h2>De-risked, not a slide deck</h2>
+    <div class="kpis">
+      <div class="kpi"><div class="v cy">305</div><div class="l">automated tests passing</div></div>
+      <div class="kpi"><div class="v cy">12</div><div class="l">build phases, P0 → PM</div></div>
+      <div class="kpi"><div class="v cy">4/4</div><div class="l">architectural invariants gated in CI</div></div>
+      <div class="kpi"><div class="v cy">100%</div><div class="l">results reproducible from a seed</div></div>
+    </div>
+    <p class="lead">The full sense → fuse → classify → predict → allocate → engage pipeline,
+      a human-on-the-loop C2 console (WebSocket + TypeScript), an adversarial co-evolution
+      league, a sim-to-real validation strategy with explicit measurement gates, and a Monte
+      Carlo evaluation harness — each phase documented in an ADR and gated by tests.</p>
+  </div>
+</section>
+
+<!-- RUN IT -->
+<section>
+  <div class="wrap">
+    <h2>See it yourself</h2>
+    <pre><code>pip install -e .            # installs the `grecko` CLI
+
+grecko demo --fast         # headline cost-exchange study (~45s)
+grecko verify              # architectural invariant gate
+grecko serve               # C2 decision-engine bridge (ws://:8765)
+make gif                   # render the swarm-for-swarm animation
+make test                  # full acceptance suite (305 tests)</code></pre>
+    <p class="lead" style="margin-top:14px">Deployable as two containers (C2 bridge +
+      operator console) with <code>make docker-up</code> — non-root, healthchecked, with a
+      documented integration boundary. See <code>docs/DEPLOYMENT.md</code>.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    GRECKO — simulation, research, and C2-software only. Effectors are parameter sets;
+    no hardware control, no RF design, no weapon integration. Every result is reproducible
+    from a seed and every architectural claim is enforced by a CI gate.
+  </div>
+</footer>
+
+</body>
+</html>

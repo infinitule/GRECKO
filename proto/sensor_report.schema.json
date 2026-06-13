@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SensorReport",
+  "description": "A single measurement from one sensor at one update. POSG invariant: this message must NEVER contain a ground-truth entity id or true state — only the sensor's own noisy measurement. report_id is a per-sensor sequence number, NOT an entity identity.",
+  "type": "object",
+  "required": ["t", "sensor_id", "sensor_type", "report_id", "measurement", "covariance"],
+  "properties": {
+    "t": {
+      "type": "number",
+      "description": "Timestamp of the measurement (sim seconds), AFTER sensor latency is applied"
+    },
+    "sensor_id": {
+      "type": "string"
+    },
+    "sensor_type": {
+      "type": "string",
+      "enum": ["RADAR", "EOIR", "ACOUSTIC"]
+    },
+    "report_id": {
+      "type": "integer",
+      "description": "Per-sensor monotonically increasing sequence number. Carries no entity identity."
+    },
+    "measurement": {
+      "type": "object",
+      "description": "Measurement in the sensor's native space",
+      "oneOf": [
+        {
+          "required": ["kind", "position"],
+          "properties": {
+            "kind": {"const": "cartesian"},
+            "position": {
+              "type": "array",
+              "items": {"type": "number"},
+              "minItems": 2,
+              "maxItems": 3
+            }
+          }
+        },
+        {
+          "required": ["kind", "bearing"],
+          "properties": {
+            "kind": {"const": "bearing_only"},
+            "bearing": {
+              "type": "number",
+              "description": "Bearing from the sensor, radians"
+            }
+          }
+        }
+      ]
+    },
+    "covariance": {
+      "type": "array",
+      "description": "Measurement covariance matrix (row-major). 2x2 for cartesian, 1x1 for bearing-only.",
+      "items": {
+        "type": "array",
+        "items": {"type": "number"}
+      }
+    },
+    "is_clutter_truth": {
+      "type": "boolean",
+      "description": "DEBUG/EVAL ONLY. Stripped from the fusion-facing stream; present only in the ground-truth eval sidecar."
+    }
+  },
+  "additionalProperties": false
+}
