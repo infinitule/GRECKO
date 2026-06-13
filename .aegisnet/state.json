@@ -114,11 +114,11 @@
       "id": "PX",
       "title": "P-EVAL — Monte Carlo + headline figure",
       "deps": ["PA", "PB", "PV", "PL", "PS"],
-      "status": "pending",
-      "acceptance": "na",
+      "status": "done",
+      "acceptance": "pass",
       "adr": "docs/ADR-010.md",
       "commit": "",
-      "notes": ""
+      "notes": "27/27 tests pass (259 cumulative, 1 skip). Headline: EconomicMDP CER=24.75 vs GreedyMyopic CER=32.00 — 22.5% cost-efficiency gain at -5pp intercept rate. Defense spend from physical INTERCEPT events (not alloc-cycle magazine bookkeeping). Largest improvement on PL-discovered adversarial formation (pl_0: 34% CER reduction). IR/CER trade-off surfaced explicitly."
     },
     {
       "id": "PK",
@@ -131,7 +131,7 @@
       "notes": ""
     }
   ],
-  "current": "PX",
+  "current": "PK",
   "mode": "checkpoint",
   "updated": "2026-06-12T22:00:00Z"
 }
