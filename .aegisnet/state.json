@@ -124,14 +124,14 @@
       "id": "PK",
       "title": "Hardening, docs, demo packaging",
       "deps": ["PX"],
-      "status": "pending",
-      "acceptance": "na",
-      "adr": "",
+      "status": "done",
+      "acceptance": "pass",
+      "adr": "docs/ADR-011.md",
       "commit": "",
-      "notes": ""
+      "notes": "19/19 tests pass (278 cumulative, 1 skip). tools/verify_invariants.py mechanically gates POSG, C2 INTERLOCK (AST: 1 guarded world.assign in bridge), SCOPE (disclaimer-aware regex), DETERMINISM (replay hash). Negative controls prove the gate detects violations, not just passes. Capstone README (scope boundary first, headline, architecture table). demo.py one-command headline (gate + MC study). .github/workflows/ci.yml runs gate + suite. ADR-011."
     }
   ],
-  "current": "PK",
+  "current": "COMPLETE",
   "mode": "checkpoint",
-  "updated": "2026-06-12T22:00:00Z"
+  "updated": "2026-06-13T05:30:00Z"
 }
