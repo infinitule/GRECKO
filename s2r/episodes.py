@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from typing import Optional
 
 import numpy as np
 
@@ -57,11 +58,15 @@ def probe_policy(gap: RealityGap) -> SwarmPolicy:
     return SwarmPolicy(theta=theta)
 
 
-def run_probe_episode(gap: RealityGap, seed: int = 0) -> dict:
+def run_probe_episode(gap: RealityGap, seed: int = 0,
+                      loadout: Optional[list] = None) -> dict:
     """Run the probe under `gap`; return outcome metrics.
 
     margin_m is the headline: min intercept distance from the asset
     (0.0 if no intercept happened at all).
+
+    `loadout` (optional) sets the Blue effector per interceptor, so the adapted
+    Blue from mutual co-evolution can be re-validated across the reality gap.
     """
     sc = BridgeScenario(
         seed=seed,
@@ -69,6 +74,7 @@ def run_probe_episode(gap: RealityGap, seed: int = 0) -> dict:
         policy=probe_policy(gap),
         sensor_mesh=gap.apply_to_mesh(),
         comms_cfg=gap.make_comms_cfg(),
+        loadout=loadout,
     )
     while not sc.world.is_engagement_over() and sc.world.t < MAX_PROBE_TIME:
         sc.tick()

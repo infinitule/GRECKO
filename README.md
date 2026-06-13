@@ -1,3 +1,15 @@
+<p align="center">
+  <img src="docs/figures/banner.png" alt="AEGISNET" width="100%" />
+</p>
+
+<p align="center">
+  <img alt="tests" src="https://img.shields.io/badge/tests-299_passing-3fb950?style=flat-square" />
+  <img alt="invariants" src="https://img.shields.io/badge/invariants-4%2F4_green-39d0d8?style=flat-square" />
+  <img alt="python" src="https://img.shields.io/badge/python-3.11-blue?style=flat-square" />
+  <img alt="determinism" src="https://img.shields.io/badge/replay-seeded_%26_hashed-39d0d8?style=flat-square" />
+  <img alt="scope" src="https://img.shields.io/badge/scope-simulation_only-f0883e?style=flat-square" />
+</p>
+
 # AEGISNET
 
 A counter-swarm air-defense **simulation and research testbed**. AEGISNET
@@ -9,6 +21,10 @@ defense was never scripted against.
 The headline result: a magazine-conscious **economic allocator** intercepts
 swarm raids at materially lower cost-per-kill than a greedy baseline, and the
 advantage is largest against the adversarially-discovered attacks.
+
+> 📊 **Project landing page** (figures, results, architecture):
+> the GitHub Pages site is built from [`site/index.html`](site/index.html) and
+> deployed by [`.github/workflows/pages.yml`](.github/workflows/pages.yml).
 
 ---
 
@@ -36,6 +52,8 @@ real effector.
 
 Monte Carlo over adversarial attack formations (see `python demo.py`):
 
+<p align="center"><img src="docs/figures/headline_cost_exchange.png" alt="Cost-exchange comparison" width="62%" /></p>
+
 | Metric                    | EconomicMDP | GreedyMyopic |
 |---------------------------|-------------|--------------|
 | Cost-exchange ratio (CER) | **24.8**    | 32.0         |
@@ -48,9 +66,50 @@ feint tracks to preserve magazine for the main axis. The advantage is largest
 (up to 34% CER reduction) on the attack patterns discovered by the
 co-evolution league. Full reasoning in [docs/ADR-010.md](docs/ADR-010.md).
 
+### Mutual co-evolution: Blue adapts back
+
+The league evolves Red attacks against a fixed Blue; **mutual co-evolution**
+(PM) then lets Blue adapt its effector loadout and rationing knob to those
+discovered attacks. The finding is sharp: against cheap quadrotor swarms,
+interceptor *capability* is not the binding constraint — intercept rate is
+limited by the number of interceptors, not the effector — so **cost** is the
+lever. The rational Blue fields cheap collision drones, cutting cost-per-intercept
+**97.7% (≈43×, CER 34.4 → 0.8) at an _identical_ 25.8% intercept rate**, and
+Red cannot claw the cost axis back (0 clawback after counter-evolution).
+Re-validating across the PS reality gap, the cheaper Blue even *improves* the
+worst-case engagement margin (45 m → 73 m) — cost adaptation is free on the
+robustness axis.
+
+<p align="center">
+  <img src="docs/figures/loadout_cost_lever.png" alt="Loadout cost lever" width="49%" />
+  <img src="docs/figures/coevolution_arc.png" alt="Co-evolution arc" width="49%" />
+</p>
+
+Full reasoning in [docs/ADR-012.md](docs/ADR-012.md).
+
 ---
 
 ## Architecture
+
+```mermaid
+flowchart LR
+  T[truth<br/>world state] --> S[sense<br/>P1]
+  S -->|noisy reports| F[fuse<br/>P2]
+  F -->|tracks| C[classify<br/>P3]
+  C -->|threats| I[predict intent<br/>PB]
+  I -->|priorities| A[allocate<br/>PA]
+  A -->|assignments| H{C2 interlock<br/>PV}
+  H -->|can_engage| E[engage<br/>P0]
+  L[league<br/>PL / PM] -.evolves.-> T
+  X[eval<br/>PX] -.measures.-> A
+  classDef truth fill:#21262d,stroke:#f85149,color:#e6edf3;
+  classDef gate fill:#1c2330,stroke:#f0883e,color:#e6edf3;
+  class T truth;
+  class H gate;
+```
+
+*POSG discipline: everything right of `sense` reads only estimates — never the
+truth node. The C2 interlock is the sole gate into `engage`.*
 
 The world state is plain data; systems are pure functions over it. A fixed
 50 Hz timestep (`DT = 0.02`) plus a seeded RNG make every run deterministic:

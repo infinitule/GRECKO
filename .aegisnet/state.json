@@ -129,9 +129,19 @@
       "adr": "docs/ADR-011.md",
       "commit": "",
       "notes": "19/19 tests pass (278 cumulative, 1 skip). tools/verify_invariants.py mechanically gates POSG, C2 INTERLOCK (AST: 1 guarded world.assign in bridge), SCOPE (disclaimer-aware regex), DETERMINISM (replay hash). Negative controls prove the gate detects violations, not just passes. Capstone README (scope boundary first, headline, architecture table). demo.py one-command headline (gate + MC study). .github/workflows/ci.yml runs gate + suite. ADR-011."
+    },
+    {
+      "id": "PM",
+      "title": "Mutual co-evolution — Blue adapts back",
+      "deps": ["PL", "PX"],
+      "status": "done",
+      "acceptance": "pass",
+      "adr": "docs/ADR-012.md",
+      "commit": "",
+      "notes": "21/21 tests pass (300 collected, 299 pass, 1 skip). BluePolicy = effector loadout + lambda; injected into BridgeScenario (loadout/magazine). Exhaustive 30-policy Blue search vs PL-seeded 3-tactic Red library. Headline: adapted Blue (all-collision, lambda=0.1) cuts CER 34.4->0.8 (97.7%, ~43x) at IDENTICAL 25.8% intercept rate; Red counter-evolution claws back 0 on cost (cost axis outside Red's action space). Finding: intercept rate is interceptor-count-limited, so loadout is a pure cost lever. PS gap: adapted Blue holds 0.75 stability AND improves worst-case margin 45->73m. ADR-012."
     }
   ],
   "current": "COMPLETE",
   "mode": "checkpoint",
-  "updated": "2026-06-13T05:30:00Z"
+  "updated": "2026-06-13T05:50:00Z"
 }

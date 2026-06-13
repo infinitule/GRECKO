@@ -73,8 +73,13 @@ def run_mc_episode(
     gap: Optional[RealityGap] = None,
     lambda_cost: float = 0.05,
     asset_value: float = 1_000_000.0,
+    loadout: Optional[list] = None,
 ) -> EpisodeMetrics:
-    """Run one episode and return cost-exchange metrics."""
+    """Run one episode and return cost-exchange metrics.
+
+    `loadout` (optional) sets the Blue-team effector per interceptor, the lever
+    optimised by mutual co-evolution (league/coevolution.py).
+    """
     if gap is None:
         gap = RealityGap.nominal()
 
@@ -84,6 +89,7 @@ def run_mc_episode(
         policy=policy,
         sensor_mesh=gap.apply_to_mesh(),
         comms_cfg=gap.make_comms_cfg(),
+        loadout=loadout,
     )
     sc.allocator = allocator
     sc.c2_state.lambda_cost = lambda_cost

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AEGISNET — counter-swarm air-defense simulation</title>
+<meta name="description" content="A counter-swarm air-defense simulation and research testbed: sense-to-engage pipeline, human-on-the-loop C2, adversarial co-evolution. Simulation only." />
+<style>
+  :root {
+    --bg: #0d1117; --panel: #161b22; --border: #30363d;
+    --fg: #e6edf3; --muted: #8b949e;
+    --cyan: #39d0d8; --green: #3fb950; --orange: #f0883e; --red: #f85149;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+  }
+  a { color: var(--cyan); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 20px; }
+  header {
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #11161d 0%, var(--bg) 100%);
+    padding: 56px 0 40px;
+  }
+  h1 {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 3.4rem; margin: 0; letter-spacing: 2px;
+  }
+  .tag { color: var(--cyan); font-size: 1.25rem; margin-top: 6px; }
+  .sub { color: var(--muted); margin-top: 4px; font-size: 0.98rem; }
+  .pipeline {
+    margin-top: 22px; font-family: ui-monospace, monospace; font-size: 0.92rem;
+    color: var(--muted);
+  }
+  .pipeline span { color: var(--cyan); }
+  .badges { margin-top: 22px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .badge {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 6px; padding: 4px 11px; font-size: 0.8rem; color: var(--muted);
+  }
+  .badge b { color: var(--green); }
+  .scope {
+    margin: 28px 0; border: 1px solid var(--orange); border-radius: 10px;
+    background: rgba(240,136,62,0.07); padding: 18px 22px;
+  }
+  .scope h3 { margin: 0 0 6px; color: var(--orange); font-size: 1.05rem; }
+  .scope p { margin: 6px 0 0; color: var(--fg); font-size: 0.95rem; }
+  section { padding: 40px 0; border-bottom: 1px solid var(--border); }
+  h2 { font-size: 1.6rem; margin: 0 0 6px; }
+  h2 .n { color: var(--muted); font-weight: 400; font-size: 1rem; }
+  .lead { color: var(--muted); margin-top: 0; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 26px 0; }
+  .stat {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 10px; padding: 18px; text-align: center;
+  }
+  .stat .v { font-size: 2rem; font-weight: 700; color: var(--cyan); }
+  .stat .v.green { color: var(--green); }
+  .stat .l { color: var(--muted); font-size: 0.82rem; margin-top: 4px; }
+  figure { margin: 24px 0; }
+  figure img {
+    width: 100%; border: 1px solid var(--border); border-radius: 10px; display: block;
+  }
+  figcaption { color: var(--muted); font-size: 0.85rem; margin-top: 8px; text-align: center; }
+  table { width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 600; }
+  td.em { color: var(--green); font-weight: 700; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 10px; padding: 18px 20px;
+  }
+  .card h4 { margin: 0 0 4px; color: var(--fg); }
+  .card p { margin: 0; color: var(--muted); font-size: 0.9rem; }
+  .pill { display:inline-block; font-size:0.72rem; color:var(--bg); background:var(--cyan);
+    border-radius: 20px; padding: 1px 9px; font-weight: 700; margin-left: 8px; }
+  code { font-family: ui-monospace, monospace; background: var(--panel);
+    border: 1px solid var(--border); border-radius: 5px; padding: 1px 6px; font-size: 0.86em; }
+  pre { background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px 18px; overflow-x: auto; }
+  pre code { background: none; border: none; padding: 0; }
+  footer { padding: 36px 0 60px; color: var(--muted); font-size: 0.85rem; }
+  @media (max-width: 720px) {
+    h1 { font-size: 2.3rem; }
+    .stats, .grid2 { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>AEGISNET</h1>
+    <div class="tag">counter-swarm air-defense simulation &amp; research testbed</div>
+    <div class="sub">a full sense-to-engage decision loop against adversarial UAS swarms</div>
+    <div class="pipeline">sense <span>→</span> fuse <span>→</span> classify <span>→</span> predict <span>→</span> allocate <span>→</span> engage</div>
+    <div class="badges">
+      <span class="badge">tests <b>299 passing</b></span>
+      <span class="badge">invariants <b>4/4 green</b></span>
+      <span class="badge">python <b>3.11</b></span>
+      <span class="badge">deterministic <b>seeded replay</b></span>
+      <span class="badge">scope <b>simulation only</b></span>
+    </div>
+
+    <div class="scope">
+      <h3>⚠ Scope boundary</h3>
+      <p><b>Simulation, research, and C2-software only.</b> No fire-control, no
+      RF/jamming/waveform design, no effector or weapon hardware control.
+      Effectors are <b>parameter sets</b> (cost, kill probability); comms denial
+      is an abstract link-probability model. A CI gate
+      (<code>python -m tools.verify_invariants</code>) enforces the boundary.</p>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2>The headline <span class="n">— PX, Monte Carlo cost-exchange</span></h2>
+    <p class="lead">A magazine-conscious economic allocator intercepts swarm raids
+      at materially lower cost-per-kill than a greedy baseline — and the advantage
+      is largest against the attacks an adversarial league discovered.</p>
+
+    <div class="stats">
+      <div class="stat"><div class="v green">−22%</div><div class="l">cost per intercepted threat</div></div>
+      <div class="stat"><div class="v">24.8</div><div class="l">economic cost-exchange ratio</div></div>
+      <div class="stat"><div class="v">32.0</div><div class="l">greedy baseline ratio</div></div>
+      <div class="stat"><div class="v">12</div><div class="l">phases, P0 → PM</div></div>
+    </div>
+
+    <figure>
+      <img src="figures/headline_cost_exchange.png" alt="Cost-exchange comparison" />
+      <figcaption>EconomicMDP rations magazine and concentrates value, cutting cost-per-intercept ~22% (ADR-010).</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Mutual co-evolution <span class="n">— PM, Blue adapts back</span></h2>
+    <p class="lead">The league evolves Red attacks; then Blue adapts its effector
+      loadout and rationing knob to those discovered attacks. The finding:
+      against cheap quadrotor swarms, interceptor <em>capability</em> is not the
+      binding constraint — intercept rate is interceptor-count-limited — so
+      <em>cost</em> is the lever. The rational Blue fields cheap collision drones
+      and slashes cost-per-intercept, and Red cannot claw the cost axis back.</p>
+
+    <div class="grid2">
+      <figure style="margin:0">
+        <img src="figures/loadout_cost_lever.png" alt="Loadout cost lever" />
+        <figcaption>~100× cost swing at constant intercept rate.</figcaption>
+      </figure>
+      <figure style="margin:0">
+        <img src="figures/coevolution_arc.png" alt="Co-evolution arc" />
+        <figcaption>Default → adapted Blue → Red counter-evolution.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Architecture <span class="n">— entity-component, deterministic, POSG-correct</span></h2>
+    <p class="lead">World state is plain data; systems are pure functions. A fixed
+      50&nbsp;Hz timestep plus a seeded RNG make every run reproducible — the
+      SHA-256 of the event log is the replay acceptance criterion. Nothing
+      downstream of sensing may read ground truth.</p>
+
+    <table>
+      <tr><th>Phase</th><th>Module</th><th>What it does</th></tr>
+      <tr><td>P0</td><td><code>sim/core</code></td><td>World kernel, kinematics, deterministic event log</td></tr>
+      <tr><td>P1</td><td><code>sim/sensing</code></td><td>Imperfect sensor mesh (radar / EO-IR / acoustic)</td></tr>
+      <tr><td>P2</td><td><code>sim/fusion</code></td><td>Kalman tracker, two-pass GNN association</td></tr>
+      <tr><td>P3</td><td><code>sim/classify</code></td><td>Transparent, swappable threat classifier</td></tr>
+      <tr><td>PC</td><td><code>sim/comms</code></td><td>Abstract comms link-degradation model</td></tr>
+      <tr><td>PE</td><td><code>sim/effectors</code></td><td>Effector catalogue — parameter sets only</td></tr>
+      <tr><td class="em">PA</td><td><code>sim/alloc</code></td><td><b>Pillar A:</b> economic magazine-rationing allocator</td></tr>
+      <tr><td class="em">PB</td><td><code>learn/intent</code></td><td><b>Pillar B:</b> swarm-intent prediction</td></tr>
+      <tr><td>PV</td><td><code>sim/bridge, viz</code></td><td>Human-on-the-loop C2 console</td></tr>
+      <tr><td class="em">PL</td><td><code>league</code></td><td><b>Pillar C:</b> adversarial co-evolution league</td></tr>
+      <tr><td>PS</td><td><code>s2r</code></td><td>Sim-to-real validation strategy</td></tr>
+      <tr><td>PX</td><td><code>eval</code></td><td>Monte Carlo cost-exchange evaluation</td></tr>
+      <tr><td class="em">PM</td><td><code>league/coevolution</code></td><td><b>Mutual</b> co-evolution: Blue adapts back</td></tr>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Hardening <span class="n">— invariants as a gate</span></h2>
+    <p class="lead">Four load-bearing properties are checked mechanically by
+      <code>python -m tools.verify_invariants</code>, which exits non-zero on any
+      violation and runs in CI. The gate is proven to <em>detect</em> violations
+      via negative-control tests, not merely to return green.</p>
+    <div class="grid2">
+      <div class="card"><h4>POSG <span class="pill">static</span></h4><p>No production fusion module reads the truth sidecar.</p></div>
+      <div class="card"><h4>Interlock <span class="pill">AST</span></h4><p>Exactly one <code>world.assign()</code> in the bridge, guarded by <code>can_engage()</code>.</p></div>
+      <div class="card"><h4>Scope <span class="pill">regex</span></h4><p>No fire-control / RF-waveform / weapon vocabulary outside disclaimers.</p></div>
+      <div class="card"><h4>Determinism <span class="pill">replay</span></h4><p>A fixed scenario replays to a byte-identical log hash.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Run it</h2>
+    <pre><code>pip install -e .
+
+python demo.py --fast              # headline study + invariant gate (~45s)
+python -m tools.verify_invariants  # architectural invariant gate
+python -m pytest sim/tests -q      # full acceptance suite (299 tests)
+
+python -m sim.bridge.server        # C2 WebSocket server
+cd viz &amp;&amp; npm install &amp;&amp; npm run dev # TypeScript C2 console</code></pre>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    AEGISNET — simulation, research, and C2-software only. Effectors are parameter
+    sets; no hardware control, no RF design, no weapon integration.
+    Every result is reproducible from a seed.
+  </div>
+</footer>
+
+</body>
+</html>

@@ -58,6 +58,15 @@ DT = 0.02          # 50 Hz physics
 ALLOC_INTERVAL = 25  # re-run allocator every 25 ticks (0.5 s)
 BROADCAST_INTERVAL = 5  # ticks between full state broadcasts (0.1 s)
 
+# Interceptor speed by effector loadout (arena-tuned; cost comes from the
+# effector catalogue, kinematics from here so cheap effectors stay viable).
+_LOADOUT_SPEED = {
+    "kinetic_interceptor": 60.0,
+    "net_capture_drone":   45.0,
+    "collision_drone":     50.0,
+    "ew_soft_kill":        55.0,
+}
+
 
 def _default_magazine() -> MagazineState:
     return MagazineState({
@@ -113,12 +122,17 @@ class BridgeScenario:
         policy: "Optional[SwarmPolicy]" = None,
         sensor_mesh: Optional[SensorMesh] = None,
         comms_cfg: Optional[CommsConfig] = None,
+        loadout: Optional[List[str]] = None,
+        magazine: Optional[MagazineState] = None,
     ) -> None:
         self.seed = seed
         self.rng = np.random.default_rng(seed)
         self.c2_state = C2State()
         self._auto_authorize = auto_authorize
         self._policy = policy
+        # Blue-team loadout: effector_type per interceptor (mutual co-evolution).
+        # None → the default kinetic/net/net loadout.
+        self._loadout = loadout
 
         # Event log + world
         log = EventLog()
@@ -148,7 +162,8 @@ class BridgeScenario:
 
         # Allocator
         self.allocator = EconomicMDP()
-        self.magazine = _default_magazine()
+        # Magazine (injectable for mutual co-evolution Blue-policy studies)
+        self.magazine = magazine if magazine is not None else _default_magazine()
 
         # Intent predictor (PB)
         self.intent_predictor: Optional[IntentPredictor] = None
@@ -227,11 +242,24 @@ class BridgeScenario:
         self._spawn_interceptors()
 
     def _spawn_interceptors(self) -> None:
-        """Spawn the fixed blue-team interceptors."""
+        """Spawn the blue-team interceptors.
+
+        Positions are fixed; the effector loadout is the Blue policy's lever
+        (mutual co-evolution). Interceptor speed is set from the effector type
+        via _LOADOUT_SPEED so cheaper effectors remain kinematically viable in
+        the arena while their catalogue cost still differs.
+        """
+        positions = [
+            ("IV0", np.array([250.0, 80.0])),
+            ("IV1", np.array([-250.0, 80.0])),
+            ("IV2", np.array([0.0, 150.0])),
+        ]
+        default_effectors = ["kinetic_interceptor", "net_capture_drone",
+                             "net_capture_drone"]
+        effectors = self._loadout if self._loadout is not None else default_effectors
         iv_configs = [
-            ("IV0", np.array([250.0, 80.0]),  60.0, "kinetic_interceptor"),
-            ("IV1", np.array([-250.0, 80.0]), 45.0, "net_capture_drone"),
-            ("IV2", np.array([0.0, 150.0]),   45.0, "net_capture_drone"),
+            (pid, pos, _LOADOUT_SPEED.get(eff, 50.0), eff)
+            for (pid, pos), eff in zip(positions, effectors)
         ]
         for iv_id, pos, speed, eff_type in iv_configs:
             iv = Interceptor(
