@@ -76,9 +76,8 @@ limited by the number of interceptors, not the effector — so **cost** is the
 lever. The rational Blue fields cheap collision drones, cutting cost-per-intercept
 **97.7% (≈43×, CER 34.4 → 0.8) at an _identical_ 25.8% intercept rate**, and
 Red cannot claw the cost axis back (0 clawback after counter-evolution).
-Re-validating across the PS reality gap, the cheaper Blue even *improves* the
-worst-case engagement margin (45 m → 73 m) — cost adaptation is free on the
-robustness axis.
+Re-validating across the PS reality gap, the cheaper Blue **preserves its
+intercept rate** — cost adaptation is free on the capability axis.
 
 <p align="center">
   <img src="docs/figures/loadout_cost_lever.png" alt="Loadout cost lever" width="49%" />
