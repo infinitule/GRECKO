@@ -7,24 +7,23 @@
 <meta name="description" content="Counter-swarm defense is won on economics. GRECKO ranks every drone by dollar-value-of-damage, spends its limited magazine on the worst threats, and deliberately lets the cheapest through — stopping more damage for less money. Simulation and C2-software only."/>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
 
 :root{
-  --void:#05080f; --void2:#070b14; --panel:#0b111d; --panel2:#0e1626;
-  --line:#172132; --line2:#222f44; --fg:#e9eef7; --muted:#7b8aa3; --dim:#3f4f68;
+  --void:#04070d; --void2:#070b14; --panel:#0c1220; --panel2:#0f1728;
+  --line:#18253a; --line2:#253548; --fg:#f0f4fb; --muted:#94afc8; --dim:#445a78;
 
-  --grecko:#00f5a0;       /* brand / good decision */
+  --grecko:#00f0a0;       /* brand / good decision */
   --legacy:#ff6b4a;       /* legacy doctrine / failure */
   --spend:#4cc9ff;        /* dollars spent on defense */
   --loss:#ff3b5c;         /* damage taken */
   --gold:#ffd23d;         /* favorable net swing */
   --hold:#ffb020;         /* hold-fire decision */
 
-  --d:display,"Space Grotesk",system-ui,sans-serif;
-  --ff-d:"Space Grotesk",system-ui,-apple-system,sans-serif;
+  --ff-d:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
   --ff-m:"JetBrains Mono",ui-monospace,Menlo,monospace;
   --ff-b:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
@@ -62,20 +61,20 @@ nav{position:sticky;top:0;z-index:300;background:rgba(5,8,15,.82);
 
 /* ───────── BEAT LABELS ───────── */
 .beat{position:relative;z-index:1;}
-.beat-tag{font-family:var(--ff-m);font-size:.7rem;letter-spacing:3px;
-  text-transform:uppercase;color:var(--dim);display:flex;align-items:center;gap:12px;
-  margin-bottom:18px;}
-.beat-tag b{color:var(--grecko);font-weight:600;}
+.beat-tag{font-family:var(--ff-m);font-size:.72rem;letter-spacing:3.5px;
+  text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:14px;
+  margin-bottom:20px;}
+.beat-tag b{color:var(--grecko);font-weight:700;}
 .beat-tag::after{content:'';flex:1;height:1px;
-  background:linear-gradient(90deg,var(--line2),transparent);}
+  background:linear-gradient(90deg,rgba(76,201,255,.22),transparent);}
 
 /* ───────── HERO (BEAT 1) ───────── */
 #hero{position:relative;z-index:1;padding:64px 0 30px;}
 .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:54px;align-items:center;}
 .kicker{font-family:var(--ff-m);font-size:.76rem;letter-spacing:2px;
   color:var(--spend);text-transform:uppercase;margin-bottom:22px;}
-h1{font-family:var(--ff-d);font-weight:700;
-  font-size:clamp(2.4rem,4.6vw,3.7rem);line-height:1.04;letter-spacing:-1px;
+h1{font-family:var(--ff-d);font-weight:800;
+  font-size:clamp(2.9rem,5.4vw,4.8rem);line-height:.97;letter-spacing:.5px;
   margin-bottom:22px;}
 h1 .hl{color:var(--grecko);}
 h1 .strike{color:var(--legacy);text-decoration:line-through;
@@ -130,9 +129,11 @@ h1 .strike{color:var(--legacy);text-decoration:line-through;
   left:30%;top:24%;transform:translate(-50%,-50%);
   background:radial-gradient(circle,rgba(255,255,255,.5),transparent 65%);
   mix-blend-mode:screen;transition:left .2s,top .2s;}
-.net-bug{position:absolute;top:8px;z-index:3;font-family:var(--ff-m);text-shadow:0 1px 5px #000;}
-.net-bug .lbl{display:block;font-size:.5rem;letter-spacing:1px;color:var(--muted);text-transform:uppercase;}
-.net-bug .val{font-size:.96rem;font-weight:700;line-height:1.1;}
+.net-bug{position:absolute;top:8px;z-index:3;font-family:var(--ff-m);
+  background:rgba(4,7,13,.7);padding:5px 8px;border-radius:5px;
+  text-shadow:0 1px 5px rgba(0,0,0,.8);backdrop-filter:blur(2px);}
+.net-bug .lbl{display:block;font-size:.58rem;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:1px;}
+.net-bug .val{font-size:1.2rem;font-weight:700;line-height:1.1;}
 .net-l{left:8px;} .net-l .val{color:var(--legacy);}
 .net-g{right:8px;text-align:right;} .net-g .val{color:var(--grecko);}
 .eye-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;
@@ -167,8 +168,8 @@ h1 .strike{color:var(--legacy);text-decoration:line-through;
 
 /* ───────── SECTIONS ───────── */
 .sec{position:relative;z-index:1;padding:66px 0;border-top:1px solid var(--line);}
-h2{font-family:var(--ff-d);font-weight:600;font-size:clamp(1.5rem,3vw,2.1rem);
-  letter-spacing:-.5px;line-height:1.15;margin-bottom:14px;}
+h2{font-family:var(--ff-d);font-weight:700;font-size:clamp(1.7rem,3.2vw,2.6rem);
+  letter-spacing:.8px;line-height:1.08;margin-bottom:14px;}
 h2 .hl{color:var(--grecko);}
 .lead{color:var(--muted);font-size:1.04rem;max-width:600px;margin-bottom:38px;}
 
@@ -180,6 +181,12 @@ h2 .hl{color:var(--grecko);}
 .con-bar .ttl{font-family:var(--ff-m);font-size:.72rem;letter-spacing:1.5px;
   color:var(--dim);}
 .con-ctrls{display:flex;gap:7px;margin-left:auto;flex-wrap:wrap;}
+.ctrl-guide{font-family:var(--ff-m);font-size:.66rem;color:var(--dim);
+  padding:7px 18px;background:rgba(0,0,0,.15);border-bottom:1px solid var(--line);
+  display:flex;gap:20px;flex-wrap:wrap;}
+.ctrl-guide .cg{color:var(--muted);font-weight:600;}
+.ctrl-guide .ca{color:var(--grecko);}
+@media(max-width:700px){.ctrl-guide{display:none;}}
 .cbtn{font-family:var(--ff-m);font-size:.72rem;padding:6px 12px;border-radius:7px;
   border:1px solid var(--line2);background:transparent;color:var(--muted);
   cursor:pointer;transition:all .15s;letter-spacing:.2px;}
@@ -209,19 +216,19 @@ h2 .hl{color:var(--grecko);}
   scrollbar-width:thin;scrollbar-color:var(--line2) transparent;}
 .log-stream::-webkit-scrollbar{width:6px;}
 .log-stream::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px;}
-.le{display:flex;gap:9px;padding:5px 16px;font-family:var(--ff-m);font-size:.72rem;
+.le{display:flex;gap:9px;padding:6px 16px;font-family:var(--ff-m);font-size:.8rem;
   line-height:1.45;border-left:2px solid transparent;
   animation:slidein .25s ease;}
 @keyframes slidein{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:none}}
-.le .t{color:var(--dim);flex-shrink:0;width:42px;}
-.le .body{color:var(--muted);min-width:0;}
-.le .tagb{display:inline-block;font-size:.6rem;font-weight:600;letter-spacing:.5px;
-  padding:1px 5px;border-radius:3px;margin-right:5px;vertical-align:1px;}
-.le.hold{border-left-color:var(--hold);} .le.hold .tagb{background:rgba(255,176,32,.16);color:var(--hold);}
-.le.soft{border-left-color:var(--spend);} .le.soft .tagb{background:rgba(76,201,255,.14);color:var(--spend);}
-.le.kin{border-left-color:var(--legacy);} .le.kin .tagb{background:rgba(255,107,74,.14);color:var(--legacy);}
-.le.leak{border-left-color:var(--loss);} .le.leak .tagb{background:rgba(255,59,92,.16);color:var(--loss);}
-.le.dry{border-left-color:var(--loss);} .le.dry .tagb{background:rgba(255,59,92,.16);color:var(--loss);}
+.le .t{color:var(--dim);flex-shrink:0;width:46px;}
+.le .body{color:var(--fg);opacity:.8;min-width:0;}
+.le .tagb{display:inline-block;font-size:.68rem;font-weight:700;letter-spacing:.8px;
+  padding:2px 7px;border-radius:3px;margin-right:6px;vertical-align:1px;}
+.le.hold{border-left-color:var(--hold);} .le.hold .tagb{background:rgba(255,176,32,.22);color:var(--hold);border:1px solid rgba(255,176,32,.35);}
+.le.soft{border-left-color:var(--spend);} .le.soft .tagb{background:rgba(76,201,255,.20);color:var(--spend);border:1px solid rgba(76,201,255,.35);}
+.le.kin{border-left-color:var(--legacy);} .le.kin .tagb{background:rgba(255,107,74,.20);color:var(--legacy);border:1px solid rgba(255,107,74,.35);}
+.le.leak{border-left-color:var(--loss);} .le.leak .tagb{background:rgba(255,59,92,.22);color:var(--loss);border:1px solid rgba(255,59,92,.35);}
+.le.dry{border-left-color:var(--loss);} .le.dry .tagb{background:rgba(255,59,92,.22);color:var(--loss);border:1px solid rgba(255,59,92,.35);}
 .le b.g{color:var(--grecko);} .le b.r{color:var(--legacy);}
 
 /* scrubber */
@@ -264,17 +271,22 @@ h2 .hl{color:var(--grecko);}
 .cer{margin-top:12px;font-family:var(--ff-m);font-size:.7rem;color:var(--dim);}
 .cer b{color:var(--muted);font-weight:600;}
 
+@keyframes verdict-in{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 .verdict{margin-top:18px;background:linear-gradient(180deg,var(--panel2),var(--panel));
   border:1px solid var(--line2);border-radius:14px;padding:26px 28px;
-  display:flex;align-items:center;gap:26px;flex-wrap:wrap;}
-.verdict .vtext{flex:1;min-width:260px;font-family:var(--ff-d);font-size:1.18rem;
-  font-weight:500;line-height:1.45;color:var(--fg);}
+  display:flex;align-items:center;gap:26px;flex-wrap:wrap;
+  transition:border-color .4s,box-shadow .4s;}
+.verdict.done{border-color:rgba(255,210,61,.45);
+  box-shadow:0 0 32px rgba(255,210,61,.12);
+  animation:verdict-in .45s ease both;}
+.verdict .vtext{flex:1;min-width:260px;font-family:var(--ff-d);font-size:1.28rem;
+  font-weight:700;line-height:1.4;color:var(--fg);}
 .verdict .vtext b.r{color:var(--legacy);} .verdict .vtext b.g{color:var(--grecko);}
 .verdict .swing{text-align:center;padding-left:26px;border-left:1px solid var(--line2);}
-.verdict .swing .lbl{font-family:var(--ff-m);font-size:.64rem;letter-spacing:1.5px;
-  text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
-.verdict .swing .amt{font-family:var(--ff-m);font-size:2.5rem;font-weight:700;
-  color:var(--gold);line-height:1;text-shadow:0 0 26px rgba(255,210,61,.3);}
+.verdict .swing .lbl{font-family:var(--ff-m);font-size:.66rem;letter-spacing:2px;
+  text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.verdict .swing .amt{font-family:var(--ff-m);font-size:3.2rem;font-weight:700;
+  color:var(--gold);line-height:1;text-shadow:0 0 40px rgba(255,210,61,.45);}
 @media(max-width:560px){.verdict .swing{border-left:none;padding-left:0;text-align:left;}}
 
 /* legend */
@@ -508,6 +520,11 @@ footer{position:relative;z-index:1;padding:40px 0;border-top:1px solid var(--lin
           <button class="cbtn tog on" id="b-sub" aria-pressed="true">Effector substitution</button>
           <button class="cbtn" id="b-speed">Speed ×1</button>
         </div>
+      </div>
+      <div class="ctrl-guide">
+        <span><span class="cg">Effector sub off</span> → <span class="ca">isolates value ranking</span> as the sole advantage</span>
+        <span><span class="cg">Harder raid</span> → <span class="ca">widens the gap</span> — more drones than magazine</span>
+        <span><span class="cg">Scrub to</span> <span class="ca">[HOLD]</span> or <span class="ca">[LEAK]</span> → read why each call was made</span>
       </div>
 
       <div class="con-body">
@@ -1280,6 +1297,9 @@ function Engine(cvL,cvG,opts){
   window.__greckoEngine=eng;
 
   function onLoad(e){
+    document.querySelector('.verdict').classList.remove('done');
+    document.getElementById('v-text').textContent='Run the engagement to see the verdict.';
+    document.getElementById('v-swing').textContent='$0';
     // build markers
     markers.innerHTML='';
     var tEnd=e.tEnd||1;
@@ -1347,10 +1367,11 @@ function Engine(cvL,cvG,opts){
   function onFinish(L,G){
     var lnet=L.spend+L.dmg, gnet=G.spend+G.dmg, swing=lnet-gnet;
     document.getElementById('v-text').innerHTML=
-      'Legacy spent <b class="r">'+fmt$(L.spend)+'</b> and still took <b class="r">'+fmt$(L.dmg)+'</b> in damage. '+
+      'Legacy spent <b class="r">'+fmt$(L.spend)+'</b> and took <b class="r">'+fmt$(L.dmg)+'</b> in damage. '+
       'GRECKO stopped the same raid for a net <b class="g">'+fmt$(gnet)+'</b>.';
     document.getElementById('v-swing').textContent=fmt$(swing);
     document.getElementById('b-play').textContent='↺ Replay';
+    document.querySelector('.verdict').classList.add('done');
   }
   function onState(on){
     document.getElementById('b-play').textContent=on?'⏸ Pause':'▶ Resume';

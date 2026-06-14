@@ -1,0 +1,76 @@
+{
+  "meta": {
+    "started": "2026-06-14",
+    "target": "all D >= 4, plateau (total gain < 1 over 2 iterations)"
+  },
+  "baseline": {
+    "iteration": 0,
+    "scores": {"D1":3,"D2":3,"D3":2,"D4":3,"D5":3,"D6":3,"D7":4},
+    "total": 21,
+    "notes": "Fonts: Space Grotesk (generic SaaS feel). Decision log entries at .72rem — too small to read. Beat-tags in --dim color (#445a78) — invisible. Verdict card bland, no visual activation. Money counters inside dark pupil — hard to see."
+  },
+  "iterations": [
+    {
+      "iteration": 1,
+      "target_dimension": "D4 (Craft) + user feedback: fonts and color schema",
+      "hypothesis": "Replace Space Grotesk with Barlow Condensed (tactical, condensed = precision + density) and improve color contrast. Larger decision log entries with bordered badges.",
+      "changes": [
+        "Font: Space Grotesk → Barlow Condensed 800 weight",
+        "h1: clamp(2.9rem,5.4vw,4.8rem), letter-spacing .5px, weight 800",
+        "h2: clamp(1.7rem,3.2vw,2.6rem), letter-spacing .8px, weight 700",
+        "Colors: --muted #7b8aa3 → #94afc8, --fg #e9eef7 → #f0f4fb, --dim → #445a78",
+        "Log entries: .72rem → .82rem, badge .6rem → .72rem with border",
+        "Badge backgrounds: 14-16% opacity → 22-25% with border"
+      ],
+      "scores": {"D1":3.5,"D2":4.5,"D3":3.5,"D4":4,"D5":3,"D6":3,"D7":4},
+      "total": 25.5,
+      "delta": 4.5,
+      "regressions": "None"
+    },
+    {
+      "iteration": 2,
+      "target_dimension": "D5 (Narrative flow) + D1 boost",
+      "hypothesis": "Beat-tags in --dim are invisible; brightening to --muted makes the 3-beat arc legible on scroll. Net-bug counters need backdrop to pop against gecko eye photo.",
+      "changes": [
+        "Beat-tag color: --dim → --muted (visible now)",
+        "Beat-tag separator: neutral gradient → cyan rgba(76,201,255,.22) (spend color — thematic)",
+        "Beat-tag letter-spacing: 3px → 3.5px, b weight 600 → 700",
+        "Net-bug: added semi-transparent backdrop (rgba(4,7,13,.7)) + blur + larger text (.lbl .58rem, .val 1.2rem)"
+      ],
+      "scores": {"D1":4,"D2":4.5,"D3":3.5,"D4":4,"D5":4,"D6":3,"D7":4},
+      "total": 27,
+      "delta": 1.5,
+      "regressions": "None"
+    },
+    {
+      "iteration": 3,
+      "target_dimension": "D3 (The demo as proof) — verdict card",
+      "hypothesis": "The verdict card shows '$0' with no visual change when the sim completes. Adding a .done class with gold border + animation + larger amt (3.2rem) makes the economic win dramatic.",
+      "changes": [
+        "CSS: .verdict.done — gold border, box-shadow glow, verdict-in animation",
+        "CSS: .verdict .swing .amt 2.5rem → 3.2rem, text-shadow strengthened",
+        "CSS: .verdict .vtext weight 500 → 700, font-size 1.18rem → 1.28rem",
+        "JS: onFinish() adds .done class; onLoad() removes it and resets verdict text"
+      ],
+      "scores": {"D1":4,"D2":4.5,"D3":4,"D4":4,"D5":4,"D6":3,"D7":4},
+      "total": 27.5,
+      "delta": 0.5,
+      "regressions": "None"
+    },
+    {
+      "iteration": 4,
+      "target_dimension": "D6 (Interaction depth) — pedagogical labeling",
+      "hypothesis": "Controls are unlabeled as discovery tools. Adding a ctrl-guide bar explaining what each toggle REVEALS transforms them from 'buttons' to 'instruments for exploration'.",
+      "changes": [
+        "HTML: ctrl-guide bar below con-bar with three hints",
+        "CSS: .ctrl-guide styling (ff-m, .66rem, dim/muted colors, green accents)",
+        "Hidden on mobile (max-width:700px)"
+      ],
+      "scores": {"D1":4,"D2":4.5,"D3":4,"D4":4,"D5":4,"D6":4,"D7":4},
+      "total": 28.5,
+      "delta": 1.0,
+      "regressions": "None"
+    }
+  ],
+  "status": "CHECKPOINT — all D >= 4 achieved after iteration 4. Gain over last 2 iterations: 1.5. Not yet plateau (<1). Awaiting human decision on whether to continue toward D5."
+}
