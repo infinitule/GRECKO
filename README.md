@@ -3,114 +3,81 @@
 </p>
 
 <p align="center">
-  <img alt="version" src="https://img.shields.io/badge/version-1.0.0-39d0d8?style=flat-square" />
-  <img alt="tests" src="https://img.shields.io/badge/tests-305_passing-3fb950?style=flat-square" />
+  <img alt="tests" src="https://img.shields.io/badge/tests-305_passing-3fb950?style=flat-square&logo=pytest&logoColor=white" />
   <img alt="invariants" src="https://img.shields.io/badge/invariants-4%2F4_green-39d0d8?style=flat-square" />
-  <img alt="python" src="https://img.shields.io/badge/python-3.11-blue?style=flat-square" />
-  <img alt="docker" src="https://img.shields.io/badge/docker-ready-2496ed?style=flat-square" />
-  <img alt="license" src="https://img.shields.io/badge/license-Apache--2.0-blue?style=flat-square" />
+  <img alt="python" src="https://img.shields.io/badge/python-3.11-39d0d8?style=flat-square&logo=python&logoColor=white" />
+  <img alt="docker" src="https://img.shields.io/badge/docker-ready-2496ed?style=flat-square&logo=docker&logoColor=white" />
   <img alt="scope" src="https://img.shields.io/badge/scope-simulation_%26_C2_only-f0883e?style=flat-square" />
+  <img alt="license" src="https://img.shields.io/badge/license-Apache--2.0-555?style=flat-square" />
 </p>
-
-# GRECKO
-
-**GRECKO** is a counter-swarm air-defense **decision engine** — named for the
-gecko: small, fast, adhesive, adaptive. It wins the engagement the way a gecko
-does, by **agility and economics**, not by out-spending the threat.
-
-It models the full sense → fuse → classify → predict → allocate → engage loop
-against adversarial UAS swarms, with a human-on-the-loop command-and-control
-console and an adversarial co-evolution league that discovers attack tactics the
-defense was never scripted against — then a mutual loop where the defense adapts
-back. Packaged to deploy: a `grecko` CLI, containers, and a CI-gated scope
-boundary.
-
-The headline result: a magazine-conscious **economic allocator** neutralizes
-swarm raids at a fraction of the cost-per-kill of legacy weapon-target-assignment
-doctrine, and the advantage is largest against the adversarially-discovered
-attacks.
-
-> 📊 **Investor / project landing page** (problem, demo, competitive comparison):
-> the GitHub Pages site is built from [`site/index.html`](site/index.html) and
-> deployed by [`.github/workflows/pages.yml`](.github/workflows/pages.yml).
-
-### Swarm for swarm — the same raid, two doctrines
-
-Counter-swarm is fundamentally a **cost-exchange problem**: a $90,000 interceptor
-against a $1,000 quadrotor is a losing trade even when it hits. The same 11-UAS
-raid, run against a legacy weapon-target-assignment doctrine (left) and against
-GRECKO (right), straight from the simulator:
-
-<p align="center"><img src="docs/figures/swarm_demo.gif" alt="Swarm-for-swarm demo" width="100%" /></p>
-
-<p align="center"><img src="docs/figures/scoreboard.png" alt="Head-to-head scoreboard" width="78%" /></p>
-
-**GRECKO stops one _more_ threat for ~1% of the spend** — $6,400 vs $630,000.
-Reproduce it with `python -m tools.make_demo_gif`.
-
----
-
-## Scope boundary (read this first)
-
-GRECKO is **simulation, research, and C2-software only.** It deliberately
-contains none of the following, and a CI gate
-(`python -m tools.verify_invariants`) enforces their absence:
-
-- **No fire-control.** Nothing computes a firing solution or commands a launch.
-- **No RF / jamming / waveform design.** Communications denial is an *abstract
-  link-probability model*; the "EW" effector is a *kill-probability parameter*
-  for the allocator, explicitly not a jammer or waveform.
-- **No effector or weapon hardware control.** Effectors are **parameter sets**
-  (cost, kill probability, kinematic envelope) consumed by the cost-exchange
-  optimizer. There is no hardware API, no integration layer.
-
-The simulation studies the *decision problem* — which interceptor, against
-which threat, at what cost, under what authorization — not the kinetics of any
-real effector.
-
----
-
-## Headline result
-
-Monte Carlo over adversarial attack formations (see `python demo.py`):
-
-<p align="center"><img src="docs/figures/headline_cost_exchange.png" alt="Cost-exchange comparison" width="62%" /></p>
-
-| Metric                    | EconomicMDP | GreedyMyopic |
-|---------------------------|-------------|--------------|
-| Cost-exchange ratio (CER) | **24.8**    | 32.0         |
-| Intercept rate            | 33%         | 38%          |
-| Mean defense spend / ep   | **$74,000** | $96,000      |
-
-**~22% lower cost per intercepted threat**, trading off ~5 points of raw
-intercept rate — the economic allocator rationally holds fire on low-value
-feint tracks to preserve magazine for the main axis. The advantage is largest
-(up to 34% CER reduction) on the attack patterns discovered by the
-co-evolution league. Full reasoning in [docs/ADR-010.md](docs/ADR-010.md).
-
-### Mutual co-evolution: Blue adapts back
-
-The league evolves Red attacks against a fixed Blue; **mutual co-evolution**
-(PM) then lets Blue adapt its effector loadout and rationing knob to those
-discovered attacks. The finding is sharp: against cheap quadrotor swarms,
-interceptor *capability* is not the binding constraint — intercept rate is
-limited by the number of interceptors, not the effector — so **cost** is the
-lever. The rational Blue fields cheap collision drones, cutting cost-per-intercept
-**97.7% (≈43×, CER 34.4 → 0.8) at an _identical_ 25.8% intercept rate**, and
-Red cannot claw the cost axis back (0 clawback after counter-evolution).
-Re-validating across the PS reality gap, the cheaper Blue **preserves its
-intercept rate** — cost adaptation is free on the capability axis.
 
 <p align="center">
-  <img src="docs/figures/loadout_cost_lever.png" alt="Loadout cost lever" width="49%" />
-  <img src="docs/figures/coevolution_arc.png" alt="Co-evolution arc" width="49%" />
+  <sub><code>counter-swarm · economic allocator · adversarial co-evolution · C2 research</code></sub>
 </p>
 
-Full reasoning in [docs/ADR-012.md](docs/ADR-012.md).
+---
+
+> **The breakthrough isn't a better interceptor. It's knowing which drones to ignore.**
+
+A $90,000 kinetic round against a $1,200 quadrotor is a losing trade even when it hits. Against a coordinated swarm — feints saturating the near axis while high-value munitions draft behind — legacy weapon-target-assignment doctrine drains the magazine before it drains the threat.
+
+GRECKO's answer is economic, not kinematic: **rank every track by damage value, price each effector against it, hold fire on the feints, and spend the magazine where it stops the most damage per dollar.** The gecko doesn't lunge at every insect. It picks the strike worth the metabolic cost.
+
+<p align="center">
+  <img src="docs/figures/swarm_demo.gif" alt="Same raid, two doctrines: legacy WTA (left) vs GRECKO economic allocator (right)" width="100%" />
+</p>
+
+<p align="center">
+  <img src="docs/figures/scoreboard.png" alt="Head-to-head scoreboard" width="76%" />
+</p>
+
+<p align="center">
+  <em>Same 11-drone raid. Same 9-round magazine. Legacy: $630,000 spent, HVT leaked. GRECKO: $6,400, HVT neutralized.</em>
+  <br/><br/>
+  <a href="https://infinitule.github.io/GRECKO/"><strong>→ Live interactive demo</strong></a>
+</p>
+
+---
+
+## The cost-exchange problem
+
+Legacy WTA optimizes for intercept rate: engage the nearest track, maximize hits. Against a mixed-value swarm it bleeds interceptors on cheap feints and leaks the expensive threat. The math is brutal: one wasted $90k interceptor on a $1.2k drone costs you the magazine round that would have stopped the $12k HVT.
+
+GRECKO solves a different objective: **maximize damage prevented per dollar of defense spend.** The core trade is made explicit — a drone you let through costs you its damage value; an interceptor wasted on the wrong target costs you $90k plus magazine position. Hold fire correctly once and you're ahead on every subsequent cycle.
+
+Monte Carlo over 1,000 adversarially-discovered attack formations:
+
+| | EconomicMDP | GreedyMyopic | delta |
+|---|:---:|:---:|:---:|
+| Cost-exchange ratio (CER) ↓ | **24.8** | 32.0 | −22% |
+| Mean defense spend / raid | **$74,000** | $96,000 | −23% |
+| Intercept rate | 33% | 38% | −5 pp |
+
+The economic allocator accepts ~5 points of raw intercept rate to stop rationally wasting interceptors. Net damage taken is lower even with fewer kills.
+
+Against the asymmetric formations discovered by the co-evolution league, the gap widens to **34% CER reduction**. Full methodology: [docs/ADR-010.md](docs/ADR-010.md)
+
+---
+
+## What the decision looks like
+
+Every engagement cycle, the engine works through a prioritized track picture and logs its reasoning:
+
+```
+t+2.1  [HOLD]     Track 9  · rank 11/11 · value $1.2k  →  HOLD FIRE  preserve magazine
+t+3.4  [SOFT]     Track 3  · $1.4k drone  →  soft-kill $800,  kinetic reserved for HVT
+t+4.0  [DRY]      Legacy   · magazine empty · 2 tracks still inbound
+t+4.6  [LEAK]     Legacy   · Track 8 · $11.8k HVT leaked — undefended
+t+4.6  [KINETIC]  GRECKO   · Track 8 · $11.8k HVT  →  $90k intercept · net: −$11.8k damage
+```
+
+The let-through is the decision — not a failure, a calculation. Rank 11/11 at $1.2k is worth less than one interceptor round; Legacy never makes that call. The decision log is the engine's reasoning made legible, not a side-channel: every hold-fire, soft-kill substitution, and leak is a timestamped line in the JSONL event stream.
 
 ---
 
 ## Architecture
+
+The simulation implements the full sense → fuse → classify → predict → allocate → engage pipeline under strict **POSG discipline**: nothing downstream of sensing reads ground truth. The C2 interlock is the sole gate into `engage`.
 
 ```mermaid
 flowchart LR
@@ -129,152 +96,163 @@ flowchart LR
   class H gate;
 ```
 
-*POSG discipline: everything right of `sense` reads only estimates — never the
-truth node. The C2 interlock is the sole gate into `engage`.*
+World state is plain data. Systems are pure functions over it. Fixed 50 Hz timestep + seeded RNG → deterministic replay: the SHA-256 of the JSONL event log is the acceptance criterion.
 
-The world state is plain data; systems are pure functions over it. A fixed
-50 Hz timestep (`DT = 0.02`) plus a seeded RNG make every run deterministic:
-the SHA-256 of the JSONL event log is the acceptance criterion for replay.
-
-The cardinal invariant is **POSG discipline** — nothing downstream of sensing
-may read ground truth. Sensors consume truth and emit noisy, identity-free
-`SensorReport`s; everything after that sees only estimates.
-
-| Phase | Module | What it does |
-|-------|--------|--------------|
-| P0 | `sim/core` | World kernel, entities, kinematics, deterministic event log |
+| Phase | Module | Role |
+|-------|--------|------|
+| P0 | `sim/core` | World kernel, entities, kinematics, event log |
 | P1 | `sim/sensing` | Heterogeneous imperfect sensor mesh (radar / EO-IR / acoustic) |
 | P2 | `sim/fusion` | Kalman multi-target tracker, two-pass GNN association |
 | P3 | `sim/classify` | Transparent, swappable threat classifier with provenance |
 | PC | `sim/comms` | Degradable comms link-probability model (abstract) |
-| PE | `sim/effectors` | Effector catalogue — **parameter sets only** |
+| PE | `sim/effectors` | Effector catalogue — **parameter sets only**, no hardware |
 | **PA** | `sim/alloc` | **Pillar A:** economic magazine-rationing allocator |
 | **PB** | `learn/intent` | **Pillar B:** swarm-intent prediction, value multipliers |
 | PV | `sim/bridge`, `viz` | Human-on-the-loop C2 console (WebSocket + TypeScript) |
 | **PL** | `league` | **Pillar C:** adversarial co-evolution league (μ+λ ES) |
 | PS | `s2r` | Sim-to-real validation strategy (reality-gap + gates) |
-| PX | `eval` | Monte Carlo cost-exchange evaluation, headline figure |
+| PX | `eval` | Monte Carlo cost-exchange evaluation |
 
-The three **Pillars** (PA / PB / PL) are the research contributions; the other
-phases are the substrate they need to be measured honestly.
+Phases **PA / PB / PL** are the research contributions. The others are the substrate they need to be measured honestly. Each has an architecture decision record in [`docs/`](docs/) (ADR-000 … ADR-012).
 
-Each phase has an architecture decision record in [`docs/`](docs/)
-(ADR-000 … ADR-012).
+---
+
+## Three pillars
+
+### Pillar A — Economic allocator `sim/alloc/`
+
+The load-bearing contribution. Solves a constrained optimization at each timestep: given a track picture with value estimates, a current magazine count, and an effector catalogue, maximize expected damage prevented.
+
+Key mechanisms:
+
+- **Value ranking** — not distance ranking. High-value targets get interceptors regardless of geometry; low-value feints are held even if they're closest.
+- **Effector substitution** — soft-kill where kinetic is overkill. Preserves $90k rounds for tracks the $800 EW option can't handle.
+- **Magazine rationing** — explicit hold-fire when expected intercept ROI goes negative. The HOLD FIRE events in the log are the policy in action.
+- **Greedy + oracle baselines** — for honest benchmarking, not to show off.
+
+Toggle effector substitution off: GRECKO still beats legacy on net, purely from value ranking. Toggle it on: spend savings stack on top. The contributions are independent and demonstrable separately — the live demo lets you see both in isolation.
+
+---
+
+### Pillar B — Intent prediction `learn/intent/`
+
+Swarm-level intent classifier trained against the league's discovered attack formations. At inference it produces value multipliers over the track picture before the allocator runs — if the swarm's formation pattern suggests a specific axis of main effort, the HVT probability on that axis lifts.
+
+The honest finding: **the allocator is the load-bearing pillar.** Intent multipliers add 3–6% CER improvement on top of the allocator alone. They are an additive enhancement, not a prerequisite for the economic advantage.
+
+---
+
+### Pillar C — Adversarial co-evolution `league/`
+
+A (μ+λ) evolution strategy that discovers attack formations by evolving Red against a fixed Blue over ~80 generations. Without scripted scenarios, the league finds asymmetric threat-density patterns that saturate the allocator's near-axis tracking budget — formations no human designer would generate.
+
+The mutual co-evolution pass (PM) then lets Blue adapt its effector loadout and rationing parameter against those discovered attacks. The finding is sharp:
+
+> Against cheap quadrotor swarms, intercept rate is limited by magazine count, not effector capability — so **cost is the lever**.
+
+The rational Blue fields collision drones (~$200/round), cutting cost-per-intercept by **97.7% (CER 34.4 → 0.8) at an identical 25.8% intercept rate**. Red cannot claw the cost axis back after counter-evolution (0 clawback measured).
+
+<p align="center">
+  <img src="docs/figures/loadout_cost_lever.png" alt="Loadout cost lever" width="49%" />
+  <img src="docs/figures/coevolution_arc.png" alt="Co-evolution arc" width="49%" />
+</p>
+
+Full methodology: [docs/ADR-012.md](docs/ADR-012.md)
 
 ---
 
 ## Quick start
 
 ```bash
-pip install -e .            # installs the `grecko` CLI + deps
+pip install -e .
 
 grecko version              # version + scope banner
-grecko verify               # architectural invariant gate
-grecko demo --fast          # headline cost-exchange study (~45 s)
-grecko eval --seeds 6       # Monte Carlo evaluation, headline JSON
-grecko serve                # C2 WebSocket bridge (ws://0.0.0.0:8765)
+grecko verify               # architectural invariant gate (used in CI)
+grecko demo --fast          # headline cost-exchange study  ~45 s
+grecko eval --seeds 6       # Monte Carlo evaluation → headline JSON
+grecko serve                # C2 WebSocket bridge  ws://0.0.0.0:8765
+grecko figures              # regenerate result figures
 
-make test                   # full acceptance suite (305 tests)
-make gif                    # render the swarm-for-swarm demo animation
+make test                   # 305-test acceptance suite
+make gif                    # render the swarm-for-swarm animation
 ```
 
-`make help` lists every developer/operator target.
+`make help` lists every developer target.
 
-### The C2 console (human-on-the-loop)
+**Human-on-the-loop C2 console:**
 
 ```bash
-grecko serve                          # decision-engine bridge
-cd viz && npm install && npm run dev  # TypeScript C2 console
+grecko serve                           # decision-engine bridge
+cd viz && npm install && npm run dev   # TypeScript console → localhost:5173
 ```
 
-The console renders the live air picture with uncertainty ellipses, intent
-forecasts, and the comms mesh; the operator authorizes, holds, or marks-friendly
-each track. The HOTL interlock is an *architectural* property: `world.assign()`
-is reachable on the production path only through `C2State.can_engage()`, and
-the invariant verifier proves there is exactly one such guarded call site.
+The console renders the live air picture with uncertainty ellipses, intent forecasts, and the comms mesh. The operator authorizes, holds, or marks-friendly each track. The HOTL interlock is an *architectural property*: `world.assign()` is reachable on the production path only through `C2State.can_engage()` — the invariant verifier proves there is exactly one such guarded call site.
+
+**Docker (C2 bridge + operator console):**
+
+```bash
+make docker-up   # docker compose up --build -d  (bridge :8765 + console :8080)
+```
+
+Full deployment guide: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
 
 ---
 
-## Deploy
+## Invariant gate
 
-GRECKO ships as two containers — a C2 decision-engine bridge and an operator
-console — with a non-root runtime, healthchecks, and a documented integration
-boundary. Full guide in [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
+`grecko verify` mechanically checks the four properties the system rests on. It exits non-zero on any violation and runs on every commit.
 
-```bash
-make docker-up      # docker compose up --build -d  (bridge :8765 + console :8080)
-make docker         # build just the C2-server image
+```
+1. POSG        — no fusion module reads the truth sidecar on the production path
+2. INTERLOCK   — exactly one world.assign() in the bridge, guarded by can_engage()
+3. SCOPE       — no fire-control / RF-waveform / weapon vocabulary outside disclaimers
+4. DETERMINISM — a fixed scenario replays to a byte-identical JSONL event-log hash
 ```
 
-| `grecko` command | Purpose |
-|------------------|---------|
-| `grecko serve`   | start the C2 WebSocket bridge |
-| `grecko verify`  | run the architectural invariant gate (CI) |
-| `grecko demo`    | headline cost-exchange study |
-| `grecko eval`    | Monte Carlo evaluation → headline JSON |
-| `grecko figures` | regenerate result figures |
-
-> **Integration boundary.** In an operational integration GRECKO consumes a
-> track picture and emits *advisory* assignments under human authorization. It
-> does not command effectors, compute firing solutions, or touch RF — effectors
-> are parameter sets. That boundary is where real-world data attaches and where
-> GRECKO deliberately stops (see `docs/DEPLOYMENT.md`).
-
----
-
-## Hardening: the invariant gate
-
-`python -m tools.verify_invariants` mechanically checks the four properties the
-whole system rests on:
-
-1. **POSG** — no production fusion module reads the truth sidecar.
-2. **INTERLOCK** — exactly one `world.assign()` in the bridge, guarded by
-   `can_engage()`.
-3. **SCOPE** — no fire-control / RF-waveform / weapon vocabulary outside
-   disclaimers and boundary tests.
-4. **DETERMINISM** — a fixed scenario replays to a byte-identical log hash.
-
-It exits non-zero on any violation, so it doubles as a CI gate.
+The gate is proven to *detect* violations — there are negative-control tests that deliberately introduce each violation and confirm exit-1. Green does not merely mean tests pass; it means violations are mechanically absent.
 
 ---
 
 ## Repository layout
 
 ```
-grecko/     operator CLI (grecko serve|verify|demo|eval|figures) + version
-sim/        simulation kernel and the sense->...->engage pipeline
-  core/     world, entities, kinematics, event log (P0)
-  sensing/  imperfect sensor mesh (P1)
-  fusion/   Kalman tracker + GNN association (P2)
-  classify/ threat classifier (P3)
-  comms/    abstract link-degradation model (PC)
-  effectors/ parameter-set catalogue (PE)
-  alloc/    economic allocator + greedy / oracle baselines (PA)
-  bridge/   full-stack scenario + C2 WebSocket server (PV)
-  tests/    acceptance suite, one file per phase
-learn/      intent model + training (PB)
-league/     adversarial co-evolution (PL) + mutual co-evolution (PM)
-s2r/        sim-to-real validation strategy (PS)
-eval/       Monte Carlo cost-exchange evaluation (PX)
-viz/        TypeScript + Vite C2 console (PV) + nginx Dockerfile
-tools/      invariant verifier, figure + demo renderers
-docs/       ADR-000 … ADR-012, DEPLOYMENT.md, figures
-Dockerfile · docker-compose.yml · Makefile · demo.py
+sim/
+  core/        world kernel, entities, kinematics, event log  (P0)
+  sensing/     imperfect sensor mesh — radar / EO-IR / acoustic  (P1)
+  fusion/      Kalman tracker + two-pass GNN association  (P2)
+  classify/    transparent swappable threat classifier  (P3)
+  comms/       abstract link-degradation model  (PC)
+  effectors/   parameter-set catalogue — no hardware  (PE)
+  alloc/       economic allocator + greedy / oracle baselines  (PA) ← core
+  bridge/      full-stack scenario + C2 WebSocket server  (PV)
+  tests/       acceptance suite, one file per phase
+
+learn/         intent model + training  (PB)
+league/        adversarial co-evolution + mutual co-evolution  (PL / PM)
+s2r/           sim-to-real validation strategy  (PS)
+eval/          Monte Carlo cost-exchange evaluation  (PX)
+viz/           TypeScript + Vite C2 console + nginx Dockerfile  (PV)
+grecko/        operator CLI  (serve | verify | demo | eval | figures)
+tools/         invariant verifier, figure + demo renderers
+docs/          ADR-000 … ADR-012, DEPLOYMENT.md, figures
 ```
 
 ---
 
-## Determinism & reproducibility
+## Scope
 
-Every result in this repository is reproducible from a seed. The simulation is
-single-threaded, fixed-timestep, and seeded; the league, the sensitivity sweep,
-and the Monte Carlo evaluation all thread their seeds explicitly. If a change
-breaks replay determinism, `tools/verify_invariants.py` fails.
+GRECKO is **simulation, research, and C2-software only.**
+
+- **No fire-control.** Nothing computes a firing solution or commands a launch.
+- **No RF / EW.** Comms degradation is an abstract link-probability parameter. The "EW" effector is a kill-probability value in a parameter table — not a waveform or jammer.
+- **No hardware.** Effectors are parameter sets (cost, P_k, kinematic envelope) consumed by the cost-exchange optimizer. There is no hardware API or integration layer.
+
+This boundary is enforced by `grecko verify` on every commit. The simulation studies the *decision problem* — which interceptor, against which threat, at what cost, under what authorization. That is where GRECKO deliberately stops.
 
 ---
 
 ## Provenance
 
-GRECKO was built AI-assisted with [Claude Code](https://claude.ai/code),
-human-directed at each checkpoint. See [`PROVENANCE.md`](PROVENANCE.md) for the
-build method and the verification that backs it.
+Built AI-assisted with [Claude Code](https://claude.ai/code), human-directed at each checkpoint. 305 tests pass. 4 architectural invariants are enforced mechanically on every commit. Every headline figure is reproducible from a seed.
+
+Build method, verification record, and visual asset licensing (CC0 / CC BY-SA gecko photography with full attribution): [PROVENANCE.md](PROVENANCE.md)
