@@ -239,7 +239,7 @@ docs/          ADR-000 … ADR-012, DEPLOYMENT.md, figures
 
 ---
 
-## Scope
+## Scope boundary
 
 GRECKO is **simulation, research, and C2-software only.**
 
