@@ -6,6 +6,7 @@ Installed as the `grecko` console script (see pyproject [project.scripts]):
     grecko verify                  run the architectural invariant gate
     grecko demo [--fast]           run the headline cost-exchange study
     grecko eval [--seeds N]        run the Monte Carlo evaluation, print JSON
+    grecko swarm [--seeds N]       decentralized vs centralized coordination study
     grecko serve [--host --port]   start the C2 WebSocket bridge server
     grecko figures                 (re)generate the docs/figures assets
 
@@ -51,6 +52,34 @@ def _cmd_eval(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_swarm(args: argparse.Namespace) -> int:
+    from eval.decentralized import run_pd_study
+    drops = [float(x) for x in args.drops.split(",")] if args.drops else None
+    result = run_pd_study(n_seeds=args.seeds, drop_rates=drops)
+    if args.raw:
+        print(json.dumps(result, indent=2))
+        return 0
+    print("GRECKO — decentralized vs centralized coordination (Pillar D)")
+    print(_SCOPE)
+    print("-" * 72)
+    print(f"{'denial':>7} | {'central CER':>12} | {'decentral CER':>14} | "
+          f"{'central IR':>11} | {'decentral IR':>13}")
+    print("-" * 72)
+    for row in result["sweep"]:
+        c, d = row["centralized"], row["decentralized"]
+        print(f"{row['drop_rate']:>7.2f} | "
+              f"{c['mean_cost_exchange_ratio']:>12.3f} | "
+              f"{d['mean_cost_exchange_ratio']:>14.3f} | "
+              f"{c['mean_intercept_rate']:>11.3f} | "
+              f"{d['mean_intercept_rate']:>13.3f}")
+    print("-" * 72)
+    h = result["headline"]
+    print(f"CER gap (decentral − central): clean mesh {h['clean_mesh_cer_gap']:+.3f}"
+          f"  →  worst mesh {h['worst_mesh_cer_gap']:+.3f}")
+    print(h["interpretation"])
+    return 0
+
+
 def _cmd_serve(args: argparse.Namespace) -> int:
     import asyncio
     from sim.bridge.server import serve
@@ -93,6 +122,14 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--seeds", type=int, default=6, help="seeds per scenario")
     sp.add_argument("--tactics", type=int, default=3, help="PL tactics to include")
     sp.set_defaults(func=_cmd_eval)
+
+    sp = sub.add_parser("swarm",
+                        help="decentralized vs centralized coordination study (Pillar D)")
+    sp.add_argument("--seeds", type=int, default=6, help="seeds per denial level")
+    sp.add_argument("--drops", default=None,
+                    help="comma-separated message-drop rates, e.g. 0,0.15,0.3,0.5")
+    sp.add_argument("--raw", action="store_true", help="print full JSON result")
+    sp.set_defaults(func=_cmd_swarm)
 
     sp = sub.add_parser("serve", help="start the C2 WebSocket bridge server")
     sp.add_argument("--host", default="0.0.0.0")

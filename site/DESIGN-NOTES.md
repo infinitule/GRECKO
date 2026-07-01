@@ -156,3 +156,42 @@ would be self-refuting; the asset table is part of the argument.
 - **Colour is never the only channel.** Let-through vs struck is carried by shape +
   text (`LET THROUGH`, `HOLD`, dashed rings) so it survives grayscale and colour
   blindness.
+
+---
+
+# Pillar D — "The mesh has no captain"
+
+The decentralized-coordination beat (`#mesh`) exists to make one counterintuitive
+idea legible: *giving up the central optimum can be the stronger move when the
+network is contested.* It is the visual companion to the `sim/swarm` module and
+ADR-013.
+
+## What the two panels carry
+
+| Panel | Shows | The point |
+|---|---|---|
+| **Defenders · claim & consensus** | Five agent nodes on a comms mesh, four inbound threats (the gold one is the HVT), claim pulses travelling the links, and lock-lines to each agent's chosen target. | With the mesh intact the agents reach the *same conflict-free plan a central solver would* — **0 collisions**. No two agents waste a round on the same threat. |
+| **Attackers · re-mass on the gap** | Angular sectors around the asset shaded by defensive pressure; the swarm streams into the least-defended sector while the defended one rotates. | The Red mirror: a leaderless swarm floods the gap and **re-solves live** as the defence commits. Both sides are decentralized. |
+
+## The interaction is the argument
+
+`Cut comms` partitions the mesh. Isolated agents can no longer hear each other's
+claims, so both grab the shared HVT — a **double-commit**, drawn as a red dashed
+lock-line and counted honestly in the verdict bar (`1 double-commit ·
+mesh partitioned`). Nothing is hidden: the wasted interceptor is the measured
+price of losing comms, which is exactly the trade `grecko swarm` quantifies
+across a denial sweep. Restore comms and it returns to zero. A viewer learns the
+whole Pillar-D thesis by toggling one button.
+
+## Why 2D, not a WebGL scene
+
+The Beat-2 engagement theater earns 3D because a *let-through in space* is hard to
+read flat. A **mesh** is the opposite: nodes-and-links topology, claim
+propagation, and who-locked-what read *worse* in perspective, where depth
+occludes edges. So this beat spends its depth budget precisely — a subtle
+perspective arc on the agent nodes and a radial sector map for the swarm — and
+keeps the graph itself legible in 2D. Elegance is matching the technique to the
+idea, not maximising the technique. The panel is pure `<canvas>`: no new
+dependency, no new asset (nothing added to `PROVENANCE.md`), and it honours the
+same `prefers-reduced-motion` (settles to a static consensus frame) and mobile
+(panels stack) floors as the rest of the page.

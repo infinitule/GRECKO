@@ -139,9 +139,19 @@
       "adr": "docs/ADR-012.md",
       "commit": "",
       "notes": "21/21 tests pass (300 collected, 299 pass, 1 skip). BluePolicy = effector loadout + lambda; injected into BridgeScenario (loadout/magazine). Exhaustive 30-policy Blue search vs PL-seeded 3-tactic Red library. Headline: adapted Blue (all-collision, lambda=0.1) cuts CER 34.4->0.8 (97.7%, ~43x) at IDENTICAL 25.8% intercept rate; Red counter-evolution claws back 0 on cost (cost axis outside Red's action space). Finding: intercept rate is interceptor-count-limited, so loadout is a pure cost lever. PS gap: adapted Blue holds 0.75 stability AND improves worst-case margin 45->73m. ADR-012."
+    },
+    {
+      "id": "PD",
+      "title": "PILLAR D — decentralized swarm-on-swarm coordination",
+      "deps": ["PA", "PC", "PL"],
+      "status": "done",
+      "acceptance": "pass",
+      "adr": "docs/ADR-013.md",
+      "commit": "",
+      "notes": "16/16 tests pass. DecentralizedDefense implements the Allocator interface (drop-in vs EconomicMDP): autonomous DroneAgents run synchronous gossip consensus over the live PC comms mesh (AllocInput.adjacency). Threat-primary arbitration (capability first, cost secondary tiebreak, agent-id final). Verified: conflict-free within a connected partition (0 collisions); honest double-commit across partitions, reported not hidden. DecentralizedSwarm mirrors on Red: drones water-fill toward least-defended sectors and re-mass live. Deterministic incl. seeded message-loss path. Interlock untouched — no new world.assign(). ADR-013."
     }
   ],
   "current": "COMPLETE",
   "mode": "checkpoint",
-  "updated": "2026-06-13T05:50:00Z"
+  "updated": "2026-07-01T00:00:00Z"
 }
