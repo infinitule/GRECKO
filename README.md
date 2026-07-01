@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <img alt="tests" src="https://img.shields.io/badge/tests-305_passing-3fb950?style=flat-square&logo=pytest&logoColor=white" />
+  <img alt="tests" src="https://img.shields.io/badge/tests-322_passing-3fb950?style=flat-square&logo=pytest&logoColor=white" />
   <img alt="invariants" src="https://img.shields.io/badge/invariants-4%2F4_green-39d0d8?style=flat-square" />
   <img alt="python" src="https://img.shields.io/badge/python-3.11-39d0d8?style=flat-square&logo=python&logoColor=white" />
   <img alt="docker" src="https://img.shields.io/badge/docker-ready-2496ed?style=flat-square&logo=docker&logoColor=white" />
@@ -110,10 +110,11 @@ World state is plain data. Systems are pure functions over it. Fixed 50 Hz times
 | **PB** | `learn/intent` | **Pillar B:** swarm-intent prediction, value multipliers |
 | PV | `sim/bridge`, `viz` | Human-on-the-loop C2 console (WebSocket + TypeScript) |
 | **PL** | `league` | **Pillar C:** adversarial co-evolution league (μ+λ ES) |
+| **PD** | `sim/swarm` | **Pillar D:** decentralized swarm-on-swarm coordination |
 | PS | `s2r` | Sim-to-real validation strategy (reality-gap + gates) |
 | PX | `eval` | Monte Carlo cost-exchange evaluation |
 
-Phases **PA / PB / PL** are the research contributions. The others are the substrate they need to be measured honestly. Each has an architecture decision record in [`docs/`](docs/) (ADR-000 … ADR-012).
+Phases **PA / PB / PL / PD** are the research contributions. The others are the substrate they need to be measured honestly. Each has an architecture decision record in [`docs/`](docs/) (ADR-000 … ADR-013).
 
 ---
 
@@ -161,6 +162,26 @@ Full methodology: [docs/ADR-012.md](docs/ADR-012.md)
 
 ---
 
+### Pillar D — Decentralized swarm-on-swarm `sim/swarm/`
+
+Pillars A–C assume a central decision node. Pillar D distributes the same decision across autonomous agents that coordinate peer-to-peer over the contested comms mesh — on **both** sides.
+
+`DecentralizedDefense` implements the same `Allocator` interface as `EconomicMDP`, so it's a drop-in third arm in the eval. But instead of one solver seeing everything, each interceptor is an autonomous agent that assesses the threat locally, claims the target it can best neutralize, and reconciles conflicts with its neighbours by **gossip consensus** over `AllocInput.adjacency` (the live topology the comms layer already publishes). The arbitration rule is deliberately **threat-primary**: capability wins first (who can best neutralize it), and the dollar cost is only the secondary tiebreak — not stock CBBA, where the money bid leads.
+
+The result is a measured trade, not a magic bullet:
+
+> Within a connected mesh partition, consensus reaches the same conflict-free plan a central solver would — **zero double-claims**. Across a partition, isolated agents can't hear each other and double-commit the shared high-value target — one wasted interceptor, **reported, not hidden**. That's the honest cost of losing comms.
+
+```bash
+grecko swarm --seeds 6        # centralized vs decentralized across a comms-denial sweep
+```
+
+`DecentralizedSwarm` is the Red mirror: attacking drones water-fill toward the least-defended axis and re-mass live as the defence commits. The [landing page](https://infinitule.github.io/GRECKO/#mesh) visualizes both — cut the comms and watch the double-commit happen.
+
+Full methodology: [docs/ADR-013.md](docs/ADR-013.md)
+
+---
+
 ## Quick start
 
 ```bash
@@ -170,10 +191,11 @@ grecko version              # version + scope banner
 grecko verify               # architectural invariant gate (used in CI)
 grecko demo --fast          # headline cost-exchange study  ~45 s
 grecko eval --seeds 6       # Monte Carlo evaluation → headline JSON
+grecko swarm --seeds 6      # decentralized vs centralized under comms denial (Pillar D)
 grecko serve                # C2 WebSocket bridge  ws://0.0.0.0:8765
 grecko figures              # regenerate result figures
 
-make test                   # 305-test acceptance suite
+make test                   # acceptance suite (322 tests)
 make gif                    # render the swarm-for-swarm animation
 ```
 
@@ -253,6 +275,6 @@ This boundary is enforced by `grecko verify` on every commit. The simulation stu
 
 ## Provenance
 
-Built AI-assisted with [Claude Code](https://claude.ai/code), human-directed at each checkpoint. 305 tests pass. 4 architectural invariants are enforced mechanically on every commit. Every headline figure is reproducible from a seed.
+Built AI-assisted with [Claude Code](https://claude.ai/code), human-directed at each checkpoint. 322 tests pass. 4 architectural invariants are enforced mechanically on every commit. Every headline figure is reproducible from a seed.
 
 Build method, verification record, and visual asset licensing (CC0 / CC BY-SA gecko photography with full attribution): [PROVENANCE.md](PROVENANCE.md)

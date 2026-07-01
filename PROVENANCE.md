@@ -18,7 +18,7 @@ transparency with reviewers, investors, and contributors.
 
 The provenance does not ask for trust — the artifacts earn it:
 
-- **305 automated tests** pass (`make test`).
+- **322 automated tests** pass (`make test`).
 - **4/4 architectural invariants** are enforced mechanically on every commit
   (`grecko verify`): POSG discipline, the C2 authorization interlock, the scope
   boundary, and replay determinism. The gate is proven to *detect* violations

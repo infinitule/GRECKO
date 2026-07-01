@@ -305,6 +305,34 @@ h2 .hl{color:var(--grecko);}
 .c3 p{font-size:.9rem;color:var(--muted);line-height:1.65;}
 .c3 p b{color:var(--fg);}
 
+/* ───────── DECENTRALIZED MESH (PILLAR D) ───────── */
+.mesh-con{background:var(--panel);border:1px solid var(--line2);border-radius:18px;
+  overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.5);margin-top:8px;}
+.mesh-bar{display:flex;align-items:center;gap:12px;padding:12px 18px;flex-wrap:wrap;
+  border-bottom:1px solid var(--line);background:rgba(0,0,0,.25);}
+.mesh-bar .ttl{font-family:var(--ff-m);font-size:.72rem;letter-spacing:1.5px;color:var(--dim);}
+.mesh-ctrls{display:flex;gap:7px;margin-left:auto;flex-wrap:wrap;}
+.mesh-body{display:grid;grid-template-columns:1fr 1fr;}
+.mesh-panel{position:relative;border-right:1px solid var(--line);}
+.mesh-panel:last-child{border-right:none;}
+.mesh-panel canvas{display:block;width:100%;height:auto;background:#04070d;}
+.mesh-ptag{position:absolute;top:11px;left:12px;font-family:var(--ff-m);font-size:.62rem;
+  letter-spacing:1.4px;padding:3px 9px;border-radius:5px;text-transform:uppercase;z-index:2;}
+.mesh-ptag.def{color:var(--grecko);background:rgba(0,240,160,.08);border:1px solid rgba(0,240,160,.24);}
+.mesh-ptag.atk{color:var(--legacy);background:rgba(255,107,74,.1);border:1px solid rgba(255,107,74,.28);}
+.mesh-foot{position:absolute;bottom:10px;left:0;right:0;text-align:center;
+  font-family:var(--ff-m);font-size:.62rem;color:var(--dim);pointer-events:none;padding:0 10px;}
+.mesh-foot b.g{color:var(--grecko);} .mesh-foot b.r{color:var(--loss);} .mesh-foot b.a{color:var(--hold);}
+.mesh-verdict{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:15px 20px;
+  border-top:1px solid var(--line);background:rgba(0,0,0,.18);font-family:var(--ff-m);font-size:.78rem;}
+.mesh-verdict .chip{display:inline-flex;align-items:center;gap:8px;color:var(--muted);}
+.mesh-verdict .chip b{font-weight:700;}
+.mesh-verdict .chip .dot{width:9px;height:9px;border-radius:50%;}
+.mv-ok .dot{background:var(--grecko);} .mv-ok b{color:var(--grecko);}
+.mv-bad .dot{background:var(--loss);} .mv-bad b{color:var(--loss);}
+@media(max-width:760px){.mesh-body{grid-template-columns:1fr;}
+  .mesh-panel{border-right:none;border-bottom:1px solid var(--line);}}
+
 /* ───────── ROADMAP (BEAT 3) ───────── */
 .road-flag{display:inline-flex;align-items:center;gap:7px;font-family:var(--ff-m);
   font-size:.68rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--hold);
@@ -445,6 +473,7 @@ footer{position:relative;z-index:1;padding:40px 0;border-top:1px solid var(--lin
       <a href="#decide">The decision</a>
       <a href="#why">Why it wins</a>
       <a href="#name">The name</a>
+      <a href="#mesh">The mesh</a>
       <a href="#adapt">What's next</a>
       <a href="#run">Run it</a>
     </div>
@@ -757,6 +786,54 @@ footer{position:relative;z-index:1;padding:40px 0;border-top:1px solid var(--lin
     </div>
     <p class="plate-cred">Macro photography: CC0 / CC BY-SA — full attribution in
       <a href="https://github.com/infinitule/GRECKO/blob/main/PROVENANCE.md">PROVENANCE.md</a>.</p>
+  </div>
+</section>
+
+<!-- ══════════ PILLAR D — THE MESH HAS NO CAPTAIN ══════════ -->
+<section id="mesh" class="sec">
+  <div class="wrap beat">
+    <div class="beat-tag"><b>Pillar D</b> · swarm answers swarm</div>
+    <h2>The mesh has <span class="hl">no captain</span></h2>
+    <p class="lead">One central allocator is optimal — until the link to it drops. So GRECKO
+      also runs <b>decentralized</b>: every drone is an autonomous agent that assesses the
+      threat itself, claims the target it can best neutralize, and settles conflicts with its
+      neighbours over the radio mesh. No node sees the whole picture. Cut the comms and watch
+      what it costs.</p>
+
+    <div class="mesh-con">
+      <div class="mesh-bar">
+        <span class="ttl">DECENTRALIZED COORDINATION — LIVE CONSENSUS</span>
+        <div class="mesh-ctrls">
+          <button class="cbtn tog" id="m-cut" aria-pressed="false">✂ Cut comms</button>
+          <button class="cbtn" id="m-replay">↺ Replay</button>
+        </div>
+      </div>
+      <div class="mesh-body">
+        <div class="mesh-panel">
+          <span class="mesh-ptag def">Defenders · claim & consensus</span>
+          <canvas id="cv-mesh" width="560" height="420"></canvas>
+          <div class="mesh-foot" id="mesh-foot-d">agents broadcast claims · <b class="g">higher capability wins</b>, cost breaks ties</div>
+        </div>
+        <div class="mesh-panel">
+          <span class="mesh-ptag atk">Attackers · re-mass on the gap</span>
+          <canvas id="cv-sector" width="560" height="420"></canvas>
+          <div class="mesh-foot" id="mesh-foot-a">the swarm floods the <b class="a">least-defended axis</b> and re-solves live</div>
+        </div>
+      </div>
+      <div class="mesh-verdict" id="mesh-verdict">
+        <span class="chip mv-ok" id="mv-collide"><span class="dot"></span><b id="mv-c-n">0 collisions</b> · conflict-free within the mesh</span>
+        <span class="chip" id="mv-rounds"><b id="mv-r-n">—</b> consensus rounds to converge</span>
+        <span class="chip" id="mv-state"><b id="mv-s-t">mesh intact</b></span>
+      </div>
+    </div>
+
+    <p class="lead" style="margin-top:22px">Connected, the agents reach the same conflict-free plan a
+      central solver would — <b>no two drones waste a round on the same threat</b>. Partition the mesh and
+      isolated agents can't hear each other's claims, so they double-commit the shared high-value target:
+      one wasted interceptor, shown honestly, not hidden. That trade — a little optimality for surviving
+      comms loss — is <b>Pillar D</b>, and it is real code:
+      <code style="font-family:var(--ff-m);color:var(--grecko)">grecko&nbsp;swarm</code> runs the
+      centralized-vs-decentralized study across a denial sweep.</p>
   </div>
 </section>
 
@@ -1461,6 +1538,197 @@ function Engine(cvL,cvG,opts){
       if(e.isIntersecting){start();io.disconnect();}});});
     io.observe(cv);
   } else start();
+})();
+
+/* ═══════════ PILLAR D — decentralized mesh negotiation ═══════════ */
+(function(){
+  var cvM=document.getElementById('cv-mesh'), cvS=document.getElementById('cv-sector');
+  if(!cvM||!cvS) return;
+  var ctxM=cvM.getContext('2d'), ctxS=cvS.getContext('2d'), dM, dS;
+  var cut=false, t=0, raf=null, plan=null;
+
+  // Five defender agents on a perspective arc; four threats, T0 the HVT (biggest).
+  var NODES=[{id:'N0',fx:0.12},{id:'N1',fx:0.31},{id:'N2',fx:0.50},{id:'N3',fx:0.69},{id:'N4',fx:0.88}];
+  // severity: T0 the high-value target (top), then descending.
+  var THR=[{id:'T0',fx:0.50,sev:1.00,hvt:true},{id:'T1',fx:0.20,sev:0.55},
+           {id:'T2',fx:0.72,sev:0.42},{id:'T3',fx:0.90,sev:0.30}];
+  // comms links (index pairs). The cross-link N1-N2 is the one comms-denial severs.
+  var LINKS=[[0,1],[1,2],[2,3],[3,4],[0,2],[2,4],[1,3]];
+  var CUT_LINKS=[[1,2],[0,2],[1,3]]; // removed under partition -> {N0,N1} | {N2,N3,N4}
+
+  function nodeXY(n,W,H){ // perspective: arc dips, nearer (center) sits lower & larger
+    var x=n.fx*W, depth=Math.abs(n.fx-0.5)*2; // 0 center .. 1 edge
+    var y=H*0.80 - (1-depth)*H*0.06;
+    return {x:x,y:y,r:9-depth*2.2};
+  }
+  function thrXY(th,W,H){ return {x:th.fx*W, y:H*0.16, r:5+th.sev*9}; }
+
+  function visible(groupIdx, thIdx){
+    // Left group {0,1} tracks T0,T1; right group {2,3,4} tracks T0,T2,T3. Connected: all.
+    if(!cut) return true;
+    var left=(groupIdx<=1);
+    if(thIdx===0) return true;              // everyone tracks the HVT
+    if(thIdx===1) return left;              // T1 is a left-side threat
+    return !left;                           // T2,T3 right-side
+  }
+  function groupsOf(){ return cut ? [[0,1],[2,3,4]] : [[0,1,2,3,4]]; }
+
+  function computePlan(){
+    // Threat-primary assignment: within each comms group, take highest-severity
+    // visible threat first, giving it to the most-capable (nearest) free node.
+    var assigns=[]; // {ni, ti, collision}
+    var claimedGlobally={};
+    groupsOf().forEach(function(group){
+      var freeNodes=group.slice();
+      var order=THR.map(function(_,i){return i;}).sort(function(a,b){return THR[b].sev-THR[a].sev;});
+      order.forEach(function(ti){
+        var cands=freeNodes.filter(function(ni){return visible(ni,ti);});
+        if(!cands.length) return;
+        // most capable = nearest in fx
+        cands.sort(function(a,b){return Math.abs(NODES[a].fx-THR[ti].fx)-Math.abs(NODES[b].fx-THR[ti].fx);});
+        var ni=cands[0];
+        freeNodes=freeNodes.filter(function(x){return x!==ni;});
+        var collision = claimedGlobally[ti]!==undefined;
+        claimedGlobally[ti]=(claimedGlobally[ti]||0)+1;
+        assigns.push({ni:ni,ti:ti,collision:collision});
+      });
+    });
+    var collisions=assigns.filter(function(a){return a.collision;}).length;
+    var rounds = cut ? 2 : Math.max(3, groupsOf()[0].length-1);
+    return {assigns:assigns, collisions:collisions, rounds:rounds};
+  }
+
+  function setVerdict(){
+    var cn=document.getElementById('mv-c-n'), chip=document.getElementById('mv-collide');
+    var rn=document.getElementById('mv-r-n'), st=document.getElementById('mv-s-t');
+    var c=plan.collisions;
+    chip.className='chip '+(c===0?'mv-ok':'mv-bad');
+    cn.textContent = c===0 ? '0 collisions' : c+' double-commit'+(c===1?'':'s');
+    rn.textContent=plan.rounds;
+    st.textContent = cut ? 'mesh partitioned' : 'mesh intact';
+    st.style.color = cut ? 'var(--loss)' : 'var(--grecko)';
+    document.getElementById('mesh-foot-d').innerHTML = cut
+      ? 'partition: isolated agents can’t hear each other — <b class="r">both grab the HVT</b>'
+      : 'agents broadcast claims — <b class="g">higher capability wins</b>, cost breaks ties';
+  }
+
+  function sizeM(){var dpr=window.devicePixelRatio||1;var w=cvM.clientWidth,h=Math.round(w*0.75);
+    cvM.width=w*dpr;cvM.height=h*dpr;ctxM.setTransform(dpr,0,0,dpr,0,0);dM={w:w,h:h};}
+  function sizeS(){var dpr=window.devicePixelRatio||1;var w=cvS.clientWidth,h=Math.round(w*0.75);
+    cvS.width=w*dpr;cvS.height=h*dpr;ctxS.setTransform(dpr,0,0,dpr,0,0);dS={w:w,h:h};}
+
+  function grid(ctx,W,H){ctx.fillStyle='#04070d';ctx.fillRect(0,0,W,H);
+    ctx.strokeStyle='rgba(20,32,52,.55)';ctx.lineWidth=1;
+    for(var i=1;i<6;i++){ctx.beginPath();ctx.moveTo(0,H*i/6);ctx.lineTo(W,H*i/6);ctx.stroke();}}
+
+  function drawMesh(){
+    var W=dM.w,H=dM.h; grid(ctxM,W,H);
+    var descend=Math.min(1,t/1.0);            // threats slide in over 1s
+    var lockP=Math.max(0,Math.min(1,(t-1.1)/0.9)); // lock lines draw 1.1..2.0s
+    // links
+    LINKS.forEach(function(l){
+      var severed = cut && CUT_LINKS.some(function(c){return c[0]===l[0]&&c[1]===l[1];});
+      var a=nodeXY(NODES[l[0]],W,H), b=nodeXY(NODES[l[1]],W,H);
+      ctxM.beginPath();ctxM.moveTo(a.x,a.y);ctxM.lineTo(b.x,b.y);
+      if(severed){ctxM.strokeStyle='rgba(255,59,92,.35)';ctxM.setLineDash([3,4]);ctxM.lineWidth=1;}
+      else{ctxM.strokeStyle='rgba(0,240,160,.22)';ctxM.setLineDash([]);ctxM.lineWidth=1.4;}
+      ctxM.stroke();ctxM.setLineDash([]);
+      // claim pulses travel along live links during the negotiation phase
+      if(!severed && t<1.9){
+        var ph=(t*1.3+(l[0]+l[1])*0.17)%1;
+        var px=a.x+(b.x-a.x)*ph, py=a.y+(b.y-a.y)*ph;
+        ctxM.fillStyle='rgba(0,240,160,.9)';ctxM.beginPath();ctxM.arc(px,py,2.2,0,7);ctxM.fill();
+      }
+    });
+    // threats
+    THR.forEach(function(th){
+      var p=thrXY(th,W,H); var y=p.y*descend - (1-descend)*30;
+      ctxM.fillStyle=th.hvt?'rgba(255,210,61,.95)':'rgba(255,107,74,.9)';
+      ctxM.beginPath();
+      ctxM.moveTo(p.x,y-p.r);ctxM.lineTo(p.x+p.r,y+p.r*0.8);ctxM.lineTo(p.x-p.r,y+p.r*0.8);ctxM.closePath();ctxM.fill();
+      if(th.hvt){ctxM.fillStyle='rgba(255,210,61,.9)';ctxM.font='700 8px "JetBrains Mono",monospace';
+        ctxM.textAlign='center';ctxM.fillText('HVT',p.x,y-p.r-4);ctxM.textAlign='start';}
+    });
+    // lock lines (assignment)
+    plan.assigns.forEach(function(as){
+      var n=nodeXY(NODES[as.ni],W,H), th=THR[as.ti], p=thrXY(th,W,H);
+      var ex=n.x+(p.x-n.x)*lockP, ey=n.y+(p.y-n.y)*lockP;
+      ctxM.beginPath();ctxM.moveTo(n.x,n.y);ctxM.lineTo(ex,ey);
+      ctxM.strokeStyle=as.collision?'rgba(255,59,92,.85)':'rgba(0,240,160,.6)';
+      ctxM.lineWidth=as.collision?2:1.3;ctxM.setLineDash(as.collision?[4,3]:[]);ctxM.stroke();ctxM.setLineDash([]);
+      if(as.collision && lockP>0.9){
+        ctxM.fillStyle='rgba(255,59,92,.95)';ctxM.font='700 8px "JetBrains Mono",monospace';ctxM.textAlign='center';
+        ctxM.fillText('✕ double-commit',(n.x+p.x)/2,(n.y+p.y)/2);ctxM.textAlign='start';
+      }
+    });
+    // nodes
+    NODES.forEach(function(n){var xy=nodeXY(n,W,H);
+      ctxM.fillStyle='#0c1220';ctxM.strokeStyle='rgba(0,240,160,.8)';ctxM.lineWidth=1.6;
+      ctxM.beginPath();ctxM.arc(xy.x,xy.y,xy.r,0,7);ctxM.fill();ctxM.stroke();
+      ctxM.fillStyle='rgba(0,240,160,.85)';ctxM.font='600 7px "JetBrains Mono",monospace';ctxM.textAlign='center';
+      ctxM.fillText(n.id,xy.x,xy.y+2.5);ctxM.textAlign='start';
+    });
+  }
+
+  function drawSector(){
+    var W=dS.w,H=dS.h; grid(ctxS,W,H);
+    var cx=W/2, cy=H*0.56, R=Math.min(W,H)*0.40, K=8;
+    // heavy defensive sector slowly rotates; swarm floods the opposite gap.
+    var heavy=Math.floor((t*0.25)%K);
+    var pressure=[];for(var s=0;s<K;s++){pressure[s]=(s===heavy)?4:(Math.abs(((s-heavy+K)%K))===1?1:0);}
+    // sector wedges shaded by pressure
+    for(s=0;s<K;s++){
+      var a0=s/K*2*Math.PI, a1=(s+1)/K*2*Math.PI;
+      ctxS.beginPath();ctxS.moveTo(cx,cy);ctxS.arc(cx,cy,R,a0,a1);ctxS.closePath();
+      var pr=pressure[s];
+      ctxS.fillStyle = pr>=4?'rgba(76,201,255,.20)':pr>=1?'rgba(76,201,255,.09)':'rgba(255,176,32,.05)';
+      ctxS.fill();
+      ctxS.strokeStyle='rgba(20,32,52,.7)';ctxS.lineWidth=1;ctxS.stroke();
+    }
+    // interceptors in the heavy sector
+    var hc=(heavy+0.5)/K*2*Math.PI;
+    for(var i=0;i<4;i++){var rr=R*(0.45+i*0.13);
+      ctxS.fillStyle='rgba(76,201,255,.9)';ctxS.beginPath();
+      ctxS.arc(cx+Math.cos(hc)*rr+(i-1.5)*4,cy+Math.sin(hc)*rr,2.6,0,7);ctxS.fill();}
+    ctxS.fillStyle='rgba(76,201,255,.9)';ctxS.font='700 8px "JetBrains Mono",monospace';ctxS.textAlign='center';
+    ctxS.fillText('DEFENDED',cx+Math.cos(hc)*R*0.9,cy+Math.sin(hc)*R*0.9);
+    // gap sector (opposite the heavy) — swarm masses here
+    var gap=(heavy+K/2)%K, gc=(gap+0.5)/K*2*Math.PI;
+    for(i=0;i<9;i++){
+      var spread=(i-4)*0.06, ang=gc+spread;
+      var flow=(t*0.6+i*0.4)%1;                 // drones stream inward
+      var dr=R*(1.15-flow*0.75);
+      ctxS.fillStyle='rgba(255,107,74,.92)';ctxS.beginPath();
+      ctxS.arc(cx+Math.cos(ang)*dr,cy+Math.sin(ang)*dr,2.6,0,7);ctxS.fill();
+    }
+    ctxS.fillStyle='rgba(255,176,32,.95)';ctxS.fillText('GAP → MASS',cx+Math.cos(gc)*R*0.95,cy+Math.sin(gc)*R*0.95);
+    ctxS.textAlign='start';
+    // asset
+    ctxS.fillStyle='#00f0a0';ctxS.beginPath();
+    ctxS.moveTo(cx,cy-6);ctxS.lineTo(cx+6,cy);ctxS.lineTo(cx,cy+6);ctxS.lineTo(cx-6,cy);ctxS.closePath();ctxS.fill();
+  }
+
+  function frame(){ drawMesh(); drawSector(); t+=DT*3; if(t>3.4)t=0; raf=requestAnimationFrame(frame); }
+
+  function rerun(){ t=0; plan=computePlan(); setVerdict(); }
+  function startAll(){ sizeM(); sizeS(); plan=computePlan(); setVerdict();
+    if(REDUCED){ t=2.2; drawMesh(); drawSector(); return; }
+    if(!raf) raf=requestAnimationFrame(frame);
+  }
+
+  document.getElementById('m-cut').addEventListener('click',function(){
+    cut=!cut; this.setAttribute('aria-pressed',cut); this.classList.toggle('on',cut);
+    this.textContent = cut ? '⟲ Restore comms' : '✂ Cut comms';
+    rerun();
+  });
+  document.getElementById('m-replay').addEventListener('click',rerun);
+  window.addEventListener('resize',function(){sizeM();sizeS();});
+
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){
+      if(e.isIntersecting){startAll();io.disconnect();}});},{threshold:0.2});
+    io.observe(cvM);
+  } else startAll();
 })();
 
 })();
