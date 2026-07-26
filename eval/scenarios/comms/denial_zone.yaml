@@ -1,0 +1,6 @@
+# Regional denial: no links into, out of, or across the zone
+comm_radius: 4000.0
+latency: 0.05
+denial_zones:
+  - center: [0.0, 0.0]
+    radius: 600.0

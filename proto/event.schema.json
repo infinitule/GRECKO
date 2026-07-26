@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "EngagementEvent",
+  "description": "A single event in the JSONL engagement event log",
+  "type": "object",
+  "required": ["t", "seq", "type"],
+  "properties": {
+    "t": {
+      "type": "number",
+      "description": "Simulation time in seconds"
+    },
+    "seq": {
+      "type": "integer",
+      "description": "Monotonically increasing event sequence number"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "SIM_START",
+        "SIM_END",
+        "ENTITY_SPAWN",
+        "ENTITY_STATE",
+        "ENTITY_DESPAWN",
+        "INTERCEPT",
+        "LEAKER",
+        "ASSET_DAMAGE"
+      ]
+    },
+    "entity_id": {
+      "type": "string"
+    },
+    "entity_type": {
+      "type": "string",
+      "enum": ["HostileUAS", "Interceptor", "Asset"]
+    },
+    "position": {
+      "type": "array",
+      "items": {"type": "number"},
+      "minItems": 2,
+      "maxItems": 3,
+      "description": "x,y[,z] in metres"
+    },
+    "velocity": {
+      "type": "array",
+      "items": {"type": "number"},
+      "minItems": 2,
+      "maxItems": 3,
+      "description": "vx,vy[,vz] in m/s"
+    },
+    "heading": {
+      "type": "number",
+      "description": "Heading in radians, 0=+x, CCW positive"
+    },
+    "data": {
+      "type": "object",
+      "description": "Event-type-specific payload"
+    }
+  },
+  "additionalProperties": false
+}

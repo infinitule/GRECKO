@@ -1,0 +1,5 @@
+# Intermittency: links flap, up 40% of a 2-second cycle, desynchronised per pair
+comm_radius: 4000.0
+latency: 0.05
+intermittency_period: 2.0
+intermittency_duty: 0.4

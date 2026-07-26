@@ -1,0 +1,3 @@
+# Range collapse: comm radius shrunk to a fraction of engagement geometry
+comm_radius: 500.0
+latency: 0.05

@@ -1,0 +1,93 @@
+# Baseline engagement scenario — 5 hostile UAS vs 5 interceptors
+# Asset at origin; hostiles inbound from north, east, south, west, and NE.
+# Designed to produce a clean set of intercepts with no leakers under greedy allocation.
+
+dt: 0.02  # 50 Hz
+
+asset:
+  id: asset_0
+  pos: [0.0, 0.0]
+  hp: 10.0
+  value: 1.0
+
+hostiles:
+  - id: h_0
+    pos: [-800.0, 0.0]
+    waypoints: [[0.0, 0.0]]
+    speed: 18.0
+    max_turn_rate: 0.4
+    weave_amplitude: 0.0
+    weave_period: 5.0
+
+  - id: h_1
+    pos: [0.0, 800.0]
+    waypoints: [[0.0, 0.0]]
+    speed: 20.0
+    max_turn_rate: 0.4
+    weave_amplitude: 0.0
+    weave_period: 5.0
+
+  - id: h_2
+    pos: [800.0, 0.0]
+    waypoints: [[0.0, 0.0]]
+    speed: 22.0
+    max_turn_rate: 0.4
+    weave_amplitude: 0.0
+    weave_period: 5.0
+
+  - id: h_3
+    pos: [0.0, -800.0]
+    waypoints: [[0.0, 0.0]]
+    speed: 18.0
+    max_turn_rate: 0.4
+    weave_amplitude: 0.2
+    weave_period: 4.0
+
+  - id: h_4
+    pos: [-566.0, 566.0]
+    waypoints: [[0.0, 0.0]]
+    speed: 20.0
+    max_turn_rate: 0.5
+    weave_amplitude: 0.3
+    weave_period: 6.0
+
+interceptors:
+  - id: i_0
+    pos: [-200.0, 50.0]
+    heading: 3.14159
+    speed: 55.0
+    max_turn_rate: 1.2
+    endurance: 180.0
+    effector_type: kinetic
+
+  - id: i_1
+    pos: [50.0, 200.0]
+    heading: 1.5708
+    speed: 55.0
+    max_turn_rate: 1.2
+    endurance: 180.0
+    effector_type: kinetic
+
+  - id: i_2
+    pos: [200.0, -50.0]
+    heading: 0.0
+    speed: 55.0
+    max_turn_rate: 1.2
+    endurance: 180.0
+    effector_type: kinetic
+
+  - id: i_3
+    pos: [-50.0, -200.0]
+    heading: 4.7124
+    speed: 55.0
+    max_turn_rate: 1.2
+    endurance: 180.0
+    effector_type: kinetic
+
+  - id: i_4
+    pos: [-150.0, 150.0]
+    heading: 0.785
+    speed: 60.0
+    max_turn_rate: 1.4
+    endurance: 180.0
+    effector_type: kinetic

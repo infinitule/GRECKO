@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SwarmIntent",
+  "description": "Collective intent estimate for one swarm subcluster, produced by /learn/intent from partial track observations. Feeds the allocator's value estimate v_j and the C2 intent overlay. Never derived from ground truth (POSG invariant): inputs are fusion tracks only.",
+  "type": "object",
+  "required": ["t", "cluster_id", "member_track_ids", "intent_distribution", "forecast"],
+  "properties": {
+    "t": {"type": "number"},
+    "cluster_id": {"type": "string"},
+    "member_track_ids": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Fusion track ids in this subcluster"
+    },
+    "intent_distribution": {
+      "type": "object",
+      "required": ["main_axis", "feint", "screen", "isr", "reserve"],
+      "properties": {
+        "main_axis": {"type": "number", "minimum": 0, "maximum": 1},
+        "feint":     {"type": "number", "minimum": 0, "maximum": 1},
+        "screen":    {"type": "number", "minimum": 0, "maximum": 1},
+        "isr":       {"type": "number", "minimum": 0, "maximum": 1},
+        "reserve":   {"type": "number", "minimum": 0, "maximum": 1}
+      },
+      "description": "Probabilities sum to 1"
+    },
+    "forecast": {
+      "type": "object",
+      "required": ["horizon_s", "centroid_positions", "sigma"],
+      "properties": {
+        "horizon_s": {"type": "number"},
+        "centroid_positions": {
+          "type": "array",
+          "items": {"type": "array", "items": {"type": "number"}},
+          "description": "Forecast cluster-centroid positions at 1-second steps"
+        },
+        "sigma": {
+          "type": "array",
+          "items": {"type": "number"},
+          "description": "Forecast position uncertainty (1-sigma, metres) per step — grows with horizon"
+        }
+      }
+    },
+    "value_multiplier": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Multiplier applied to member tracks' v_j in the allocator: >1 for main_axis, <1 for confirmed feints"
+    }
+  },
+  "additionalProperties": false
+}

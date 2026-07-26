@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "grecko"
+version = "1.0.0"
+description = "GRECKO — counter-swarm air-defense decision engine (simulation & C2 software only)"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+authors = [{ name = "GRECKO contributors" }]
+keywords = ["counter-swarm", "air-defense", "simulation", "c2", "decision-support"]
+classifiers = [
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Simulation",
+]
+dependencies = [
+    "numpy>=1.24",
+    "scipy>=1.11",
+    "pyyaml>=6.0",
+    "websockets>=12.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.4"]
+viz = ["matplotlib>=3.7"]
+
+[project.scripts]
+grecko = "grecko.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/infinitule/Greko"
+Documentation = "https://github.com/infinitule/Greko/tree/main/docs"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["grecko*", "sim*", "league*", "s2r*", "eval*", "learn*", "tools*"]
+
+[tool.pytest.ini_options]
+testpaths = ["sim/tests"]
+pythonpath = ["."]

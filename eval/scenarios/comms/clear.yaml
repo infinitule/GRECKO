@@ -1,0 +1,4 @@
+# Benign EM environment — full mesh expected at typical engagement geometry
+comm_radius: 4000.0
+base_drop_rate: 0.0
+latency: 0.05
